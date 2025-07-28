@@ -46,14 +46,18 @@ export const ViolationGenerator: React.FC = () => {
       let photoUrls: string[] = []
       if (formData.photos.length > 0) {
         try {
-          const uploadPromises = formData.photos.map(photo => 
-            storageService.uploadPhoto(photo)
-          )
+          console.log('Starting photo upload...', formData.photos.length, 'photos')
+          const uploadPromises = formData.photos.map((photo, index) => {
+            console.log(`Uploading photo ${index + 1}:`, photo.name, photo.size)
+            return storageService.uploadPhoto(photo)
+          })
           const uploadResults = await Promise.all(uploadPromises)
           photoUrls = uploadResults.map(result => result.url)
           setUploadedPhotoUrls(photoUrls)
+          console.log('Photo upload successful:', photoUrls)
         } catch (uploadError) {
-          console.warn('Photo upload failed:', uploadError)
+          console.error('Photo upload failed:', uploadError)
+          showError('Photo Upload Failed', `Could not upload photos: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Continuing without photos.`)
           // Continue with letter generation even if photo upload fails
         }
       }

@@ -10,10 +10,15 @@ class StorageService {
 
   async uploadPhoto(file: File, violationId?: string): Promise<UploadResult> {
     try {
+      // Ensure bucket exists first
+      await this.ensureBucketExists()
+
       // Generate unique filename
       const fileExt = file.name.split('.').pop()
       const fileName = `${violationId || Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `violations/${fileName}`
+
+      console.log('Uploading to bucket:', this.bucket, 'file path:', filePath)
 
       // Upload file to Supabase Storage
       const { data, error } = await supabase.storage
@@ -24,6 +29,7 @@ class StorageService {
         })
 
       if (error) {
+        console.error('Supabase upload error:', error)
         throw new Error(`Upload failed: ${error.message}`)
       }
 
@@ -57,20 +63,36 @@ class StorageService {
     }
   }
 
-  // Create bucket if it doesn't exist (call this during setup)
-  async createBucket(): Promise<void> {
+  // Ensure bucket exists before upload
+  private async ensureBucketExists(): Promise<void> {
     try {
-      const { error } = await supabase.storage.createBucket(this.bucket, {
-        public: true,
-        allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-      })
+      // First check if bucket exists
+      const { data: buckets } = await supabase.storage.listBuckets()
+      const bucketExists = buckets?.some(bucket => bucket.id === this.bucket)
+      
+      if (!bucketExists) {
+        console.log('Creating bucket:', this.bucket)
+        const { error } = await supabase.storage.createBucket(this.bucket, {
+          public: true,
+          allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+          fileSizeLimit: 10485760 // 10MB
+        })
 
-      if (error && !error.message.includes('already exists')) {
-        throw error
+        if (error && !error.message.includes('already exists')) {
+          console.error('Failed to create bucket:', error)
+          throw new Error(`Bucket creation failed: ${error.message}`)
+        }
+        console.log('Bucket created successfully')
       }
     } catch (error) {
-      console.error('Bucket creation error:', error)
+      console.error('Error ensuring bucket exists:', error)
+      // Don't throw here - let the upload attempt proceed and fail with a clearer error
     }
+  }
+
+  // Create bucket if it doesn't exist (call this during setup)
+  async createBucket(): Promise<void> {
+    return this.ensureBucketExists()
   }
 }
 
