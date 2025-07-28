@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Camera, Send, FileText, AlertCircle } from 'lucide-react'
+import { Send, FileText, AlertCircle } from 'lucide-react'
 import { openAIService, type ViolationData } from '@/lib/openai'
 import { useToast } from '@/components/ui/Toaster'
+import { PhotoUpload } from '@/components/ui/PhotoUpload'
+import { storageService } from '@/lib/storage'
 
 export const ViolationGenerator: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +19,7 @@ export const ViolationGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedLetter, setGeneratedLetter] = useState('')
   const [error, setError] = useState('')
+  const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
   const { success, error: showError } = useToast()
 
   const violationTypes = [
@@ -39,6 +42,22 @@ export const ViolationGenerator: React.FC = () => {
     setError('')
     
     try {
+      // Upload photos first if any
+      let photoUrls: string[] = []
+      if (formData.photos.length > 0) {
+        try {
+          const uploadPromises = formData.photos.map(photo => 
+            storageService.uploadPhoto(photo)
+          )
+          const uploadResults = await Promise.all(uploadPromises)
+          photoUrls = uploadResults.map(result => result.url)
+          setUploadedPhotoUrls(photoUrls)
+        } catch (uploadError) {
+          console.warn('Photo upload failed:', uploadError)
+          // Continue with letter generation even if photo upload fails
+        }
+      }
+
       const violationData: ViolationData = {
         hoaName: 'Sunset Ridge Community HOA', // This could come from user's HOA settings
         propertyAddress: formData.residentAddress,
@@ -56,7 +75,7 @@ export const ViolationGenerator: React.FC = () => {
 
       const letter = await openAIService.generateViolationLetter(violationData)
       setGeneratedLetter(letter)
-      success('Letter Generated!', 'Professional violation letter created successfully')
+      success('Letter Generated!', `Professional violation letter created${photoUrls.length > 0 ? ` with ${photoUrls.length} photos` : ''}`)
     } catch (error) {
       console.error('Error generating letter:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate letter'
@@ -166,11 +185,11 @@ export const ViolationGenerator: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium mb-2">Photos (Optional)</label>
-              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center glass-surface">
-                <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-300 mb-2">Upload violation photos</p>
-                <button className="btn-secondary">Choose Files</button>
-              </div>
+              <PhotoUpload
+                photos={formData.photos}
+                onPhotosChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
+                maxPhotos={5}
+              />
             </div>
 
             {error && (

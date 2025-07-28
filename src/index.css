@@ -1,64 +1,105 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* CSS Custom Properties for 2026 Liquid Glass System */
+  /* 2025 Brutalist/Modern Design System */
   :root {
-    /* Primary Glass Spectrum */
-    --glass-primary: rgba(99, 102, 241, 0.8);
-    --glass-secondary: rgba(139, 69, 255, 0.75);
-    --glass-accent: rgba(6, 182, 212, 0.8);
-    --glass-success: rgba(34, 197, 94, 0.8);
-    --glass-warning: rgba(251, 191, 36, 0.8);
-    --glass-error: rgba(239, 68, 68, 0.8);
+    /* Primary Color Palette */
+    --brutal-black: #000000;
+    --brutal-white: #ffffff;
+    --brutal-gray-100: #f5f5f5;
+    --brutal-gray-200: #e5e5e5;
+    --brutal-gray-300: #d4d4d4;
+    --brutal-gray-400: #a3a3a3;
+    --brutal-gray-500: #737373;
+    --brutal-gray-600: #525252;
+    --brutal-gray-700: #404040;
+    --brutal-gray-800: #262626;
+    --brutal-gray-900: #171717;
 
-    /* Neutral Glass Spectrum */
-    --glass-white: rgba(255, 255, 255, 0.95);
-    --glass-gray-50: rgba(248, 250, 252, 0.9);
-    --glass-gray-100: rgba(241, 245, 249, 0.85);
-    --glass-gray-200: rgba(226, 232, 240, 0.8);
-    --glass-gray-300: rgba(203, 213, 225, 0.75);
-    --glass-gray-400: rgba(148, 163, 184, 0.7);
-    --glass-gray-500: rgba(100, 116, 139, 0.65);
-    --glass-gray-600: rgba(71, 85, 105, 0.6);
-    --glass-gray-700: rgba(51, 65, 85, 0.55);
-    --glass-gray-800: rgba(30, 41, 59, 0.5);
-    --glass-gray-900: rgba(15, 23, 42, 0.45);
-    --glass-black: rgba(0, 0, 0, 0.9);
+    /* Accent Colors */
+    --brutal-electric: #00ff00;
+    --brutal-cyan: #00ffff;
+    --brutal-magenta: #ff00ff;
+    --brutal-yellow: #ffff00;
+    --brutal-orange: #ff4500;
+    --brutal-red: #ff0000;
 
-    /* Gradient Definitions */
-    --gradient-primary: linear-gradient(135deg, 
-      rgba(99, 102, 241, 0.9) 0%, 
-      rgba(139, 69, 255, 0.8) 50%, 
-      rgba(6, 182, 212, 0.7) 100%);
-    
-    --gradient-surface: linear-gradient(145deg, 
-      rgba(255, 255, 255, 0.1) 0%, 
-      rgba(255, 255, 255, 0.05) 100%);
-    
-    --gradient-glass: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.15) 0%, 
-      rgba(255, 255, 255, 0.05) 50%, 
-      rgba(255, 255, 255, 0.1) 100%);
+    /* Typography Scale */
+    --brutal-text-xs: 0.75rem;
+    --brutal-text-sm: 0.875rem;
+    --brutal-text-base: 1rem;
+    --brutal-text-lg: 1.125rem;
+    --brutal-text-xl: 1.25rem;
+    --brutal-text-2xl: 1.5rem;
+    --brutal-text-3xl: 1.875rem;
+    --brutal-text-4xl: 2.25rem;
+    --brutal-text-5xl: 3rem;
+    --brutal-text-6xl: 3.75rem;
+    --brutal-text-7xl: 4.5rem;
+    --brutal-text-8xl: 6rem;
+    --brutal-text-9xl: 8rem;
+
+    /* Spacing Scale */
+    --brutal-space-1: 0.25rem;
+    --brutal-space-2: 0.5rem;
+    --brutal-space-3: 0.75rem;
+    --brutal-space-4: 1rem;
+    --brutal-space-5: 1.25rem;
+    --brutal-space-6: 1.5rem;
+    --brutal-space-8: 2rem;
+    --brutal-space-10: 2.5rem;
+    --brutal-space-12: 3rem;
+    --brutal-space-16: 4rem;
+    --brutal-space-20: 5rem;
+    --brutal-space-24: 6rem;
+    --brutal-space-32: 8rem;
+    --brutal-space-40: 10rem;
+    --brutal-space-48: 12rem;
+    --brutal-space-56: 14rem;
+    --brutal-space-64: 16rem;
+
+    /* Border Radius */
+    --brutal-radius-none: 0;
+    --brutal-radius-sm: 0.125rem;
+    --brutal-radius-md: 0.375rem;
+    --brutal-radius-lg: 0.5rem;
+    --brutal-radius-xl: 0.75rem;
+
+    /* Shadows */
+    --brutal-shadow-sm: 2px 2px 0px var(--brutal-black);
+    --brutal-shadow-md: 4px 4px 0px var(--brutal-black);
+    --brutal-shadow-lg: 6px 6px 0px var(--brutal-black);
+    --brutal-shadow-xl: 8px 8px 0px var(--brutal-black);
+    --brutal-shadow-2xl: 12px 12px 0px var(--brutal-black);
+    --brutal-shadow-3xl: 16px 16px 0px var(--brutal-black);
+    --brutal-shadow-brutal: 20px 20px 0px var(--brutal-black);
+
+    /* Transitions */
+    --brutal-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --brutal-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --brutal-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Dark Mode Overrides */
+  /* Dark Mode */
   [data-theme="dark"] {
-    --glass-primary: rgba(129, 140, 248, 0.8);
-    --glass-secondary: rgba(167, 139, 250, 0.75);
-    --glass-accent: rgba(34, 211, 238, 0.8);
-    
-    --gradient-surface: linear-gradient(145deg, 
-      rgba(15, 23, 42, 0.95) 0%, 
-      rgba(30, 41, 59, 0.9) 100%);
-    
-    --gradient-glass: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.08) 0%, 
-      rgba(255, 255, 255, 0.03) 50%, 
-      rgba(255, 255, 255, 0.06) 100%);
+    --brutal-electric: #39ff14;
+    --brutal-cyan: #00ffff;
+    --brutal-magenta: #ff1493;
+    --brutal-yellow: #ffff00;
+    --brutal-orange: #ff6600;
+    --brutal-red: #ff3333;
+
+    --brutal-shadow-sm: 2px 2px 0px var(--brutal-white);
+    --brutal-shadow-md: 4px 4px 0px var(--brutal-white);
+    --brutal-shadow-lg: 6px 6px 0px var(--brutal-white);
+    --brutal-shadow-xl: 8px 8px 0px var(--brutal-white);
+    --brutal-shadow-2xl: 12px 12px 0px var(--brutal-white);
+    --brutal-shadow-3xl: 16px 16px 0px var(--brutal-white);
+    --brutal-shadow-brutal: 20px 20px 0px var(--brutal-white);
   }
 
   /* Global styles */
@@ -74,344 +115,500 @@
 
   body {
     margin: 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--gradient-surface);
-    color: var(--glass-gray-900);
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--brutal-white);
+    color: var(--brutal-black);
     min-height: 100vh;
-    line-height: 1.6;
-    transition: all 0.3s ease;
+    line-height: 1.4;
+    font-weight: 400;
+    transition: background-color var(--brutal-transition-base), color var(--brutal-transition-base);
   }
 
   [data-theme="dark"] body {
-    color: var(--glass-gray-100);
+    background: var(--brutal-black);
+    color: var(--brutal-white);
   }
 
   /* Selection styles */
   ::selection {
-    background: var(--glass-primary);
-    color: white;
+    background: var(--brutal-electric);
+    color: var(--brutal-black);
   }
 
   ::-moz-selection {
-    background: var(--glass-primary);
-    color: white;
+    background: var(--brutal-electric);
+    color: var(--brutal-black);
+  }
+
+  [data-theme="dark"] ::selection {
+    background: var(--brutal-electric);
+    color: var(--brutal-black);
+  }
+
+  [data-theme="dark"] ::-moz-selection {
+    background: var(--brutal-electric);
+    color: var(--brutal-black);
   }
 
   /* Focus styles */
   :focus-visible {
-    outline: 2px solid var(--glass-primary);
+    outline: 3px solid var(--brutal-electric);
     outline-offset: 2px;
-    border-radius: 4px;
   }
 
   /* Scrollbar styles */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    background: var(--brutal-gray-200);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--glass-primary);
-    border-radius: 4px;
-    backdrop-filter: blur(10px);
+    background: var(--brutal-black);
+    border: 2px solid var(--brutal-white);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--glass-secondary);
+    background: var(--brutal-electric);
+  }
+
+  [data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--brutal-gray-800);
+  }
+
+  [data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--brutal-white);
+    border: 2px solid var(--brutal-black);
+  }
+
+  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--brutal-electric);
   }
 }
 
 @layer components {
-  /* Glass Surface Components */
+  /* Brutalist Surface Components */
+  .brutal-surface {
+    background: var(--brutal-white);
+    border: 3px solid var(--brutal-black);
+    border-radius: var(--brutal-radius-none);
+  }
+
+  .brutal-card {
+    background: var(--brutal-white);
+    border: 4px solid var(--brutal-black);
+    border-radius: var(--brutal-radius-none);
+    box-shadow: var(--brutal-shadow-lg);
+    transition: all var(--brutal-transition-fast);
+    position: relative;
+  }
+
+  .brutal-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--brutal-shadow-xl);
+  }
+
+  .brutal-card:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--brutal-shadow-sm);
+  }
+
+  [data-theme="dark"] .brutal-surface {
+    background: var(--brutal-black);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .brutal-card {
+    background: var(--brutal-black);
+    border-color: var(--brutal-white);
+  }
+
+  /* Glass compatibility aliases */
   .glass-surface {
-    background: var(--gradient-glass);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.1),
-      0 4px 16px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    @apply brutal-surface;
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px) saturate(200%) contrast(120%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 24px;
-    box-shadow: 
-      0 12px 40px rgba(0, 0, 0, 0.12),
-      0 6px 20px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply brutal-card;
   }
 
-  .glass-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-      0 20px 60px rgba(0, 0, 0, 0.15),
-      0 10px 30px rgba(0, 0, 0, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  }
-
-  /* Button Components */
+  /* Brutalist Button Components */
   .btn-primary {
+    background: var(--brutal-electric);
+    border: 4px solid var(--brutal-black);
+    border-radius: var(--brutal-radius-none);
+    padding: var(--brutal-space-3) var(--brutal-space-6);
+    font-weight: 700;
+    font-size: var(--brutal-text-base);
+    color: var(--brutal-black);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all var(--brutal-transition-fast);
+    box-shadow: var(--brutal-shadow-md);
     position: relative;
-    background: var(--gradient-primary);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    padding: 12px 24px;
-    font-weight: 600;
-    color: white;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(20px);
-    box-shadow: 
-      0 8px 32px rgba(99, 102, 241, 0.3),
-      0 4px 16px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      rgba(255, 255, 255, 0.3) 50%, 
-      transparent 100%);
-    transition: left 0.5s ease;
-  }
-
-  .btn-primary:hover::before {
-    left: 100%;
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   .btn-primary:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 
-      0 12px 48px rgba(99, 102, 241, 0.4),
-      0 6px 24px rgba(0, 0, 0, 0.15);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--brutal-shadow-lg);
+    background: var(--brutal-cyan);
+  }
+
+  .btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--brutal-shadow-sm);
+  }
+
+  .btn-primary:disabled {
+    background: var(--brutal-gray-300);
+    color: var(--brutal-gray-500);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--brutal-shadow-sm);
   }
 
   .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 14px;
-    padding: 10px 20px;
-    color: var(--glass-gray-700);
-    font-weight: 500;
-    transition: all 0.3s ease;
+    background: var(--brutal-white);
+    border: 3px solid var(--brutal-black);
+    border-radius: var(--brutal-radius-none);
+    padding: var(--brutal-space-2) var(--brutal-space-4);
+    font-weight: 600;
+    font-size: var(--brutal-text-sm);
+    color: var(--brutal-black);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all var(--brutal-transition-fast);
+    box-shadow: var(--brutal-shadow-sm);
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
+    background: var(--brutal-yellow);
+    transform: translate(-1px, -1px);
+    box-shadow: var(--brutal-shadow-md);
   }
 
-  /* Input Components */
+  .btn-secondary:active {
+    transform: translate(1px, 1px);
+    box-shadow: var(--brutal-shadow-sm);
+  }
+
+  [data-theme="dark"] .btn-primary {
+    color: var(--brutal-black);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .btn-secondary {
+    background: var(--brutal-black);
+    color: var(--brutal-white);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .btn-secondary:hover {
+    background: var(--brutal-magenta);
+    color: var(--brutal-black);
+  }
+
+  /* Brutalist Input Components */
   .input-liquid {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    padding: 16px 20px;
-    color: var(--glass-gray-700);
-    transition: all 0.3s ease;
+    background: var(--brutal-white);
+    border: 3px solid var(--brutal-black);
+    border-radius: var(--brutal-radius-none);
+    padding: var(--brutal-space-4) var(--brutal-space-4);
+    color: var(--brutal-black);
+    font-size: var(--brutal-text-base);
+    font-weight: 500;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all var(--brutal-transition-fast);
     width: 100%;
+    box-shadow: var(--brutal-shadow-sm);
   }
 
   .input-liquid:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: var(--glass-primary);
-    box-shadow: 
-      0 0 0 4px rgba(99, 102, 241, 0.1),
-      0 8px 32px rgba(99, 102, 241, 0.15);
-    transform: translateY(-2px);
+    border-color: var(--brutal-electric);
+    box-shadow: var(--brutal-shadow-md);
+    transform: translate(-1px, -1px);
+  }
+
+  .input-liquid:hover {
+    border-color: var(--brutal-cyan);
   }
 
   .input-liquid::placeholder {
-    color: var(--glass-gray-400);
+    color: var(--brutal-gray-500);
+    font-weight: 400;
+  }
+
+  /* Select elements */
+  select.input-liquid {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right var(--brutal-space-3) center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    padding-right: var(--brutal-space-10);
+  }
+
+  /* Textarea */
+  textarea.input-liquid {
+    resize: vertical;
+    min-height: 120px;
   }
 
   [data-theme="dark"] .input-liquid {
-    color: var(--glass-gray-200);
+    background: var(--brutal-black);
+    color: var(--brutal-white);
+    border-color: var(--brutal-white);
   }
 
   [data-theme="dark"] .input-liquid::placeholder {
-    color: var(--glass-gray-500);
+    color: var(--brutal-gray-400);
   }
 
-  /* Navigation Components */
+  [data-theme="dark"] select.input-liquid {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  }
+
+  /* Brutalist Navigation Components */
   .nav-liquid {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(32px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    padding: 16px 24px;
-    margin: 16px;
-    box-shadow: 
-      0 12px 40px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    background: var(--brutal-white);
+    border: 4px solid var(--brutal-black);
+    border-radius: var(--brutal-radius-none);
+    padding: var(--brutal-space-4);
+    margin: var(--brutal-space-4);
+    box-shadow: var(--brutal-shadow-lg);
   }
 
   .nav-item {
     position: relative;
-    padding: 12px 20px;
-    border-radius: 14px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--glass-gray-600);
-    font-weight: 500;
+    padding: var(--brutal-space-3) var(--brutal-space-4);
+    border-radius: var(--brutal-radius-none);
+    transition: all var(--brutal-transition-fast);
+    color: var(--brutal-black);
+    font-weight: 600;
+    font-size: var(--brutal-text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    border: 2px solid transparent;
+    margin: var(--brutal-space-1) 0;
   }
 
   .nav-item:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: var(--glass-primary);
-    transform: translateY(-1px);
+    background: var(--brutal-yellow);
+    border-color: var(--brutal-black);
+    transform: translate(-1px, -1px);
+    box-shadow: var(--brutal-shadow-sm);
   }
 
   .nav-item.active {
-    background: var(--gradient-primary);
-    color: white;
-    box-shadow: 
-      0 8px 24px rgba(99, 102, 241, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: var(--brutal-electric);
+    border-color: var(--brutal-black);
+    color: var(--brutal-black);
+    box-shadow: var(--brutal-shadow-md);
+    transform: translate(-2px, -2px);
   }
 
-  /* Typography Components */
+  [data-theme="dark"] .nav-liquid {
+    background: var(--brutal-black);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .nav-item {
+    color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .nav-item:hover {
+    background: var(--brutal-magenta);
+    color: var(--brutal-black);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .nav-item.active {
+    background: var(--brutal-electric);
+    color: var(--brutal-black);
+    border-color: var(--brutal-white);
+  }
+
+  /* Brutalist Typography Components */
   .heading-display {
-    font-size: clamp(4rem, 3rem + 3vw, 6rem);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: clamp(4rem, 3rem + 3vw, 8rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--brutal-black);
   }
 
   .heading-1 {
-    font-size: clamp(3rem, 2.5rem + 2vw, 4rem);
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.015em;
+    font-size: clamp(3rem, 2.5rem + 2vw, 5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   .heading-2 {
-    font-size: clamp(2.25rem, 1.9rem + 1.4vw, 3rem);
+    font-size: clamp(2rem, 1.5rem + 1.5vw, 3rem);
     font-weight: 700;
-    line-height: 1.25;
+    line-height: 1.1;
     letter-spacing: -0.01em;
+    text-transform: uppercase;
+    font-family: 'Space Grotesk', sans-serif;
   }
 
-  /* Loading Components */
+  .heading-3 {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  [data-theme="dark"] .heading-display,
+  [data-theme="dark"] .heading-1,
+  [data-theme="dark"] .heading-2,
+  [data-theme="dark"] .heading-3 {
+    color: var(--brutal-white);
+  }
+
+  /* Brutalist Loading Components */
   .loading-liquid {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: var(--gradient-primary);
+    border-radius: var(--brutal-radius-none);
+    background: var(--brutal-electric);
+    border: 3px solid var(--brutal-black);
     position: relative;
-    animation: liquid-pulse 2s ease-in-out infinite;
-  }
-
-  .loading-liquid::before,
-  .loading-liquid::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    background: var(--gradient-primary);
-    animation: liquid-wave 2s ease-in-out infinite;
+    animation: brutal-spin 1s linear infinite;
   }
 
   .loading-liquid::before {
-    width: 60px;
-    height: 60px;
-    top: -10px;
-    left: -10px;
-    opacity: 0.6;
-    animation-delay: -0.5s;
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--brutal-black);
+    transform: translate(-50%, -50%);
+    border-radius: var(--brutal-radius-none);
+    animation: brutal-pulse 0.5s ease-in-out infinite alternate;
   }
 
-  .loading-liquid::after {
-    width: 80px;
-    height: 80px;
-    top: -20px;
-    left: -20px;
-    opacity: 0.3;
-    animation-delay: -1s;
+  @keyframes brutal-spin {
+    0% { 
+      transform: rotate(0deg);
+    }
+    100% { 
+      transform: rotate(360deg);
+    }
   }
 
-  @keyframes liquid-wave {
-    0%, 100% { 
-      transform: scale(0.5); 
-      opacity: 0; 
+  @keyframes brutal-pulse {
+    0% { 
+      opacity: 0.3;
+      transform: translate(-50%, -50%) scale(0.8);
     }
-    50% { 
-      transform: scale(1); 
-      opacity: 0.3; 
+    100% { 
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.2);
     }
+  }
+
+  [data-theme="dark"] .loading-liquid {
+    background: var(--brutal-electric);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .loading-liquid::before {
+    background: var(--brutal-black);
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Brutalist Utilities */
+  .text-brutal {
+    color: var(--brutal-electric);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.1em;
   }
 
-  .magnetic-hover {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .text-accent {
+    color: var(--brutal-electric);
   }
 
-  .magnetic-hover:hover {
-    transform: translateY(-8px) rotateX(15deg) rotateY(5deg);
-    box-shadow: 
-      0 24px 80px rgba(0, 0, 0, 0.15),
-      0 12px 40px rgba(0, 0, 0, 0.1);
+  .bg-brutal {
+    background: var(--brutal-electric);
   }
 
-  .particle-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
+  .border-brutal {
+    border: 4px solid var(--brutal-black);
   }
 
-  .progress-liquid {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
-    height: 8px;
+  .shadow-brutal {
+    box-shadow: var(--brutal-shadow-lg);
+  }
+
+  .shadow-brutal-xl {
+    box-shadow: var(--brutal-shadow-2xl);
+  }
+
+  .brutal-hover {
+    transition: all var(--brutal-transition-fast);
+    cursor: pointer;
+  }
+
+  .brutal-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--brutal-shadow-lg);
+  }
+
+  .brutal-hover:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--brutal-shadow-sm);
+  }
+
+  .brutal-grid {
+    background-image: 
+      linear-gradient(var(--brutal-black) 1px, transparent 1px),
+      linear-gradient(90deg, var(--brutal-black) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.1;
+  }
+
+  [data-theme="dark"] .brutal-grid {
+    background-image: 
+      linear-gradient(var(--brutal-white) 1px, transparent 1px),
+      linear-gradient(90deg, var(--brutal-white) 1px, transparent 1px);
+  }
+
+  .progress-brutal {
+    background: var(--brutal-gray-200);
+    border: 3px solid var(--brutal-black);
+    height: 16px;
     overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
   }
 
   .progress-fill {
     height: 100%;
-    background: var(--gradient-primary);
-    border-radius: 12px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    background: var(--brutal-electric);
+    transition: width 0.3s ease;
+    border-right: 3px solid var(--brutal-black);
   }
 
   .progress-fill::after {
@@ -421,14 +618,44 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, 
-      transparent 25%, 
-      rgba(255, 255, 255, 0.3) 25%, 
-      rgba(255, 255, 255, 0.3) 50%, 
-      transparent 50%, 
-      transparent 75%, 
-      rgba(255, 255, 255, 0.3) 75%);
-    background-size: 20px 20px;
-    animation: shimmer 2s linear infinite;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(0, 0, 0, 0.1) 4px,
+      rgba(0, 0, 0, 0.1) 8px
+    );
+    animation: brutal-stripes 1s linear infinite;
+  }
+
+  @keyframes brutal-stripes {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 8px 0;
+    }
+  }
+
+  [data-theme="dark"] .progress-brutal {
+    background: var(--brutal-gray-800);
+    border-color: var(--brutal-white);
+  }
+
+  [data-theme="dark"] .progress-fill {
+    border-color: var(--brutal-white);
+  }
+
+  /* Legacy compatibility */
+  .text-gradient {
+    @apply text-brutal;
+  }
+
+  .magnetic-hover {
+    @apply brutal-hover;
+  }
+
+  .progress-liquid {
+    @apply progress-brutal;
   }
 }
