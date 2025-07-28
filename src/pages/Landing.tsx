@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Zap, Shield, Clock, Users, Star, Check } from 'lucide-react'
+import { ArrowRight, Zap, Shield, Clock, Star, Check } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
 import { useNavigate } from 'react-router-dom'

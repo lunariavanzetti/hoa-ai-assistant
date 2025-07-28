@@ -219,7 +219,7 @@ export const useAuthStore = create<AuthState>()(
 )
 
 // Initialize auth state listener
-supabase.auth.onAuthStateChange(async (event, session) => {
+supabase.auth.onAuthStateChange(async (_event, session) => {
   const { setUser, setSession, setLoading } = useAuthStore.getState()
   
   setLoading(true)

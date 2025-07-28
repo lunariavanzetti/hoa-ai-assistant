@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { FileText, Download, TrendingUp, Calendar } from 'lucide-react'
+import { FileText, Download, TrendingUp } from 'lucide-react'
 
 export const Reports: React.FC = () => {
   return (
