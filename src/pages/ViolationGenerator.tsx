@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Camera, Send, FileText } from 'lucide-react'
+import { Camera, Send, FileText, AlertCircle } from 'lucide-react'
+import { openAIService, type ViolationData } from '@/lib/openai'
+import { useToast } from '@/components/ui/Toaster'
 
 export const ViolationGenerator: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -8,10 +10,14 @@ export const ViolationGenerator: React.FC = () => {
     residentAddress: '',
     violationType: '',
     description: '',
+    managerName: 'HOA Management',
+    severityLevel: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
     photos: [] as File[]
   })
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedLetter, setGeneratedLetter] = useState('')
+  const [error, setError] = useState('')
+  const { success, error: showError } = useToast()
 
   const violationTypes = [
     'Landscaping/Lawn Care',
@@ -24,23 +30,41 @@ export const ViolationGenerator: React.FC = () => {
   ]
 
   const handleGenerate = async () => {
+    if (!formData.residentName || !formData.violationType || !formData.description) {
+      showError('Missing Information', 'Please fill in all required fields')
+      return
+    }
+
     setIsGenerating(true)
-    // Simulate AI generation
-    setTimeout(() => {
-      setGeneratedLetter(`Dear ${formData.residentName},
+    setError('')
+    
+    try {
+      const violationData: ViolationData = {
+        hoaName: 'Sunset Ridge Community HOA', // This could come from user's HOA settings
+        propertyAddress: formData.residentAddress,
+        residentName: formData.residentName,
+        violationType: formData.violationType,
+        violationDescription: formData.description,
+        violationDate: new Date().toLocaleDateString(),
+        managerName: formData.managerName,
+        managerTitle: 'Community Manager',
+        severityLevel: formData.severityLevel,
+        photoAttached: formData.photos.length > 0,
+        previousViolationsCount: 0, // This could come from database
+        ccrSection: 'Section 3.1 - Community Standards'
+      }
 
-This letter serves as formal notice that your property at ${formData.residentAddress} is in violation of our community guidelines.
-
-Violation Type: ${formData.violationType}
-Description: ${formData.description}
-Date Observed: ${new Date().toLocaleDateString()}
-
-You have 14 days from the date of this notice to correct this violation. Please contact our office if you need assistance or have questions.
-
-Sincerely,
-HOA Management`)
+      const letter = await openAIService.generateViolationLetter(violationData)
+      setGeneratedLetter(letter)
+      success('Letter Generated!', 'Professional violation letter created successfully')
+    } catch (error) {
+      console.error('Error generating letter:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate letter'
+      setError(errorMessage)
+      showError('Generation Failed', errorMessage)
+    } finally {
       setIsGenerating(false)
-    }, 2000)
+    }
   }
 
   return (
@@ -113,6 +137,33 @@ HOA Management`)
               />
             </div>
 
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Manager Name</label>
+                <input
+                  type="text"
+                  value={formData.managerName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, managerName: e.target.value }))}
+                  className="input-liquid"
+                  placeholder="Your name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Severity Level</label>
+                <select
+                  value={formData.severityLevel}
+                  onChange={(e) => setFormData(prev => ({ ...prev, severityLevel: e.target.value as any }))}
+                  className="input-liquid"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-2">Photos (Optional)</label>
               <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center glass-surface">
@@ -122,17 +173,29 @@ HOA Management`)
               </div>
             </div>
 
+            {error && (
+              <div className="glass-surface p-4 rounded-xl border border-red-300 bg-red-50/10">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="text-sm font-medium">{error}</span>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={handleGenerate}
-              disabled={!formData.residentName || !formData.violationType || isGenerating}
-              className="w-full btn-primary flex items-center justify-center gap-2"
+              disabled={!formData.residentName || !formData.violationType || !formData.description || isGenerating}
+              className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
-                <div className="loading-liquid w-5 h-5"></div>
+                <>
+                  <div className="loading-liquid w-5 h-5"></div>
+                  <span>Generating AI Letter...</span>
+                </>
               ) : (
                 <>
                   <FileText className="w-4 h-4" />
-                  Generate Letter
+                  Generate AI Letter
                 </>
               )}
             </button>
@@ -157,16 +220,21 @@ HOA Management`)
           </div>
 
           {generatedLetter ? (
-            <div className="glass-surface p-6 rounded-xl">
-              <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
-                {generatedLetter}
-              </pre>
+            <div className="glass-surface p-6 rounded-xl max-h-96 overflow-y-auto">
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
+                  {generatedLetter}
+                </div>
+              </div>
             </div>
           ) : (
             <div className="glass-surface p-8 rounded-xl text-center">
               <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-300">
-                Fill out the form to generate your violation letter
+                Fill out the form to generate your AI-powered violation letter
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                Professional, legally-compliant letters generated in seconds
               </p>
             </div>
           )}
