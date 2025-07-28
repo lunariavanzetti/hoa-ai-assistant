@@ -11,6 +11,7 @@ import { Reports } from '@/pages/Reports'
 import { Settings } from '@/pages/Settings'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
+import { AuthCallback } from '@/pages/AuthCallback'
 import { useAuthStore } from '@/stores/auth'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
                 <>
                   <Route path="/" element={<Landing />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="*" element={<Landing />} />
                 </>
               ) : (
@@ -36,6 +38,7 @@ function App() {
                   <Route path="meetings" element={<MeetingSummary />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="auth/callback" element={<AuthCallback />} />
                 </Route>
               )}
             </Routes>
