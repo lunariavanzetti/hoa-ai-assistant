@@ -19,7 +19,7 @@ export const ViolationGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedLetter, setGeneratedLetter] = useState('')
   const [error, setError] = useState('')
-  const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
+  const [_uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
   const { success, error: showError } = useToast()
 
   const violationTypes = [
