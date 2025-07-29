@@ -20,18 +20,30 @@ class StorageService {
 
       console.log('Uploading to bucket:', this.bucket, 'file path:', filePath)
 
-      // Upload file to Supabase Storage
-      const { data, error } = await supabase.storage
+      // Create a timeout promise that rejects after 30 seconds
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Upload timeout after 30 seconds'))
+        }, 30000)
+      })
+
+      // Upload file to Supabase Storage with timeout
+      const uploadPromise = supabase.storage
         .from(this.bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
         })
 
+      console.log('Starting upload with 30s timeout...')
+      const { data, error } = await Promise.race([uploadPromise, timeoutPromise])
+
       if (error) {
         console.error('Supabase upload error:', error)
         throw new Error(`Upload failed: ${error.message}`)
       }
+
+      console.log('Upload successful, getting public URL...')
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
