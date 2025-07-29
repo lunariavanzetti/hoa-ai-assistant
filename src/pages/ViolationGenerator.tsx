@@ -4,7 +4,7 @@ import { Send, FileText, AlertCircle } from 'lucide-react'
 import { openAIService, type ViolationData } from '@/lib/openai'
 import { useToast } from '@/components/ui/Toaster'
 import { PhotoUpload } from '@/components/ui/PhotoUpload'
-import { storageService } from '@/lib/storage'
+// import { storageService } from '@/lib/storage' // TODO: Re-enable when storage is configured
 
 export const ViolationGenerator: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ export const ViolationGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedLetter, setGeneratedLetter] = useState('')
   const [error, setError] = useState('')
-  const [_uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
+  const [_uploadedPhotoUrls, _setUploadedPhotoUrls] = useState<string[]>([])
   const { success, error: showError } = useToast()
 
   const violationTypes = [
@@ -45,10 +45,22 @@ export const ViolationGenerator: React.FC = () => {
       // Upload photos first if any
       let photoUrls: string[] = []
       if (formData.photos.length > 0) {
+        console.log('📸 Photos detected, but upload is temporarily disabled due to Supabase storage configuration issues')
+        
+        console.log('🔧 To enable photo upload, check your Supabase dashboard:')
+        console.log('1. Go to: https://supabase.com/dashboard/project/[your-project]/storage/buckets')
+        console.log('2. Verify "violation-photos" bucket exists and is public')
+        console.log('3. Check Storage > Settings for proper configuration')
+        console.log('4. Ensure Storage API is enabled in your project')
+        console.log('5. Verify your project has adequate storage quota')
+        
+        showError('Photo Upload Temporarily Disabled', 'Storage configuration needs verification. Check console for detailed instructions. Letter will generate without photos.')
+        
+        // TODO: Re-enable once storage is properly configured
+        /*
         try {
           console.log('Starting photo upload...', formData.photos.length, 'photos')
           
-          // Add an overall timeout for all uploads combined (45 seconds)
           const uploadPromises = formData.photos.map((photo, index) => {
             console.log(`Uploading photo ${index + 1}:`, photo.name, photo.size)
             return storageService.uploadPhoto(photo)
@@ -57,7 +69,7 @@ export const ViolationGenerator: React.FC = () => {
           const timeoutPromise = new Promise<never>((_, reject) => {
             setTimeout(() => {
               reject(new Error('Photo upload timeout - check Supabase storage permissions'))
-            }, 12000) // 12 second total timeout
+            }, 12000)
           })
 
           console.log('⏱️ Starting upload with 12s timeout...')
@@ -73,8 +85,8 @@ export const ViolationGenerator: React.FC = () => {
         } catch (uploadError) {
           console.error('❌ Photo upload failed:', uploadError)
           showError('Photo Upload Failed', `Could not upload photos: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Continuing without photos.`)
-          // Continue with letter generation even if photo upload fails
         }
+        */
       }
 
       const violationData: ViolationData = {
