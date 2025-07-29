@@ -1,179 +1,361 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Upload, Mic, FileText, Calendar } from 'lucide-react'
+import { Upload, Mic, FileText, Calendar, Users, Clock, AlertCircle } from 'lucide-react'
+import { openAIService, type MeetingData } from '@/lib/openai'
+import { useToast } from '@/components/ui/Toaster'
 
 export const MeetingSummary: React.FC = () => {
+  const [formData, setFormData] = useState({
+    meetingType: '',
+    meetingDate: '',
+    meetingTime: '',
+    meetingLocation: '',
+    transcriptContent: '',
+    attendees: '',
+    boardMembers: '',
+    quorumMet: true,
+    previousMinutesApproved: true,
+    meetingDuration: ''
+  })
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedMinutes, setGeneratedMinutes] = useState('')
+  const [error, setError] = useState('')
+  const { success, error: showError } = useToast()
+
+  const meetingTypes = [
+    'Regular Board Meeting',
+    'Special Board Meeting',
+    'Annual Homeowners Meeting',
+    'Special Homeowners Meeting',
+    'Committee Meeting',
+    'Emergency Meeting',
+    'Executive Session',
+    'Budget Workshop',
+    'Community Forum'
+  ]
+
+  const handleGenerate = async () => {
+    if (!formData.meetingType || !formData.meetingDate || !formData.transcriptContent || !formData.boardMembers) {
+      setError('Please fill in all required fields')
+      return
+    }
+
+    setIsGenerating(true)
+    setError('')
+    
+    try {
+      const meetingData: MeetingData = {
+        hoaName: 'Sunset Ridge Community HOA',
+        meetingType: formData.meetingType,
+        meetingDate: formData.meetingDate,
+        meetingTime: formData.meetingTime || '7:00 PM',
+        meetingLocation: formData.meetingLocation || 'Community Center',
+        transcriptContent: formData.transcriptContent,
+        attendees: formData.attendees || 'See board members present',
+        boardMembers: formData.boardMembers,
+        quorumMet: formData.quorumMet,
+        previousMinutesApproved: formData.previousMinutesApproved,
+        meetingDuration: formData.meetingDuration || '2 hours'
+      }
+
+      const minutes = await openAIService.generateMeetingSummary(meetingData)
+      setGeneratedMinutes(minutes)
+      success('Meeting Minutes Generated!', 'Official meeting minutes created successfully')
+    } catch (error) {
+      console.error('Error generating minutes:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate meeting minutes'
+      setError(errorMessage)
+      showError('Generation Failed', errorMessage)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-8"
+        className="brutal-card p-8"
       >
-        <h1 className="heading-2 mb-2">Meeting Summaries</h1>
+        <h1 className="heading-2 mb-2">AI MEETING MINUTES GENERATOR</h1>
         <p className="text-gray-600 dark:text-gray-300">
-          Upload recordings or transcripts to generate AI-powered meeting summaries and action items.
+          Generate legally compliant, comprehensive meeting minutes from transcripts with expert parliamentary procedure.
         </p>
       </motion.div>
+
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Form Section */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-6"
+        >
+          {/* Meeting Details */}
+          <div className="brutal-card p-6">
+            <h2 className="heading-3 mb-6 flex items-center gap-2">
+              <Calendar className="w-6 h-6" />
+              MEETING DETAILS
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold mb-2 uppercase">Meeting Type *</label>
+                <select
+                  value={formData.meetingType}
+                  onChange={(e) => setFormData(prev => ({ ...prev, meetingType: e.target.value }))}
+                  className="input-liquid"
+                >
+                  <option value="">Select meeting type</option>
+                  {meetingTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold mb-2 uppercase">Meeting Date *</label>
+                  <input
+                    type="date"
+                    value={formData.meetingDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, meetingDate: e.target.value }))}
+                    className="input-liquid"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold mb-2 uppercase">Meeting Time</label>
+                  <input
+                    type="time"
+                    value={formData.meetingTime}
+                    onChange={(e) => setFormData(prev => ({ ...prev, meetingTime: e.target.value }))}
+                    className="input-liquid"
+                    placeholder="7:00 PM"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 uppercase">Location/Platform</label>
+                <input
+                  type="text"
+                  value={formData.meetingLocation}
+                  onChange={(e) => setFormData(prev => ({ ...prev, meetingLocation: e.target.value }))}
+                  className="input-liquid"
+                  placeholder="Community Center / Zoom / Teams"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 uppercase">Meeting Duration</label>
+                <input
+                  type="text"
+                  value={formData.meetingDuration}
+                  onChange={(e) => setFormData(prev => ({ ...prev, meetingDuration: e.target.value }))}
+                  className="input-liquid"
+                  placeholder="e.g., 2 hours, 1.5 hours"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Attendance */}
+          <div className="brutal-card p-6">
+            <h2 className="heading-3 mb-6 flex items-center gap-2">
+              <Users className="w-6 h-6" />
+              ATTENDANCE
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold mb-2 uppercase">Board Members Present *</label>
+                <textarea
+                  value={formData.boardMembers}
+                  onChange={(e) => setFormData(prev => ({ ...prev, boardMembers: e.target.value }))}
+                  className="input-liquid"
+                  rows={3}
+                  placeholder="List board members present: John Smith (President), Jane Doe (Secretary), etc."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 uppercase">Other Attendees</label>
+                <textarea
+                  value={formData.attendees}
+                  onChange={(e) => setFormData(prev => ({ ...prev, attendees: e.target.value }))}
+                  className="input-liquid"
+                  rows={2}
+                  placeholder="Management company reps, homeowners, legal counsel, etc."
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="quorum"
+                    checked={formData.quorumMet}
+                    onChange={(e) => setFormData(prev => ({ ...prev, quorumMet: e.target.checked }))}
+                    className="w-5 h-5 text-brutal-electric bg-white border-3 border-black focus:ring-brutal-electric focus:ring-2"
+                  />
+                  <label htmlFor="quorum" className="text-sm font-bold uppercase">
+                    Quorum Met
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="minutes"
+                    checked={formData.previousMinutesApproved}
+                    onChange={(e) => setFormData(prev => ({ ...prev, previousMinutesApproved: e.target.checked }))}
+                    className="w-5 h-5 text-brutal-electric bg-white border-3 border-black focus:ring-brutal-electric focus:ring-2"
+                  />
+                  <label htmlFor="minutes" className="text-sm font-bold uppercase">
+                    Previous Minutes Approved
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Transcript */}
+          <div className="brutal-card p-6">
+            <h2 className="heading-3 mb-6 flex items-center gap-2">
+              <FileText className="w-6 h-6" />
+              TRANSCRIPT
+            </h2>
+
+            <div>
+              <label className="block text-sm font-bold mb-2 uppercase">Meeting Transcript/Recording Content *</label>
+              <textarea
+                value={formData.transcriptContent}
+                onChange={(e) => setFormData(prev => ({ ...prev, transcriptContent: e.target.value }))}
+                className="input-liquid"
+                rows={8}
+                placeholder="Paste the meeting transcript, notes, or key discussion points here..."
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Include all discussions, motions, votes, and decisions made during the meeting
+              </p>
+            </div>
+
+            {error && (
+              <div className="brutal-surface p-4 border border-red-500 bg-red-50 dark:bg-red-900/20 mt-4">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                  <AlertCircle className="w-5 h-5" />
+                  <span className="font-medium">{error}</span>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="btn-primary w-full mt-6 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="loading-liquid"></div>
+                  GENERATING MINUTES...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-5 h-5" />
+                  GENERATE OFFICIAL MINUTES
+                </>
+              )}
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Generated Minutes */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="brutal-card p-6"
+        >
+          <h2 className="heading-3 mb-6 flex items-center gap-2">
+            <Clock className="w-6 h-6" />
+            OFFICIAL MEETING MINUTES
+          </h2>
+          
+          {generatedMinutes ? (
+            <div className="space-y-4">
+              <div className="brutal-surface p-6 bg-white dark:bg-black border border-gray-300 dark:border-gray-600 max-h-96 overflow-y-auto">
+                <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                  {generatedMinutes}
+                </pre>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigator.clipboard.writeText(generatedMinutes)}
+                  className="btn-secondary flex-1"
+                >
+                  COPY MINUTES
+                </button>
+                <button className="btn-primary flex-1">
+                  DOWNLOAD PDF
+                </button>
+              </div>
+
+              <div className="brutal-surface p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <strong>Legal Notice:</strong> These AI-generated minutes should be reviewed by the board secretary 
+                  and approved by the board before becoming official records.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="brutal-surface p-8 text-center bg-gray-50 dark:bg-gray-800">
+              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-300 mb-2">
+                Official meeting minutes will appear here
+              </p>
+              <p className="text-sm text-gray-500">
+                Fill out the meeting details and transcript, then click "Generate Official Minutes"
+              </p>
+            </div>
+          )}
+        </motion.div>
+      </div>
 
       {/* Upload Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card p-8"
+        transition={{ delay: 0.3 }}
+        className="brutal-card p-8"
       >
-        <h2 className="text-xl font-bold mb-6">Upload New Meeting</h2>
+        <h2 className="heading-3 mb-6">AUDIO TRANSCRIPT UPLOAD</h2>
         
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center glass-surface">
+          <div className="brutal-surface p-8 text-center bg-gray-50 dark:bg-gray-800">
             <Mic className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="font-semibold mb-2">Audio Recording</h3>
+            <h3 className="font-bold mb-2 uppercase">Audio Recording</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Upload meeting audio files (MP3, WAV, M4A)
             </p>
-            <button className="btn-primary">
+            <button className="btn-secondary">
               <Upload className="w-4 h-4 mr-2" />
-              Upload Audio
+              UPLOAD AUDIO
             </button>
           </div>
 
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center glass-surface">
+          <div className="brutal-surface p-8 text-center bg-gray-50 dark:bg-gray-800">
             <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="font-semibold mb-2">Text Transcript</h3>
+            <h3 className="font-bold mb-2 uppercase">Text Transcript</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Upload or paste meeting transcripts
+              Upload existing transcripts or documents
             </p>
             <button className="btn-secondary">
               <Upload className="w-4 h-4 mr-2" />
-              Upload Text
+              UPLOAD TEXT
             </button>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Recent Meetings */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="glass-card p-6"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">Recent Meeting Summaries</h2>
-          <button className="btn-secondary">View All</button>
-        </div>
-
-        <div className="space-y-4">
-          {/* Meeting Item */}
-          <div className="glass-surface p-6 rounded-xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">March 2024 Board Meeting</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-3">March 15, 2024 • 2 hours • 8 attendees</p>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                      <span className="text-sm">Budget approved for pool renovation</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-                      <span className="text-sm">New parking policy to be drafted</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                      <span className="text-sm">Next meeting scheduled for April 19th</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <button className="btn-secondary text-sm">View Summary</button>
-                <button className="btn-primary text-sm">Download PDF</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Another Meeting Item */}
-          <div className="glass-surface p-6 rounded-xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Annual Homeowners Meeting</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-3">February 28, 2024 • 3 hours • 45 attendees</p>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                      <span className="text-sm">Annual budget presentation completed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                      <span className="text-sm">Board members re-elected</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-                      <span className="text-sm">Community garden proposal under review</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <button className="btn-secondary text-sm">View Summary</button>
-                <button className="btn-primary text-sm">Download PDF</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* AI Features */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="glass-card p-6"
-      >
-        <h2 className="text-xl font-bold mb-4">AI-Powered Features</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="glass-surface p-4 rounded-xl text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-3">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="font-semibold mb-2">Auto Transcription</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Convert audio recordings to text automatically
-            </p>
-          </div>
-
-          <div className="glass-surface p-4 rounded-xl text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center mx-auto mb-3">
-              <Mic className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="font-semibold mb-2">Smart Summaries</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Generate concise meeting minutes and key decisions
-            </p>
-          </div>
-
-          <div className="glass-surface p-4 rounded-xl text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-3">
-              <Calendar className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="font-semibold mb-2">Action Items</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Automatically extract and track action items
-            </p>
           </div>
         </div>
       </motion.div>

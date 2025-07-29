@@ -34,6 +34,20 @@ interface ComplaintData {
   resolutionTimeline?: string
 }
 
+interface MeetingData {
+  hoaName: string
+  meetingType: string
+  meetingDate: string
+  meetingTime: string
+  meetingLocation: string
+  transcriptContent: string
+  attendees: string
+  boardMembers: string
+  quorumMet: boolean
+  previousMinutesApproved: boolean
+  meetingDuration: string
+}
+
 interface OpenAIResponse {
   id: string
   object: string
@@ -219,37 +233,145 @@ Generate a professional, empathetic response that addresses the resident's conce
     return await this.makeRequest(messages, 0.5)
   }
 
-  async generateMeetingSummary(transcript: string, meetingType: string, meetingDate: string, hoaName: string): Promise<string> {
+  async generateMeetingSummary(meetingData: MeetingData): Promise<string> {
     const prompt = `
-ROLE: You are an expert corporate secretary and professional meeting transcriptionist with specialized expertise in HOA governance, Roberts Rules of Order, and community association management.
+ROLE: You are an expert corporate secretary and professional meeting transcriptionist with specialized expertise in HOA governance, Roberts Rules of Order, and community association management. You have 20+ years of experience creating accurate, comprehensive meeting minutes for board meetings and homeowner assemblies.
 
-CONTEXT: You are creating official meeting minutes from the provided transcript. These minutes will serve as legal documents and permanent records of board decisions, discussions, and actions taken.
+CONTEXT: You are creating official meeting minutes from audio transcripts or recordings of HOA board meetings, annual meetings, or special sessions. These minutes will serve as legal documents and permanent records of board decisions, discussions, and actions taken.
 
 MEETING DATA:
-- HOA Name: ${hoaName}
-- Meeting Type: ${meetingType}
-- Meeting Date: ${meetingDate}
-- Transcript: ${transcript}
+- HOA Name: ${meetingData.hoaName}
+- Meeting Type: ${meetingData.meetingType}
+- Meeting Date: ${meetingData.meetingDate}
+- Meeting Time: ${meetingData.meetingTime}
+- Location/Platform: ${meetingData.meetingLocation}
+- Transcript/Audio: ${meetingData.transcriptContent}
+- Attendees List: ${meetingData.attendees}
+- Board Members Present: ${meetingData.boardMembers}
+- Quorum Status: ${meetingData.quorumMet ? 'Met' : 'Not Met'}
+- Previous Minutes: ${meetingData.previousMinutesApproved ? 'Approved' : 'Not Approved'}
+- Meeting Duration: ${meetingData.meetingDuration}
 
-Create comprehensive, legally compliant meeting minutes that include:
-1. Header information with meeting details
-2. Attendance and quorum status
-3. Approval of previous minutes
-4. Reports from officers and committees
-5. Old business items
-6. New business items
-7. Motions, votes, and decisions
-8. Action items with responsible parties
-9. Executive session notes (if applicable)
-10. Adjournment details
+REQUIREMENTS FOR OFFICIAL MINUTES:
+1. **Legal Compliance**: Follow state laws and HOA bylaws for minute requirements
+2. **Accuracy**: Ensure all motions, votes, and decisions are precisely recorded
+3. **Objectivity**: Maintain neutral tone, avoid editorial comments or interpretations
+4. **Completeness**: Include all required elements per governing documents
+5. **Clarity**: Write in clear, professional language accessible to all homeowners
+6. **Action Items**: Clearly identify follow-up tasks and responsible parties
+7. **Voting Records**: Document all votes with member names and positions
 
-Follow proper parliamentary procedure documentation and maintain professional tone throughout.
+STANDARD MINUTE STRUCTURE:
+1. **Header Information**
+   - HOA name and meeting type
+   - Date, time, and location
+   - Type of meeting (regular, special, annual, etc.)
+
+2. **Attendance**
+   - Board members present and absent
+   - Management company representatives
+   - Homeowners present (count or names for small meetings)
+   - Legal counsel or other professionals
+   - Quorum status confirmation
+
+3. **Call to Order**
+   - Time meeting was called to order
+   - Who presided over the meeting
+
+4. **Approval of Previous Minutes**
+   - Motion to approve previous meeting minutes
+   - Any corrections noted
+   - Vote results
+
+5. **Reports**
+   - President's report
+   - Treasurer's report with financial highlights
+   - Committee reports
+   - Management company report
+   - Any other officer reports
+
+6. **Old Business**
+   - Follow-up on previous action items
+   - Ongoing projects or issues
+   - Status updates on pending matters
+
+7. **New Business**
+   - New issues or proposals presented
+   - Discussion summaries (key points, not verbatim)
+   - Motions made, seconded, and voted upon
+   - Action items assigned with responsible parties
+
+8. **Executive Session** (if applicable)
+   - Time entered and exited
+   - General topics discussed (maintaining confidentiality)
+   - Any actions taken
+
+9. **Adjournment**
+   - Time of adjournment
+   - Next meeting date and time
+
+MOTION RECORDING REQUIREMENTS:
+For each motion, include:
+- Exact wording of the motion
+- Who made the motion
+- Who seconded the motion
+- Brief summary of discussion (major points only)
+- Vote count (For/Against/Abstain)
+- Individual voting positions if required by bylaws
+- Whether motion passed or failed
+
+WRITING STYLE GUIDELINES:
+- Use third person, past tense throughout
+- Write in complete sentences with proper grammar
+- Use formal business language
+- Avoid first-person references
+- Keep discussions summaries concise but complete
+- Use active voice when possible
+- Maintain consistent formatting throughout
+
+CONFIDENTIALITY CONSIDERATIONS:
+- Exclude specific homeowner names in disciplinary matters
+- Summarize legal discussions without revealing strategy
+- Protect privacy while maintaining transparency
+- Follow state open meeting laws and HOA bylaws
+
+ACTION ITEM TRACKING:
+For each action item, specify:
+- Specific task or deliverable
+- Person or committee responsible
+- Target completion date
+- Follow-up method or deadline
+
+FINANCIAL INFORMATION INCLUSION:
+- Budget variances and explanations
+- Major expenditure approvals
+- Assessment or fee changes
+- Reserve fund status updates
+- Audit results or financial reviews
+
+FORMATTING REQUIREMENTS:
+- Use consistent numbering and bullet points
+- Include page numbers and date on each page
+- Use professional fonts and spacing
+- Create clear section headers
+- Include signature lines for secretary approval
+
+OUTPUT INSTRUCTIONS:
+Create comprehensive, legally compliant meeting minutes that:
+- Capture all essential information accurately
+- Follow proper parliamentary procedure documentation
+- Maintain professional tone throughout
+- Include all required legal elements
+- Provide clear action item tracking
+- Support transparency and governance objectives
+
+Generate complete meeting minutes now, ensuring all elements are included and properly formatted for official HOA records.
 `
 
     const messages = [
       {
         role: 'system',
-        content: 'You are a professional corporate secretary creating official HOA meeting minutes.'
+        content: 'You are an expert corporate secretary and professional meeting transcriptionist with 20+ years of experience creating accurate, comprehensive meeting minutes for HOA governance.'
       },
       {
         role: 'user',
@@ -257,7 +379,7 @@ Follow proper parliamentary procedure documentation and maintain professional to
       }
     ]
 
-    return await this.makeRequest(messages, 0.2)
+    return await this.makeRequest(messages, 0.1) // Very low temperature for precise, consistent legal documents
   }
 
   async generateMonthlyReport(_reportData: any): Promise<string> {
@@ -285,4 +407,4 @@ Generate a comprehensive monthly report with executive summary, operational metr
 }
 
 export const openAIService = new OpenAIService()
-export type { ViolationData, ComplaintData }
+export type { ViolationData, ComplaintData, MeetingData }
