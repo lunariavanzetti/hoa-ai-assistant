@@ -10,21 +10,21 @@ class StorageService {
 
   async uploadPhoto(file: File, violationId?: string): Promise<UploadResult> {
     try {
-      // Ensure bucket exists first
-      await this.ensureBucketExists()
+      // Skip bucket checking - go directly to upload (bucket should exist from SQL setup)
+      console.log('📤 Starting direct upload (skipping bucket check)')
 
       // Generate unique filename
       const fileExt = file.name.split('.').pop()
       const fileName = `${violationId || Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `violations/${fileName}`
 
-      console.log('Uploading to bucket:', this.bucket, 'file path:', filePath)
+      console.log('📁 Uploading to bucket:', this.bucket, 'file path:', filePath)
 
-      // Create a timeout promise that rejects after 10 seconds
+      // Create a timeout promise that rejects after 8 seconds
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error('Upload timeout after 10 seconds - check bucket permissions'))
-        }, 10000)
+          reject(new Error('Direct upload timeout after 8 seconds'))
+        }, 8000)
       })
 
       // Upload file to Supabase Storage with timeout
@@ -35,15 +35,15 @@ class StorageService {
           upsert: false
         })
 
-      console.log('Starting upload with 30s timeout...')
+      console.log('⏱️ Starting direct upload with 8s timeout...')
       const { data, error } = await Promise.race([uploadPromise, timeoutPromise])
 
       if (error) {
-        console.error('Supabase upload error:', error)
+        console.error('❌ Supabase upload error:', error)
         throw new Error(`Upload failed: ${error.message}`)
       }
 
-      console.log('Upload successful, getting public URL...')
+      console.log('✅ Upload successful, getting public URL...')
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
