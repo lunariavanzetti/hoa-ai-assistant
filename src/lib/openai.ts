@@ -48,6 +48,23 @@ interface MeetingData {
   meetingDuration: string
 }
 
+interface MonthlyReportData {
+  hoaName: string
+  reportPeriod: string
+  totalUnits: number
+  occupiedUnits: number
+  boardMembers: string
+  managementCompany: string
+  violationsData: string
+  complaintsData: string
+  financialData: string
+  maintenanceData: string
+  meetingData: string
+  complianceData: string
+  communityEvents: string
+  vendorData: string
+}
+
 interface OpenAIResponse {
   id: string
   object: string
@@ -382,19 +399,182 @@ Generate complete meeting minutes now, ensuring all elements are included and pr
     return await this.makeRequest(messages, 0.1) // Very low temperature for precise, consistent legal documents
   }
 
-  async generateMonthlyReport(_reportData: any): Promise<string> {
+  async generateMonthlyReport(reportData: MonthlyReportData): Promise<string> {
     const prompt = `
-ROLE: You are a senior data analytics specialist and executive reporting expert with extensive experience in HOA management, financial analysis, and community performance metrics.
+ROLE: You are a senior data analytics specialist and executive reporting expert with extensive experience in HOA management, financial analysis, and community performance metrics. You excel at transforming raw operational data into compelling, actionable insights for board members and stakeholders.
 
 CONTEXT: You are creating comprehensive monthly performance reports that synthesize all HOA activities, financials, and operational metrics into executive-level summaries for board review, homeowner communication, and strategic planning.
 
-Generate a comprehensive monthly report with executive summary, operational metrics, financial analysis, compliance status, and strategic recommendations.
+REPORT DATA INPUTS:
+- HOA Name: ${reportData.hoaName}
+- Report Month/Year: ${reportData.reportPeriod}
+- Total Units: ${reportData.totalUnits}
+- Occupied Units: ${reportData.occupiedUnits}
+- Board Members: ${reportData.boardMembers}
+- Management Company: ${reportData.managementCompany}
+- Violations Data: ${reportData.violationsData}
+- Complaints Data: ${reportData.complaintsData}
+- Financial Data: ${reportData.financialData}
+- Maintenance Data: ${reportData.maintenanceData}
+- Meeting Data: ${reportData.meetingData}
+- Compliance Data: ${reportData.complianceData}
+- Community Events: ${reportData.communityEvents}
+- Vendor Performance: ${reportData.vendorData}
+
+COMPREHENSIVE REPORT SECTIONS:
+
+## 1. EXECUTIVE SUMMARY
+**Objective**: Provide C-level overview of community health and performance
+**Content Requirements**:
+- Overall community satisfaction score/trends
+- Key performance indicators vs. targets
+- Major accomplishments and challenges
+- Financial health snapshot
+- Strategic priorities for next month
+- Board decision items requiring attention
+
+## 2. OPERATIONAL METRICS DASHBOARD
+**Violation Management**:
+- Total violations issued: [number] (vs. previous month: +/-%)
+- Violation categories breakdown with percentages
+- Average resolution time: [days]
+- Compliance rate: [percentage]
+- Repeat violations: [number and percentage]
+- Outstanding violations by age: 0-30, 31-60, 60+ days
+
+**Complaint Resolution**:
+- Total complaints received: [number]
+- Complaint categories (maintenance, neighbor, policy, amenity)
+- Average response time: [hours/days]
+- Resolution rate: [percentage]
+- Satisfaction ratings (if collected)
+- Escalated complaints: [number]
+
+**Communication Effectiveness**:
+- Emails sent to residents: [number]
+- Website visits: [number]
+- Document downloads: [number]
+- Meeting attendance rates: [percentage]
+- Survey response rates: [percentage]
+
+## 3. FINANCIAL PERFORMANCE ANALYSIS
+**Revenue Analysis**:
+- Assessment collections: [amount] ([percentage] of budgeted)
+- Collection rate: [percentage]
+- Outstanding receivables: [amount] (aging analysis)
+- Late fees collected: [amount]
+- Special assessment status: [if applicable]
+
+**Expense Management**:
+- Total expenses: [amount] (vs. budget: +/-[amount])
+- Major expense categories breakdown
+- Vendor performance and cost analysis
+- Emergency repairs: [amount]
+- Capital improvements: [amount]
+
+**Reserve Fund Status**:
+- Beginning balance: [amount]
+- Contributions: [amount]
+- Expenditures: [amount]
+- Ending balance: [amount]
+- Reserve study compliance: [percentage funded]
+
+## 4. MAINTENANCE & FACILITIES REPORT
+**Maintenance Requests**:
+- Total requests: [number]
+- Emergency vs. routine breakdown
+- Average completion time by category
+- Resident satisfaction scores
+- Preventive maintenance completion rate
+
+**Vendor Performance**:
+- Vendor scorecard (quality, timeliness, cost)
+- Contract compliance rates
+- Insurance and licensing status
+- Cost per service type analysis
+
+**Facility Utilization**:
+- Amenity usage statistics
+- Maintenance costs per amenity
+- Resident feedback and suggestions
+- Capital improvement needs identified
+
+## 5. COMPLIANCE & GOVERNANCE
+**Regulatory Compliance**:
+- Insurance policy status and coverage
+- License and permit renewals
+- Legal matters status
+- Audit findings and remediation
+- Policy updates and implementations
+
+**Board Governance**:
+- Meeting attendance rates
+- Decision implementation tracking
+- Committee activity summaries
+- Training and education completed
+- Strategic plan progress
+
+## 6. COMMUNITY ENGAGEMENT METRICS
+**Resident Participation**:
+- Event attendance numbers
+- Volunteer participation rates
+- Committee membership levels
+- Communication engagement rates
+- Feedback and suggestion tracking
+
+**Community Health Indicators**:
+- Neighbor dispute frequency
+- Amenity satisfaction scores
+- Architectural review requests
+- Home sales and market trends
+- New resident integration success
+
+## 7. FORWARD-LOOKING ANALYSIS
+**Trend Analysis**:
+- Year-over-year comparison charts
+- Seasonal pattern identification
+- Predictive indicators for issues
+- Performance trend trajectories
+
+**Strategic Recommendations**:
+- Priority action items for next month
+- Resource allocation suggestions
+- Policy or procedure updates needed
+- Long-term planning considerations
+- Risk mitigation strategies
+
+**Next Month Outlook**:
+- Scheduled major projects
+- Anticipated challenges
+- Budget considerations
+- Board decision requirements
+- Community events planned
+
+REPORT FORMATTING REQUIREMENTS:
+- Professional, clean layout with consistent branding
+- Executive summary limited to 1 page
+- Data visualizations (charts, graphs) for key metrics
+- Color-coded performance indicators (green/yellow/red)
+- Appendices for detailed supporting data
+- Page numbers and date stamps
+- Board approval signature lines
+
+TONE AND STYLE:
+- Professional, data-driven, and objective
+- Highlight both successes and areas for improvement
+- Use action-oriented language for recommendations
+- Balance detail with accessibility for various stakeholder levels
+- Maintain consistent terminology and definitions
+- Include contextual explanations for complex metrics
+
+DELIVERABLE FORMAT:
+Generate a comprehensive monthly report that serves as both an operational dashboard and strategic planning tool, providing board members and stakeholders with clear insights into community performance and actionable recommendations for continuous improvement.
 `
 
     const messages = [
       {
         role: 'system',
-        content: 'You are a senior analytics specialist creating executive-level HOA performance reports.'
+        content: 'You are a senior data analytics specialist and executive reporting expert with extensive experience in HOA management, financial analysis, and community performance metrics.'
       },
       {
         role: 'user',
@@ -402,9 +582,9 @@ Generate a comprehensive monthly report with executive summary, operational metr
       }
     ]
 
-    return await this.makeRequest(messages, 0.4)
+    return await this.makeRequest(messages, 0.3) // Balanced temperature for analytical yet readable reports
   }
 }
 
 export const openAIService = new OpenAIService()
-export type { ViolationData, ComplaintData, MeetingData }
+export type { ViolationData, ComplaintData, MeetingData, MonthlyReportData }
