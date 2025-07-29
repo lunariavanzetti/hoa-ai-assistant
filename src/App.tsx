@@ -6,6 +6,7 @@ import { Layout } from '@/components/layout/Layout'
 import { Dashboard } from '@/pages/Dashboard'
 import { ViolationGenerator } from '@/pages/ViolationGenerator'
 import { ComplaintInbox } from '@/pages/ComplaintInbox'
+import { ComplaintReply } from '@/pages/ComplaintReply'
 import { MeetingSummary } from '@/pages/MeetingSummary'
 import { Reports } from '@/pages/Reports'
 import { Settings } from '@/pages/Settings'
@@ -35,6 +36,7 @@ function App() {
                   <Route index element={<Dashboard />} />
                   <Route path="violations" element={<ViolationGenerator />} />
                   <Route path="complaints" element={<ComplaintInbox />} />
+                  <Route path="complaint-reply" element={<ComplaintReply />} />
                   <Route path="meetings" element={<MeetingSummary />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />

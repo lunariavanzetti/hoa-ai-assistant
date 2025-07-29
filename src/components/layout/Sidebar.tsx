@@ -15,6 +15,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Violations', href: '/violations', icon: AlertTriangle },
   { name: 'Complaints', href: '/complaints', icon: MessageCircle },
+  { name: 'Complaint Reply', href: '/complaint-reply', icon: MessageCircle },
   { name: 'Meetings', href: '/meetings', icon: Mic },
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Settings', href: '/settings', icon: Settings },
