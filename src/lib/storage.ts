@@ -20,11 +20,11 @@ class StorageService {
 
       console.log('Uploading to bucket:', this.bucket, 'file path:', filePath)
 
-      // Create a timeout promise that rejects after 30 seconds
+      // Create a timeout promise that rejects after 10 seconds
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error('Upload timeout after 30 seconds'))
-        }, 30000)
+          reject(new Error('Upload timeout after 10 seconds - check bucket permissions'))
+        }, 10000)
       })
 
       // Upload file to Supabase Storage with timeout
@@ -78,12 +78,21 @@ class StorageService {
   // Ensure bucket exists before upload
   private async ensureBucketExists(): Promise<void> {
     try {
+      console.log('🔍 Checking if bucket exists:', this.bucket)
+      
       // First check if bucket exists
-      const { data: buckets } = await supabase.storage.listBuckets()
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets()
+      
+      if (listError) {
+        console.error('❌ Error listing buckets:', listError)
+        throw new Error(`Cannot list buckets: ${listError.message}`)
+      }
+      
+      console.log('📦 Available buckets:', buckets?.map(b => b.id) || [])
       const bucketExists = buckets?.some(bucket => bucket.id === this.bucket)
       
       if (!bucketExists) {
-        console.log('Creating bucket:', this.bucket)
+        console.log('🏗️ Creating bucket:', this.bucket)
         const { error } = await supabase.storage.createBucket(this.bucket, {
           public: true,
           allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
@@ -91,14 +100,16 @@ class StorageService {
         })
 
         if (error && !error.message.includes('already exists')) {
-          console.error('Failed to create bucket:', error)
+          console.error('❌ Failed to create bucket:', error)
           throw new Error(`Bucket creation failed: ${error.message}`)
         }
-        console.log('Bucket created successfully')
+        console.log('✅ Bucket created successfully')
+      } else {
+        console.log('✅ Bucket already exists:', this.bucket)
       }
     } catch (error) {
-      console.error('Error ensuring bucket exists:', error)
-      // Don't throw here - let the upload attempt proceed and fail with a clearer error
+      console.error('❌ Error ensuring bucket exists:', error)
+      throw error // Throw here so we know about the problem
     }
   }
 

@@ -56,11 +56,11 @@ export const ViolationGenerator: React.FC = () => {
           
           const timeoutPromise = new Promise<never>((_, reject) => {
             setTimeout(() => {
-              reject(new Error('Photo upload timeout - taking too long'))
-            }, 45000) // 45 second total timeout
+              reject(new Error('Photo upload timeout - check Supabase storage permissions'))
+            }, 15000) // 15 second total timeout
           })
 
-          console.log('⏱️ Starting upload with 45s timeout...')
+          console.log('⏱️ Starting upload with 15s timeout...')
           const uploadResults = await Promise.race([
             Promise.all(uploadPromises),
             timeoutPromise
