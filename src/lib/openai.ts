@@ -65,6 +65,36 @@ interface MonthlyReportData {
   vendorData: string
 }
 
+interface DataMonitorData {
+  hoaName: string
+  monitoringPeriod: string
+  usageMetrics: string
+  securityIncidents: string
+  financialAnomalies: string
+  userBehaviorPatterns: string
+  systemPerformance: string
+  complianceStatus: string
+  threatLevel: string
+  alertsGenerated: string
+  actionsTaken: string
+}
+
+interface OnboardingData {
+  userName: string
+  userEmail: string
+  subscriptionTier: string
+  hoaSize: string
+  experienceLevel: string
+  registrationDate: string
+  initialUsage: string
+  location: string
+  referralSource: string
+  demoPreferences: string
+  onboardingPhase: string
+  triggerEvent: string
+  daysSinceRegistration: number
+}
+
 interface OpenAIResponse {
   id: string
   object: string
@@ -584,7 +614,458 @@ Generate a comprehensive monthly report that serves as both an operational dashb
 
     return await this.makeRequest(messages, 0.3) // Balanced temperature for analytical yet readable reports
   }
+
+  async generateSecurityAnalysis(monitorData: DataMonitorData): Promise<string> {
+    const prompt = `
+ROLE: You are a senior cybersecurity analyst and data protection specialist with 15+ years of experience in enterprise security monitoring, fraud detection, risk assessment, and regulatory compliance. You specialize in continuous monitoring systems for SaaS platforms, with expertise in threat detection, behavioral analysis, and automated security response protocols.
+
+CONTEXT: You are continuously monitoring the HOA AI Assistant platform for usage patterns, potential abuse, security threats, billing irregularities, and compliance violations. Your analysis helps maintain platform integrity, protect user data, prevent fraud, and ensure optimal system performance while maintaining the highest security standards.
+
+MONITORING DATA INPUTS:
+- HOA Name: ${monitorData.hoaName}
+- Monitoring Period: ${monitorData.monitoringPeriod}
+- Usage Metrics: ${monitorData.usageMetrics}
+- Security Incidents: ${monitorData.securityIncidents}
+- Financial Anomalies: ${monitorData.financialAnomalies}
+- User Behavior Patterns: ${monitorData.userBehaviorPatterns}
+- System Performance: ${monitorData.systemPerformance}
+- Compliance Status: ${monitorData.complianceStatus}
+- Current Threat Level: ${monitorData.threatLevel}
+- Alerts Generated: ${monitorData.alertsGenerated}
+- Actions Taken: ${monitorData.actionsTaken}
+
+PRIMARY MONITORING CATEGORIES:
+
+## 1. USAGE ABUSE DETECTION
+**API Rate Limiting Violations**:
+- Analyze API call patterns for suspicious spikes
+- Identify potential bot activity or automated abuse
+- Monitor for distributed attack patterns across multiple accounts
+- Flag accounts exceeding reasonable usage thresholds
+
+**Account Sharing & Multi-tenancy Violations**:
+- Detect multiple simultaneous logins from different geographic locations
+- Identify shared credentials across organizations
+- Monitor for unusual authentication patterns
+- Flag accounts with inconsistent usage profiles
+
+**Feature Exploitation**:
+- Track excessive AI letter generation beyond subscription limits
+- Monitor for bulk processing that violates terms of service
+- Identify attempts to reverse-engineer AI prompts or responses
+- Detect systematic content extraction or scraping attempts
+
+## 2. SECURITY THREAT DETECTION
+**Authentication Security**:
+- Monitor failed login attempts and brute force patterns
+- Detect credential stuffing attacks across multiple accounts
+- Identify suspicious OAuth integration attempts
+- Track session hijacking indicators and unusual access patterns
+
+**Data Exfiltration Monitoring**:
+- Analyze download patterns for bulk data extraction
+- Monitor API responses for sensitive information leakage
+- Track unusual document generation and export activities
+- Identify potential insider threats from user behavior changes
+
+**Injection Attack Prevention**:
+- Scan AI prompt inputs for malicious code injection attempts
+- Monitor for SQL injection patterns in form submissions
+- Detect XSS attempts in user-generated content
+- Identify attempts to manipulate AI responses through prompt engineering
+
+**Infrastructure Security**:
+- Monitor server resource utilization for DDoS indicators
+- Detect unusual database query patterns
+- Track file upload attempts for malware or oversized files
+- Identify potential system vulnerability exploitation attempts
+
+## 3. FINANCIAL MONITORING
+**Billing Fraud Detection**:
+- Analyze subscription upgrade/downgrade patterns for abuse
+- Monitor for payment method cycling or card testing
+- Detect chargeback fraud patterns and subscription manipulation
+- Identify unusual refund request patterns
+
+**Resource Cost Optimization**:
+- Track AI token usage against subscription tiers
+- Monitor server costs for anomalous spikes
+- Analyze storage usage patterns for potential abuse
+- Identify inefficient resource allocation patterns
+
+**Revenue Protection**:
+- Detect subscription sharing across multiple HOAs
+- Monitor for unauthorized access to premium features
+- Track license compliance and usage rights violations
+- Identify potential revenue leakage through system exploits
+
+## 4. OPERATIONAL MONITORING
+**System Performance Analysis**:
+- Monitor response times and identify performance degradation
+- Track error rates and identify system reliability issues
+- Analyze user experience metrics and satisfaction indicators
+- Detect capacity planning needs and scaling requirements
+
+**Data Quality Assessment**:
+- Monitor AI output quality and consistency
+- Track user satisfaction with generated content
+- Identify training data quality issues
+- Detect potential AI model drift or performance degradation
+
+**Compliance Monitoring**:
+- Ensure GDPR, CCPA, and SOC2 compliance requirements
+- Track data retention and deletion compliance
+- Monitor user consent management and privacy settings
+- Detect potential regulatory compliance violations
+
+AUTOMATED ALERT THRESHOLDS:
+
+**CRITICAL ALERTS (Immediate Response Required)**:
+- Active data breach or unauthorized access detected
+- System compromise or malware infection identified
+- Multiple failed authentication attempts from same IP (>50/hour)
+- Unusual financial transactions exceeding $10,000
+- Complete system downtime or critical service failure
+- Legal compliance violation with regulatory implications
+
+**HIGH PRIORITY ALERTS (Response Within 2 Hours)**:
+- Suspicious user behavior patterns indicating potential fraud
+- API abuse exceeding 500% of normal usage patterns
+- Security vulnerability discovered in system components
+- Billing discrepancies exceeding $1,000
+- Performance degradation affecting >10% of users
+- Unauthorized access attempts to admin functions
+
+**MEDIUM PRIORITY ALERTS (Response Within 24 Hours)**:
+- Usage patterns suggesting subscription tier violations
+- Content quality degradation in AI outputs
+- User complaints about system performance or security
+- Minor billing reconciliation issues
+- Non-critical security patches required
+- Capacity planning thresholds reached
+
+**LOW PRIORITY ALERTS (Weekly Review)**:
+- General usage trend analysis and reporting
+- Performance optimization opportunities
+- User experience improvement recommendations
+- Cost optimization suggestions
+- Compliance documentation updates needed
+
+THREAT CLASSIFICATION SYSTEM:
+
+**THREAT LEVEL 5 - CRITICAL**:
+Active security breach, data theft, or system compromise requiring immediate incident response, law enforcement notification, and customer communication.
+
+**THREAT LEVEL 4 - HIGH**:
+Significant security threat, potential fraud, or major system vulnerability requiring urgent investigation and remediation within 4 hours.
+
+**THREAT LEVEL 3 - ELEVATED**:
+Suspicious activity patterns, minor security vulnerabilities, or operational issues requiring investigation and response within 24 hours.
+
+**THREAT LEVEL 2 - MODERATE**:
+Anomalous but non-threatening patterns requiring monitoring and potential preventive action within 48 hours.
+
+**THREAT LEVEL 1 - LOW**:
+Baseline monitoring with no immediate threats identified, routine system health and performance tracking.
+
+RESPONSE PROTOCOLS:
+
+**IMMEDIATE ACTIONS (0-15 minutes)**:
+- Isolate affected systems or accounts
+- Implement emergency access controls
+- Notify security team and management
+- Document incident with timestamps
+- Preserve evidence for forensic analysis
+
+**SHORT-TERM ACTIONS (15 minutes - 4 hours)**:
+- Conduct detailed threat assessment
+- Implement targeted security measures
+- Notify affected customers if required
+- Coordinate with legal and compliance teams
+- Begin remediation procedures
+
+**LONG-TERM ACTIONS (4-48 hours)**:
+- Complete comprehensive security review
+- Implement permanent fixes and improvements
+- Update security policies and procedures
+- Conduct post-incident analysis
+- Update monitoring rules and thresholds
+
+OUTPUT REQUIREMENTS:
+Generate a comprehensive security analysis report that includes:
+
+1. **Executive Summary**: Current threat level, critical findings, and immediate actions required
+2. **Detailed Threat Analysis**: Specific security incidents, patterns, and risk assessments
+3. **Operational Health Dashboard**: System performance, user satisfaction, and resource utilization
+4. **Financial Security Review**: Billing integrity, fraud detection results, and revenue protection
+5. **Compliance Status**: Regulatory adherence, policy compliance, and audit readiness
+6. **Automated Response Actions**: Systems deployed, accounts flagged, and preventive measures activated
+7. **Strategic Recommendations**: Long-term security improvements, policy updates, and risk mitigation strategies
+8. **Forward-Looking Threat Intelligence**: Predicted risks, emerging threats, and proactive monitoring adjustments
+
+TONE AND APPROACH:
+- Professional, data-driven, and technically precise
+- Balanced between technical detail and executive accessibility
+- Action-oriented with clear priorities and timelines
+- Objective and evidence-based in threat assessments
+- Confident but appropriately cautious in recommendations
+- Focus on both immediate security and long-term platform health
+
+Generate the comprehensive security analysis now, ensuring all monitoring categories are addressed and actionable intelligence is provided for platform protection and optimization.
+`
+
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are a senior cybersecurity analyst and data protection specialist with 15+ years of experience in enterprise security monitoring, fraud detection, and regulatory compliance.'
+      },
+      {
+        role: 'user',
+        content: prompt
+      }
+    ]
+
+    return await this.makeRequest(messages, 0.2) // Lower temperature for precise, consistent security analysis
+  }
+
+  async generateOnboardingContent(onboardingData: OnboardingData): Promise<string> {
+    const prompt = `
+ROLE: You are a master customer success strategist and onboarding specialist with expertise in SaaS user adoption, behavior psychology, and educational content design. You excel at creating personalized user journeys that maximize feature adoption, reduce churn, and build long-term customer loyalty.
+
+CONTEXT: You are designing and executing comprehensive onboarding experiences for new HOA AI Assistant users, focusing on rapid value realization, feature discovery, and long-term engagement. Your goal is to transform new signups into power users within their first 30 days.
+
+USER PROFILE DATA:
+- User Name: ${onboardingData.userName}
+- Email: ${onboardingData.userEmail}
+- Subscription Tier: ${onboardingData.subscriptionTier}
+- HOA Size: ${onboardingData.hoaSize}
+- Experience Level: ${onboardingData.experienceLevel}
+- Registration Date: ${onboardingData.registrationDate}
+- Initial Usage Patterns: ${onboardingData.initialUsage}
+- Geographic Location: ${onboardingData.location}
+- Referral Source: ${onboardingData.referralSource}
+- Demo Preferences: ${onboardingData.demoPreferences}
+- Current Onboarding Phase: ${onboardingData.onboardingPhase}
+- Trigger Event: ${onboardingData.triggerEvent}
+- Days Since Registration: ${onboardingData.daysSinceRegistration}
+
+## COMPREHENSIVE ONBOARDING JOURNEY:
+
+### PHASE 1: WELCOME & IMMEDIATE VALUE (Days 1-3)
+
+**Day 1 - Welcome & Quick Win**
+**Trigger**: Account creation confirmed
+**Objective**: Deliver immediate value and build confidence
+
+Email Subject: "Welcome to HOA AI Assistant! Your first violation letter is 3 clicks away 🏠"
+
+Content Strategy:
+- Personal welcome with user's name and HOA information
+- Highlight #1 time-saving benefit specific to their subscription tier
+- Provide 1-click access to most popular feature (Violation Letter Generator)
+- Include 60-second video showing exact steps for first letter
+- Offer live demo scheduling option
+- Set expectations for onboarding series
+
+**Day 2 - Feature Discovery**
+**Trigger**: 24 hours after registration OR first feature use
+**Objective**: Expand feature awareness and usage
+
+Email Subject: "{{user_name}}, discover your time-saving toolkit"
+
+Content Strategy:
+- Personalized dashboard tour based on their HOA size
+- Showcase 3 core features with specific use cases
+- Include templates and examples relevant to their property type
+- Provide quick-start guides with step-by-step screenshots
+- Highlight subscription tier benefits they're not using yet
+
+**Day 3 - Community & Support**
+**Trigger**: 72 hours after registration
+**Objective**: Build confidence and reduce anxiety
+
+Email Subject: "You're not alone - join 500+ HOA managers saving 10+ hours/week"
+
+Content Strategy:
+- Share customer success stories from similar HOA sizes
+- Introduce support resources (help docs, chat, email)
+- Highlight community features or user groups
+- Provide advanced tips for power users
+- Include FAQ addressing common first-week questions
+
+### PHASE 2: SKILL BUILDING & ADOPTION (Days 4-14)
+
+**Day 7 - Weekly Progress Check**
+**Trigger**: 7 days after registration
+**Objective**: Celebrate progress and identify gaps
+
+Email Subject: "Week 1 complete! Here's your time saved: {{calculated_time_saved}} minutes"
+
+Content Strategy:
+- Personal usage statistics and achievements
+- Gamified progress indicators
+- Recommendations for next features to try
+- Success metrics comparison to peer users
+- Invitation to advanced training webinar
+
+**Day 10 - Advanced Features Unlock**
+**Trigger**: Basic feature usage confirmed OR 10 days post-registration
+**Objective**: Deepen platform engagement
+
+Email Subject: "Ready for the advanced stuff? Let's automate your monthly reports"
+
+Content Strategy:
+- Introduction to premium/advanced features
+- Step-by-step workflow setup guides
+- ROI calculator showing advanced feature benefits
+- Case study of user achieving significant time savings
+- Personalized feature recommendations based on usage
+
+**Day 14 - Two-Week Milestone**
+**Trigger**: 14 days after registration
+**Objective**: Reinforce value and prevent churn
+
+Email Subject: "Two weeks in - you've already saved {{time_saved}} hours!"
+
+Content Strategy:
+- Comprehensive usage analytics and achievements
+- Before/after comparison of their workflow efficiency
+- Advanced tips and hidden features
+- Testimonial from similar user about long-term benefits
+- Soft upgrade prompt for free tier users
+
+### PHASE 3: MASTERY & RETENTION (Days 15-30)
+
+**Day 21 - Power User Status**
+**Trigger**: 21 days after registration OR high engagement score
+**Objective**: Create platform advocates and reduce churn risk
+
+Email Subject: "Congratulations! You're officially a HOA AI power user 🚀"
+
+Content Strategy:
+- Celebrate their expertise and achievements
+- Share advanced workflows and pro tips
+- Introduce beta features or early access opportunities
+- Invite to customer advisory board or feedback program
+- Provide referral incentives and sharing tools
+
+**Day 30 - Monthly Review & Forward Planning**
+**Trigger**: 30 days after registration
+**Objective**: Demonstrate ROI and plan future success
+
+Email Subject: "Your first month results: {{achievements_summary}}"
+
+Content Strategy:
+- Comprehensive monthly performance report
+- ROI analysis with time and cost savings
+- Goal setting for next month
+- Advanced training opportunities
+- Loyalty program introduction
+
+### BEHAVIORAL TRIGGER EMAILS:
+
+**Feature Abandonment Recovery**
+**Trigger**: Started but didn't complete key feature setup
+**Timing**: 24 hours after abandonment
+
+"Stuck on {{feature_name}}? Here's a 2-minute solution"
+- Identify specific abandonment point
+- Provide targeted help content
+- Offer personal assistance
+- Simplify the completion process
+
+**Usage Plateau Recovery**
+**Trigger**: No activity for 5+ days
+**Timing**: Day 6 of inactivity
+
+"Missing you! Here's what's new since your last visit"
+- Highlight new features or improvements
+- Share relevant customer success story
+- Provide re-engagement incentive
+- Offer refresher training
+
+**Upgrade Opportunity**
+**Trigger**: Approaching or hitting plan limits
+**Timing**: 80% of quota used
+
+"You're on fire! Time to unlock unlimited potential"
+- Celebrate their success and growth
+- Demonstrate upgrade benefits
+- Provide limited-time upgrade incentive
+- Show ROI of higher tier
+
+### PERSONALIZATION STRATEGIES:
+
+**By HOA Size**:
+- Small (50-100 units): Focus on efficiency and cost savings
+- Medium (100-300 units): Emphasize scalability and automation
+- Large (300+ units): Highlight enterprise features and compliance
+
+**By Experience Level**:
+- Beginner: More hand-holding, detailed explanations, basic features
+- Intermediate: Focus on workflow optimization, time-saving tips
+- Expert: Advanced features, customization, integration opportunities
+
+**By Subscription Tier**:
+- Free: Demonstrate value, encourage upgrade, highlight limitations
+- Pro: Maximize feature adoption, showcase advanced capabilities
+- Agency: Focus on multi-property management, white-label options
+
+### SUCCESS METRICS TRACKING:
+
+**Engagement Metrics**:
+- Email open rates and click-through rates
+- Feature adoption progression
+- Time to first value achievement
+- Support ticket volume and resolution
+
+**Business Metrics**:
+- Trial to paid conversion rates
+- Churn rate by onboarding sequence completion
+- Upsell success rates
+- Customer lifetime value improvement
+
+**User Experience Metrics**:
+- User satisfaction scores
+- Feature completion rates
+- Time spent in application
+- Referral rates and viral coefficient
+
+CONTENT GENERATION REQUIREMENTS:
+Based on the user profile data and current onboarding phase, generate specific, personalized onboarding content that includes:
+
+1. **Personalized Email Content**: Subject line, opening, main content, and call-to-action
+2. **Behavioral Triggers**: Identify relevant triggers and appropriate responses
+3. **Feature Recommendations**: Specific features to promote based on user profile
+4. **Success Metrics**: Define success indicators for this user segment
+5. **Next Steps**: Clear action items and timeline for progression
+6. **Personalization Elements**: Specific customizations based on user data
+
+TONE AND APPROACH:
+- Friendly, encouraging, and supportive
+- Data-driven and results-focused
+- Educational without being overwhelming
+- Celebratory of user achievements
+- Proactive in addressing potential obstacles
+- Clear and actionable in all recommendations
+
+Generate comprehensive, personalized onboarding content that adapts to user behavior, maximizes engagement, and drives long-term success for both users and the platform.
+`
+
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are a master customer success strategist and onboarding specialist with expertise in SaaS user adoption, behavior psychology, and educational content design.'
+      },
+      {
+        role: 'user',
+        content: prompt
+      }
+    ]
+
+    return await this.makeRequest(messages, 0.4) // Balanced temperature for personalized, engaging content
+  }
 }
 
 export const openAIService = new OpenAIService()
-export type { ViolationData, ComplaintData, MeetingData, MonthlyReportData }
+export type { ViolationData, ComplaintData, MeetingData, MonthlyReportData, DataMonitorData, OnboardingData }

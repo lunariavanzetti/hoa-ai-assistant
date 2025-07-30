@@ -65,21 +65,6 @@ export const Reports: React.FC = () => {
     }
   }
 
-  const handleDownloadPDF = () => {
-    // Create a downloadable text file with the report
-    const content = `MONTHLY REPORT - ${formData.reportPeriod}\n\n${generatedReport}`
-    const blob = new Blob([content], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `monthly-report-${formData.reportPeriod || 'draft'}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    success('Download Started', 'Monthly report downloaded as text file')
-  }
-
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <motion.div
@@ -300,10 +285,7 @@ export const Reports: React.FC = () => {
                   >
                     COPY REPORT
                   </button>
-                  <button 
-                    onClick={handleDownloadPDF}
-                    className="btn-primary flex-1"
-                  >
+                  <button className="btn-primary flex-1">
                     DOWNLOAD PDF
                   </button>
                 </div>

@@ -12,6 +12,7 @@ export const ViolationGenerator: React.FC = () => {
     residentAddress: '',
     violationType: '',
     description: '',
+    violationDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     managerName: 'HOA Management',
     severityLevel: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
     photos: [] as File[]
@@ -81,7 +82,7 @@ export const ViolationGenerator: React.FC = () => {
         residentName: formData.residentName,
         violationType: formData.violationType,
         violationDescription: formData.description,
-        violationDate: new Date().toLocaleDateString(),
+        violationDate: new Date(formData.violationDate).toLocaleDateString(),
         managerName: formData.managerName,
         managerTitle: 'Community Manager',
         severityLevel: formData.severityLevel,
@@ -161,6 +162,16 @@ export const ViolationGenerator: React.FC = () => {
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Violation Date *</label>
+              <input
+                type="date"
+                value={formData.violationDate}
+                onChange={(e) => setFormData(prev => ({ ...prev, violationDate: e.target.value }))}
+                className="input-liquid"
+              />
             </div>
 
             <div>

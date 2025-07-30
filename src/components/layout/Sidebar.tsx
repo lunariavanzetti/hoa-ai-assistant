@@ -6,6 +6,8 @@ import {
   MessageCircle, 
   Mic, 
   FileText, 
+  Shield,
+  UserCheck,
   Settings,
   Building2
 } from 'lucide-react'
@@ -18,6 +20,8 @@ const navigation = [
   { name: 'Complaint Reply', href: '/complaint-reply', icon: MessageCircle },
   { name: 'Meetings', href: '/meetings', icon: Mic },
   { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'Data Monitor', href: '/data-monitor', icon: Shield },
+  { name: 'Onboarding', href: '/onboarding', icon: UserCheck },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

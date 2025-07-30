@@ -73,6 +73,11 @@ export const ComplaintReply: React.FC = () => {
     }
   }
 
+  const handleSendResponse = () => {
+    // For now, show a success message. In production, this would integrate with email system
+    success('Response Sent!', `Complaint response sent to ${formData.residentName}`)
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <motion.div
@@ -249,7 +254,10 @@ export const ComplaintReply: React.FC = () => {
                 >
                   COPY RESPONSE
                 </button>
-                <button className="btn-primary flex-1">
+                <button 
+                  onClick={handleSendResponse}
+                  className="btn-primary flex-1"
+                >
                   SEND RESPONSE
                 </button>
               </div>

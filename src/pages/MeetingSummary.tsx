@@ -71,6 +71,21 @@ export const MeetingSummary: React.FC = () => {
     }
   }
 
+  const handleDownloadPDF = () => {
+    // Create a simple PDF-like text format for download
+    const content = `MEETING MINUTES - ${formData.meetingDate}\n\n${generatedMinutes}`
+    const blob = new Blob([content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `meeting-minutes-${formData.meetingDate || 'draft'}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    success('Download Started', 'Meeting minutes downloaded as text file')
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div
@@ -298,7 +313,10 @@ export const MeetingSummary: React.FC = () => {
                 >
                   COPY MINUTES
                 </button>
-                <button className="btn-primary flex-1">
+                <button 
+                  onClick={handleDownloadPDF}
+                  className="btn-primary flex-1"
+                >
                   DOWNLOAD PDF
                 </button>
               </div>

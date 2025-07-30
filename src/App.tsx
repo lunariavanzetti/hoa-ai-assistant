@@ -9,6 +9,8 @@ import { ComplaintInbox } from '@/pages/ComplaintInbox'
 import { ComplaintReply } from '@/pages/ComplaintReply'
 import { MeetingSummary } from '@/pages/MeetingSummary'
 import { Reports } from '@/pages/Reports'
+import { DataMonitor } from '@/pages/DataMonitor'
+import { OnboardingDesigner } from '@/pages/OnboardingDesigner'
 import { Settings } from '@/pages/Settings'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
@@ -39,6 +41,8 @@ function App() {
                   <Route path="complaint-reply" element={<ComplaintReply />} />
                   <Route path="meetings" element={<MeetingSummary />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="data-monitor" element={<DataMonitor />} />
+                  <Route path="onboarding" element={<OnboardingDesigner />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="auth/callback" element={<AuthCallback />} />
                 </Route>
