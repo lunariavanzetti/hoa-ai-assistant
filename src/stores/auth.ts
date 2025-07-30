@@ -16,6 +16,7 @@ interface AuthState {
   signInWithProvider: (provider: 'google' | 'apple') => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updateProfile: (updates: Partial<User>) => Promise<void>
+  updateUser: (updates: { data?: { full_name?: string } }) => Promise<void>
   setUser: (user: User | null) => void
   setSession: (session: Session | null) => void
   setLoading: (loading: boolean) => void
@@ -196,6 +197,44 @@ export const useAuthStore = create<AuthState>()(
             user: data, 
             loading: false 
           })
+        } catch (error) {
+          set({ 
+            error: (error as Error).message, 
+            loading: false 
+          })
+          throw error
+        }
+      },
+
+      updateUser: async (updates: { data?: { full_name?: string } }) => {
+        try {
+          const { user } = get()
+          if (!user) throw new Error('No user logged in')
+
+          set({ loading: true, error: null })
+
+          // Update Supabase auth user metadata
+          const { error } = await supabase.auth.updateUser(updates)
+          if (error) throw error
+
+          // Update our local user data as well
+          if (updates.data?.full_name) {
+            const { data: profileData, error: profileError } = await supabase
+              .from('users')
+              .update({ full_name: updates.data.full_name })
+              .eq('id', user.id)
+              .select()
+              .single()
+
+            if (profileError) throw profileError
+            
+            set({ 
+              user: profileData, 
+              loading: false 
+            })
+          } else {
+            set({ loading: false })
+          }
         } catch (error) {
           set({ 
             error: (error as Error).message, 

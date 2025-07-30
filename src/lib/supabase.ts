@@ -21,11 +21,17 @@ export interface User {
   email: string
   full_name: string
   created_at: string
-  subscription_tier: 'free' | 'pro' | 'agency'
+  subscription_tier: 'free' | 'pro' | 'agency' | 'enterprise'
+  paddle_customer_id?: string
+  user_metadata?: {
+    full_name?: string
+    [key: string]: any
+  }
   usage_stats?: {
     letters_this_month: number
     complaints_this_month: number
     reports_this_month: number
+    meetings_this_month: number
   }
 }
 

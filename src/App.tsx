@@ -11,6 +11,7 @@ import { MeetingSummary } from '@/pages/MeetingSummary'
 import { Reports } from '@/pages/Reports'
 import { DataMonitor } from '@/pages/DataMonitor'
 import { OnboardingDesigner } from '@/pages/OnboardingDesigner'
+import { Pricing } from '@/pages/Pricing'
 import { Settings } from '@/pages/Settings'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
@@ -43,6 +44,7 @@ function App() {
                   <Route path="reports" element={<Reports />} />
                   <Route path="data-monitor" element={<DataMonitor />} />
                   <Route path="onboarding" element={<OnboardingDesigner />} />
+                  <Route path="pricing" element={<Pricing />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="auth/callback" element={<AuthCallback />} />
                 </Route>

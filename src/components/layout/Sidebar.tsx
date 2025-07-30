@@ -8,6 +8,7 @@ import {
   FileText, 
   Shield,
   UserCheck,
+  DollarSign,
   Settings,
   Building2
 } from 'lucide-react'
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Data Monitor', href: '/data-monitor', icon: Shield },
   { name: 'Onboarding', href: '/onboarding', icon: UserCheck },
+  { name: 'Pricing', href: '/pricing', icon: DollarSign },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
@@ -71,7 +73,10 @@ export const Sidebar: React.FC = () => {
           <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
             Unlock unlimited AI letters and advanced features
           </p>
-          <button className="btn-primary w-full text-sm py-2">
+          <button 
+            onClick={() => window.location.href = '/pricing'}
+            className="btn-primary w-full text-sm py-2"
+          >
             Upgrade Now
           </button>
         </div>
