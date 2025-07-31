@@ -57,13 +57,23 @@ export const ViolationGenerator: React.FC = () => {
         try {
           console.log('📤 Starting photo upload...', formData.photos.length, 'photos')
           
+          // Add a 10-second timeout as final fallback to prevent infinite hang
           const uploadPromises = formData.photos.map((photo, index) => {
             console.log(`📁 Uploading photo ${index + 1}:`, photo.name, photo.size)
             return storageService.uploadPhoto(photo)
           })
           
-          console.log('⏱️ Starting upload (no timeout - letting Supabase handle it)...')
-          const uploadResults = await Promise.all(uploadPromises)
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => {
+              reject(new Error('Upload taking too long - continuing without photos'))
+            }, 10000) // 10 second fallback timeout
+          })
+          
+          console.log('⏱️ Starting upload (10s fallback timeout)...')
+          const uploadResults = await Promise.race([
+            Promise.all(uploadPromises),
+            timeoutPromise
+          ])
           
           photoUrls = uploadResults.map(result => result.url)
           setUploadedPhotoUrls(photoUrls)
@@ -71,7 +81,11 @@ export const ViolationGenerator: React.FC = () => {
           success('Photos Uploaded!', `Successfully uploaded ${photoUrls.length} photo(s)`)
         } catch (uploadError) {
           console.error('❌ Photo upload failed:', uploadError)
-          showError('Photo Upload Failed', `Could not upload photos: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Continuing without photos.`)
+          if (uploadError instanceof Error && uploadError.message.includes('taking too long')) {
+            showError('Photo Upload Timeout', 'Photo upload is taking too long. This may be a Supabase configuration issue. Continuing without photos.')
+          } else {
+            showError('Photo Upload Failed', `Could not upload photos: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Continuing without photos.`)
+          }
           // Continue without photos - don't block the violation generation
           photoUrls = [] // Ensure it's empty array
         }
