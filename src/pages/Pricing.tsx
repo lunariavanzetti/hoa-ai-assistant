@@ -134,7 +134,7 @@ export const Pricing: React.FC = () => {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: billingCycle === 'monthly' ? 29 : 290,
+      price: billingCycle === 'monthly' ? 49 : 490,
       description: 'Premium solution with dedicated support and custom integrations',
       icon: <Crown className="w-8 h-8" />,
       features: {
