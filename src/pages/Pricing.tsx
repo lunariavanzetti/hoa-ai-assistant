@@ -75,7 +75,7 @@ export const Pricing: React.FC = () => {
     {
       id: 'pro',
       name: 'Pro',
-      price: billingCycle === 'monthly' ? 29 : 290,
+      price: billingCycle === 'monthly' ? 9 : 90,
       description: 'Professional HOA management for growing communities',
       icon: <Building2 className="w-8 h-8" />,
       features: {
@@ -103,7 +103,7 @@ export const Pricing: React.FC = () => {
     {
       id: 'agency',
       name: 'Agency',
-      price: billingCycle === 'monthly' ? 99 : 990,
+      price: billingCycle === 'monthly' ? 19 : 190,
       description: 'Unlimited solution for large HOAs and property managers',
       icon: <Star className="w-8 h-8" />,
       badge: 'Most Popular',
@@ -134,7 +134,7 @@ export const Pricing: React.FC = () => {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: billingCycle === 'monthly' ? 299 : 2990,
+      price: billingCycle === 'monthly' ? 29 : 290,
       description: 'Premium solution with dedicated support and custom integrations',
       icon: <Crown className="w-8 h-8" />,
       features: {
@@ -172,7 +172,7 @@ export const Pricing: React.FC = () => {
     }
 
     if (!plan.productId) {
-      error('Plan Unavailable', 'This plan is not yet available for purchase')
+      error('Setup Required', 'Paddle product ID not configured. Please set environment variables.')
       return
     }
 

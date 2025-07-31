@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { 
   AlertTriangle, 
   MessageCircle, 
@@ -86,6 +87,32 @@ const recentActivity = [
 ]
 
 export const Dashboard: React.FC = () => {
+  const navigate = useNavigate()
+
+  const handleViewAll = () => {
+    navigate('/violations')
+  }
+
+  const handleCreateViolation = () => {
+    navigate('/violations')
+  }
+
+  const handleComplaint = () => {
+    navigate('/complaint-reply')
+  }
+
+  const handleMeeting = () => {
+    navigate('/meetings')
+  }
+
+  const handleReport = () => {
+    navigate('/reports')
+  }
+
+  const handleUpgrade = () => {
+    navigate('/pricing')
+  }
+
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
@@ -140,7 +167,7 @@ export const Dashboard: React.FC = () => {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Recent Activity</h2>
-            <button className="btn-secondary text-sm">View All</button>
+            <button onClick={handleViewAll} className="btn-secondary text-sm">View All</button>
           </div>
           
           <div className="space-y-4">
@@ -169,22 +196,22 @@ export const Dashboard: React.FC = () => {
           <h2 className="text-xl font-bold mb-6">Quick Actions</h2>
           
           <div className="space-y-3">
-            <button className="w-full btn-primary text-left flex items-center gap-3">
+            <button onClick={handleCreateViolation} className="w-full btn-primary text-left flex items-center gap-3">
               <AlertTriangle className="w-4 h-4" />
               Create Violation Letter
             </button>
             
-            <button className="w-full btn-secondary text-left flex items-center gap-3">
+            <button onClick={handleComplaint} className="w-full btn-secondary text-left flex items-center gap-3">
               <MessageCircle className="w-4 h-4" />
               Handle Complaint
             </button>
             
-            <button className="w-full btn-secondary text-left flex items-center gap-3">
+            <button onClick={handleMeeting} className="w-full btn-secondary text-left flex items-center gap-3">
               <Calendar className="w-4 h-4" />
               Upload Meeting Recording
             </button>
             
-            <button className="w-full btn-secondary text-left flex items-center gap-3">
+            <button onClick={handleReport} className="w-full btn-secondary text-left flex items-center gap-3">
               <FileText className="w-4 h-4" />
               Generate Monthly Report
             </button>
@@ -219,7 +246,7 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             
-            <button className="w-full btn-primary mt-4 text-sm">
+            <button onClick={handleUpgrade} className="w-full btn-primary mt-4 text-sm">
               Upgrade Plan
             </button>
           </div>

@@ -1,6 +1,8 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Clock, AlertCircle, CheckCircle } from 'lucide-react'
+import { useToast } from '@/components/ui/Toaster'
 
 const complaints = [
   {
@@ -60,6 +62,31 @@ const priorityColors = {
 }
 
 export const ComplaintInbox: React.FC = () => {
+  const navigate = useNavigate()
+  const { success } = useToast()
+
+  const handleNewComplaint = () => {
+    navigate('/complaint-reply')
+  }
+
+  const handleViewComplaint = (complaintId: number) => {
+    success('Complaint Viewed', `Opening complaint #${complaintId}`)
+    // In a real app, this would navigate to a detailed view
+  }
+
+  const handleReplyToComplaint = (complaintId: number) => {
+    navigate('/complaint-reply')
+    success('Reply Mode', `Preparing reply for complaint #${complaintId}`)
+  }
+
+  const handleViewTemplates = () => {
+    success('Templates', 'AI response templates are being loaded...')
+  }
+
+  const handleReviewAlerts = () => {
+    success('Alerts', 'Reviewing 2 priority complaints...')
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div
@@ -103,7 +130,7 @@ export const ComplaintInbox: React.FC = () => {
             <option>Low</option>
           </select>
           
-          <button className="btn-primary">
+          <button onClick={handleNewComplaint} className="btn-primary">
             <MessageCircle className="w-4 h-4 mr-2" />
             New Complaint
           </button>
@@ -149,8 +176,8 @@ export const ComplaintInbox: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center gap-2 ml-4">
-                  <button className="btn-secondary text-sm">View</button>
-                  <button className="btn-primary text-sm">Reply</button>
+                  <button onClick={() => handleViewComplaint(complaint.id)} className="btn-secondary text-sm">View</button>
+                  <button onClick={() => handleReplyToComplaint(complaint.id)} className="btn-primary text-sm">Reply</button>
                 </div>
               </div>
             </motion.div>
@@ -172,7 +199,7 @@ export const ComplaintInbox: React.FC = () => {
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               AI has generated response templates based on complaint patterns.
             </p>
-            <button className="btn-secondary text-sm">View Templates</button>
+            <button onClick={handleViewTemplates} className="btn-secondary text-sm">View Templates</button>
           </div>
           
           <div className="glass-surface p-4 rounded-xl">
@@ -180,7 +207,7 @@ export const ComplaintInbox: React.FC = () => {
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               2 complaints require immediate attention based on priority scoring.
             </p>
-            <button className="btn-primary text-sm">Review Alerts</button>
+            <button onClick={handleReviewAlerts} className="btn-primary text-sm">Review Alerts</button>
           </div>
         </div>
       </motion.div>

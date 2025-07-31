@@ -57,6 +57,7 @@ export const Settings: React.FC = () => {
         fields_updated: ['full_name']
       })
     } catch (err) {
+      console.error('Profile update error:', err)
       error('Update Failed', 'Failed to update profile. Please try again.')
     } finally {
       setIsLoading(false)
@@ -91,7 +92,9 @@ export const Settings: React.FC = () => {
 
   const handleViewBillingHistory = async () => {
     if (!user?.paddle_customer_id) {
-      error('No Billing Info', 'No billing information found for your account.')
+      // For users without billing info, redirect to pricing
+      success('Setup Billing', 'Subscribe to a plan first to view billing history.')
+      window.location.href = '/pricing'
       return
     }
     

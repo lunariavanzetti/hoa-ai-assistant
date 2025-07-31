@@ -20,7 +20,58 @@ export const MeetingSummary: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedMinutes, setGeneratedMinutes] = useState('')
   const [error, setError] = useState('')
+  const [uploadedFileName, setUploadedFileName] = useState('')
   const { success, error: showError } = useToast()
+
+  const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const allowedTypes = ['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/mpeg']
+      if (!allowedTypes.includes(file.type)) {
+        showError('Invalid File Type', 'Please upload MP3, WAV, or M4A audio files only.')
+        return
+      }
+      
+      if (file.size > 50 * 1024 * 1024) { // 50MB limit
+        showError('File Too Large', 'Audio file must be under 50MB.')
+        return
+      }
+      
+      setUploadedFileName(file.name)
+      success('Audio Uploaded', 'Audio file uploaded. AI transcription coming soon!')
+      // In a real app, you'd upload to storage and process with speech-to-text
+    }
+  }
+
+  const handleTextUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const allowedTypes = ['text/plain', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+      if (!allowedTypes.includes(file.type)) {
+        showError('Invalid File Type', 'Please upload TXT, PDF, DOC, or DOCX files only.')
+        return
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        showError('File Too Large', 'Text file must be under 10MB.')
+        return
+      }
+      
+      // For text files, read the content
+      if (file.type === 'text/plain') {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const content = e.target?.result as string
+          setFormData(prev => ({ ...prev, transcriptContent: content }))
+          success('Text Loaded', 'File content has been loaded into the transcript field.')
+        }
+        reader.readAsText(file)
+      } else {
+        setUploadedFileName(file.name)
+        success('File Uploaded', 'Document uploaded. Text extraction coming soon!')
+      }
+    }
+  }
 
   const meetingTypes = [
     'Regular Board Meeting',
@@ -358,10 +409,16 @@ export const MeetingSummary: React.FC = () => {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Upload meeting audio files (MP3, WAV, M4A)
             </p>
-            <button className="btn-secondary">
+            <label className="btn-secondary cursor-pointer inline-flex items-center">
               <Upload className="w-4 h-4 mr-2" />
               UPLOAD AUDIO
-            </button>
+              <input
+                type="file"
+                accept="audio/*,.mp3,.wav,.m4a"
+                onChange={handleAudioUpload}
+                className="hidden"
+              />
+            </label>
           </div>
 
           <div className="brutal-surface p-8 text-center bg-gray-50 dark:bg-gray-800">
@@ -370,10 +427,16 @@ export const MeetingSummary: React.FC = () => {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Upload existing transcripts or documents
             </p>
-            <button className="btn-secondary">
+            <label className="btn-secondary cursor-pointer inline-flex items-center">
               <Upload className="w-4 h-4 mr-2" />
               UPLOAD TEXT
-            </button>
+              <input
+                type="file"
+                accept=".txt,.pdf,.doc,.docx"
+                onChange={handleTextUpload}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
       </motion.div>

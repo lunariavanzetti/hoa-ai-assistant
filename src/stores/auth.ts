@@ -213,8 +213,16 @@ export const useAuthStore = create<AuthState>()(
 
           set({ loading: true, error: null })
 
-          // Update Supabase auth user metadata
-          const { error } = await supabase.auth.updateUser(updates)
+          // Create a timeout promise
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => {
+              reject(new Error('Update timeout after 10 seconds'))
+            }, 10000)
+          })
+
+          // Update Supabase auth user metadata with timeout
+          const updatePromise = supabase.auth.updateUser(updates)
+          const { error } = await Promise.race([updatePromise, timeoutPromise])
           if (error) throw error
 
           // Update our local user data as well
@@ -226,16 +234,19 @@ export const useAuthStore = create<AuthState>()(
               .select()
               .single()
 
-            if (profileError) throw profileError
+            if (profileError) {
+              console.warn('Profile update failed, but auth metadata updated:', profileError)
+            }
             
             set({ 
-              user: profileData, 
+              user: profileData || { ...user, full_name: updates.data.full_name }, 
               loading: false 
             })
           } else {
             set({ loading: false })
           }
         } catch (error) {
+          console.error('UpdateUser error:', error)
           set({ 
             error: (error as Error).message, 
             loading: false 

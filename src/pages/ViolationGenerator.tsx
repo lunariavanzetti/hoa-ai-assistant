@@ -56,11 +56,11 @@ export const ViolationGenerator: React.FC = () => {
           
           const timeoutPromise = new Promise<never>((_, reject) => {
             setTimeout(() => {
-              reject(new Error('Photo upload timeout after 10 seconds'))
-            }, 10000)
+              reject(new Error('Photo upload timeout after 45 seconds'))
+            }, 45000)
           })
 
-          console.log('⏱️ Starting upload with 10s timeout...')
+          console.log('⏱️ Starting upload with 45s timeout...')
           const uploadResults = await Promise.race([
             Promise.all(uploadPromises),
             timeoutPromise

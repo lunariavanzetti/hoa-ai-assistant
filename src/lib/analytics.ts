@@ -87,17 +87,17 @@ export const getPlanDetails = (tier: string) => {
     },
     pro: {
       name: 'Pro', 
-      price: 29,
+      price: 9,
       limits: { letters: 50, complaints: 200, meetings: 10, reports: 5 }
     },
     agency: {
       name: 'Agency',
-      price: 99, 
+      price: 19, 
       limits: { letters: 999999, complaints: 999999, meetings: 999999, reports: 999999 }
     },
     enterprise: {
       name: 'Enterprise',
-      price: 299,
+      price: 29,
       limits: { letters: 999999, complaints: 999999, meetings: 999999, reports: 999999 }
     }
   }
