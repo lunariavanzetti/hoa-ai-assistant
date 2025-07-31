@@ -33,8 +33,7 @@ class StorageService {
         console.error('❌ Supabase upload error:', error)
         console.error('❌ Error details:', {
           message: error.message,
-          statusCode: error.statusCode,
-          error: error.error
+          name: error.name
         })
         
         // If bucket doesn't exist, try to create it
