@@ -176,6 +176,12 @@ export const Pricing: React.FC = () => {
       return
     }
 
+    // Check if Paddle is configured
+    if (!import.meta.env.VITE_PADDLE_CLIENT_TOKEN) {
+      error('Setup Required', 'Paddle not configured. Please set VITE_PADDLE_CLIENT_TOKEN environment variable.')
+      return
+    }
+
     if (!user) {
       // Redirect to auth with plan selection
       localStorage.setItem('selectedPlan', plan.id)
@@ -185,9 +191,11 @@ export const Pricing: React.FC = () => {
 
     setLoading(plan.id)
     try {
+      console.log('Opening checkout for plan:', plan.id, 'with productId:', plan.productId)
       await paddleClient.openCheckout(plan.productId, user.paddle_customer_id)
     } catch (err) {
-      error('Checkout Error', 'Failed to open billing checkout. Please try again.')
+      console.error('Checkout error:', err)
+      error('Checkout Error', `Failed to open billing checkout: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setLoading(null)
     }

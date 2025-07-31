@@ -10,8 +10,9 @@ class StorageService {
 
   async uploadPhoto(file: File, violationId?: string): Promise<UploadResult> {
     try {
-      // Skip bucket checking - go directly to upload (bucket should exist from SQL setup)
-      console.log('📤 Starting direct upload (skipping bucket check)')
+      // First ensure bucket exists
+      console.log('📤 Starting upload with bucket check...')
+      await this.ensureBucketExists()
 
       // Generate unique filename
       const fileExt = file.name.split('.').pop()
@@ -20,26 +21,47 @@ class StorageService {
 
       console.log('📁 Uploading to bucket:', this.bucket, 'file path:', filePath)
 
-      // Create a timeout promise that rejects after 30 seconds
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-          reject(new Error('Direct upload timeout after 30 seconds'))
-        }, 30000)
-      })
-
-      // Upload file to Supabase Storage with timeout
-      const uploadPromise = supabase.storage
+      // Upload file to Supabase Storage (no timeout - let Supabase handle it)
+      const { data, error } = await supabase.storage
         .from(this.bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
         })
 
-      console.log('⏱️ Starting direct upload with 30s timeout...')
-      const { data, error } = await Promise.race([uploadPromise, timeoutPromise])
-
       if (error) {
         console.error('❌ Supabase upload error:', error)
+        
+        // If bucket doesn't exist, try to create it
+        if (error.message.includes('Bucket not found')) {
+          console.log('🏗️ Bucket not found, creating...')
+          await this.createBucket()
+          
+          // Retry upload
+          const { data: retryData, error: retryError } = await supabase.storage
+            .from(this.bucket)
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            })
+            
+          if (retryError) {
+            throw new Error(`Upload failed after bucket creation: ${retryError.message}`)
+          }
+          
+          console.log('✅ Upload successful after bucket creation')
+          
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from(this.bucket)
+            .getPublicUrl(retryData.path)
+
+          return {
+            url: publicUrl,
+            path: retryData.path
+          }
+        }
+        
         throw new Error(`Upload failed: ${error.message}`)
       }
 

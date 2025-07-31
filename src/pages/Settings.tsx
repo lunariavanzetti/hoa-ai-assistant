@@ -40,16 +40,34 @@ export const Settings: React.FC = () => {
   }, [user])
 
   const handleProfileSave = async () => {
-    if (!user) return
+    if (!user) {
+      error('No User', 'Please log in to update your profile.')
+      return
+    }
+    
+    if (!profileData.fullName.trim()) {
+      error('Invalid Name', 'Please enter a valid full name.')
+      return
+    }
     
     setIsLoading(true)
     try {
-      // Update user metadata
-      await updateUser({
+      console.log('Updating profile with data:', { full_name: profileData.fullName })
+      
+      // Simple timeout to prevent infinite loading
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Profile update timeout after 15 seconds'))
+        }, 15000)
+      })
+      
+      const updatePromise = updateUser({
         data: {
           full_name: profileData.fullName
         }
       })
+      
+      await Promise.race([updatePromise, timeoutPromise])
       
       success('Profile Updated', 'Your profile has been saved successfully.')
       analytics.track('Profile Updated', {
@@ -58,7 +76,7 @@ export const Settings: React.FC = () => {
       })
     } catch (err) {
       console.error('Profile update error:', err)
-      error('Update Failed', 'Failed to update profile. Please try again.')
+      error('Update Failed', `Failed to update profile: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
