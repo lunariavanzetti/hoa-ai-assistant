@@ -70,8 +70,7 @@ export const ComplaintInbox: React.FC = () => {
   }
 
   const handleViewComplaint = (complaintId: number) => {
-    success('Complaint Viewed', `Opening complaint #${complaintId}`)
-    // In a real app, this would navigate to a detailed view
+    navigate(`/complaints/${complaintId}`)
   }
 
   const handleReplyToComplaint = (complaintId: number) => {

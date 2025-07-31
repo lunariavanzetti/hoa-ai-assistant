@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { User, Building2, Bell, CreditCard, Shield, Upload, Plus, ExternalLink, Download, Key, Smartphone } from 'lucide-react'
+import { User, Building2, Bell, CreditCard, Shield, Upload, Plus, ExternalLink, Download, Key, Smartphone, Edit3, Trash2 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/components/ui/Toaster'
 import { paddleClient } from '@/lib/paddleClient'
 import { analytics, getPlanDetails } from '@/lib/analytics'
+import { supabase } from '@/lib/supabase'
 
 export const Settings: React.FC = () => {
-  const { user, updateUser } = useAuthStore()
+  const { user, updateUser, signOut } = useAuthStore()
   const { success, error } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [profileData, setProfileData] = useState({
@@ -20,19 +21,22 @@ export const Settings: React.FC = () => {
     emailNotifications: true,
     pushNotifications: false
   })
-  const [hoaProperties] = useState([
+  const [hoaProperties, setHoaProperties] = useState([
     {
       id: '1',
       name: 'Sunset Ridge Community',
       address: '123 Community Dr, City, ST 12345'
     }
   ])
+  const [isEditingHOA, setIsEditingHOA] = useState<string | null>(null)
+  const [hoaForm, setHoaForm] = useState({ name: '', address: '' })
 
   // Load user data on component mount
   useEffect(() => {
     if (user) {
+      console.log('User data loaded:', user)
       setProfileData({
-        fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+        fullName: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '',
         email: user.email || '',
         photo: null
       })
@@ -54,11 +58,11 @@ export const Settings: React.FC = () => {
     try {
       console.log('Updating profile with data:', { full_name: profileData.fullName })
       
-      // Simple timeout to prevent infinite loading
+      // Simple timeout to prevent infinite loading (reduced to 8 seconds)
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error('Profile update timeout after 15 seconds'))
-        }, 15000)
+          reject(new Error('Profile update timeout after 8 seconds'))
+        }, 8000)
       })
       
       const updatePromise = updateUser({
@@ -91,12 +95,68 @@ export const Settings: React.FC = () => {
   }
 
   const handleAddNewHOA = () => {
-    // Navigate to HOA setup wizard or show modal
-    success('Coming Soon', 'Multi-HOA management is coming in the next update!')
-    analytics.track('Add HOA Clicked', {
-      user_id: user?.id,
-      current_hoa_count: hoaProperties.length
-    })
+    setIsEditingHOA('new')
+    setHoaForm({ name: '', address: '' })
+  }
+
+  const handleEditHOA = (hoaId: string) => {
+    const hoa = hoaProperties.find(h => h.id === hoaId)
+    if (!hoa) return
+
+    setIsEditingHOA(hoaId)
+    setHoaForm({ name: hoa.name, address: hoa.address })
+  }
+
+  const handleSaveHOA = () => {
+    if (!hoaForm.name.trim() || !hoaForm.address.trim()) {
+      error('Invalid Data', 'Please enter both HOA name and address.')
+      return
+    }
+
+    if (isEditingHOA === 'new') {
+      const newHOA = {
+        id: Date.now().toString(),
+        name: hoaForm.name,
+        address: hoaForm.address
+      }
+      setHoaProperties(prev => [...prev, newHOA])
+      success('HOA Added', `${hoaForm.name} has been added to your properties!`)
+      analytics.track('Add HOA Clicked', {
+        user_id: user?.id,
+        hoa_name: hoaForm.name,
+        current_hoa_count: hoaProperties.length + 1
+      })
+    } else {
+      setHoaProperties(prev => prev.map(hoa => 
+        hoa.id === isEditingHOA 
+          ? { ...hoa, name: hoaForm.name, address: hoaForm.address }
+          : hoa
+      ))
+      success('HOA Updated', `${hoaForm.name} has been updated!`)
+      analytics.track('HOA Edited', {
+        user_id: user?.id,
+        hoa_id: isEditingHOA,
+        hoa_name: hoaForm.name
+      })
+    }
+    
+    setIsEditingHOA(null)
+    setHoaForm({ name: '', address: '' })
+  }
+
+  const handleDeleteHOA = (hoaId: string) => {
+    const hoa = hoaProperties.find(h => h.id === hoaId)
+    if (!hoa) return
+
+    if (confirm(`Are you sure you want to delete ${hoa.name}?`)) {
+      setHoaProperties(prev => prev.filter(h => h.id !== hoaId))
+      success('HOA Deleted', `${hoa.name} has been removed from your properties.`)
+      analytics.track('HOA Deleted', {
+        user_id: user?.id,
+        hoa_id: hoaId,
+        hoa_name: hoa.name
+      })
+    }
   }
 
   const handleUpgrade = () => {
@@ -127,11 +187,27 @@ export const Settings: React.FC = () => {
     }
   }
 
-  const handleChangePassword = () => {
-    success('Email Sent', 'Password reset instructions have been sent to your email.')
-    analytics.track('Password Reset Requested', {
-      user_id: user?.id
-    })
+  const handleChangePassword = async () => {
+    if (!user?.email) {
+      error('No Email', 'No email found for password reset.')
+      return
+    }
+
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth?mode=reset`
+      })
+
+      if (resetError) throw resetError
+
+      success('Email Sent', 'Password reset instructions have been sent to your email.')
+      analytics.track('Password Reset Requested', {
+        user_id: user?.id
+      })
+    } catch (err) {
+      console.error('Password reset error:', err)
+      error('Reset Failed', 'Failed to send password reset email. Please try again.')
+    }
   }
 
   const handleTwoFactor = () => {
@@ -141,11 +217,47 @@ export const Settings: React.FC = () => {
     })
   }
 
-  const handleDownloadData = () => {
-    success('Processing', 'Your data export is being prepared. You\'ll receive an email when ready.')
-    analytics.track('Data Export Requested', {
-      user_id: user?.id
-    })
+  const handleDownloadData = async () => {
+    try {
+      // Create a simple data export
+      const userData = {
+        profile: {
+          id: user?.id,
+          email: user?.email,
+          full_name: user?.user_metadata?.full_name || user?.user_metadata?.name,
+          created_at: user?.created_at
+        },
+        hoa_properties: hoaProperties,
+        notification_settings: notificationSettings
+      }
+
+      const dataStr = JSON.stringify(userData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `kateriss_data_export_${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      success('Download Complete', 'Your data has been downloaded to your device.')
+      analytics.track('Data Export Requested', {
+        user_id: user?.id
+      })
+    } catch (err) {
+      console.error('Data export error:', err)
+      error('Export Failed', 'Failed to export data. Please try again.')
+    }
+  }
+
+  const handleSignOut = async () => {
+    if (confirm('Are you sure you want to sign out?')) {
+      await signOut()
+      success('Signed Out', 'You have been successfully signed out.')
+    }
   }
 
   const currentPlan = getPlanDetails(user?.subscription_tier || 'free')
@@ -158,9 +270,9 @@ export const Settings: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-8"
+        className="brutal-card p-8"
       >
-        <h1 className="heading-2 mb-2">Settings</h1>
+        <h1 className="heading-2 mb-2">SETTINGS</h1>
         <p className="text-gray-600 dark:text-gray-300">
           Manage your account, HOA properties, and preferences.
         </p>
@@ -171,11 +283,11 @@ export const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="glass-card p-6"
+        className="brutal-card p-6"
       >
         <div className="flex items-center gap-3 mb-6">
-          <User className="w-5 h-5 text-indigo-400" />
-          <h2 className="text-xl font-bold">Profile Settings</h2>
+          <User className="w-5 h-5 text-brutal-electric" />
+          <h2 className="text-xl font-bold">PROFILE SETTINGS</h2>
         </div>
         
         <div className="space-y-6">
@@ -248,7 +360,7 @@ export const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="glass-card p-6"
+        className="brutal-card p-6"
       >
         <div className="flex items-center gap-3 mb-6">
           <Building2 className="w-5 h-5 text-green-400" />
@@ -257,29 +369,101 @@ export const Settings: React.FC = () => {
         
         <div className="space-y-4">
           {hoaProperties.map((property) => (
-            <div key={property.id} className="glass-surface p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold">{property.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{property.address}</p>
+            <div key={property.id} className="brutal-surface p-4">
+              {isEditingHOA === property.id ? (
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="HOA Name"
+                    value={hoaForm.name}
+                    onChange={(e) => setHoaForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="input-liquid w-full"
+                  />
+                  <input
+                    type="text"
+                    placeholder="HOA Address"
+                    value={hoaForm.address}
+                    onChange={(e) => setHoaForm(prev => ({ ...prev, address: e.target.value }))}
+                    className="input-liquid w-full"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={handleSaveHOA} className="btn-primary">
+                      Save
+                    </button>
+                    <button 
+                      onClick={() => setIsEditingHOA(null)} 
+                      className="btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => success('Coming Soon', 'HOA editing is coming in the next update!')}
-                  className="btn-secondary text-sm"
-                >
-                  Edit
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold">{property.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{property.address}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEditHOA(property.id)}
+                      className="btn-secondary text-sm flex items-center gap-1"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteHOA(property.id)}
+                      className="btn-secondary text-sm flex items-center gap-1 text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           
-          <button 
-            onClick={handleAddNewHOA}
-            className="btn-primary flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add New HOA
-          </button>
+          {isEditingHOA === 'new' ? (
+            <div className="brutal-surface p-4">
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="HOA Name"
+                  value={hoaForm.name}
+                  onChange={(e) => setHoaForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="input-liquid w-full"
+                />
+                <input
+                  type="text"
+                  placeholder="HOA Address"
+                  value={hoaForm.address}
+                  onChange={(e) => setHoaForm(prev => ({ ...prev, address: e.target.value }))}
+                  className="input-liquid w-full"
+                />
+                <div className="flex gap-2">
+                  <button onClick={handleSaveHOA} className="btn-primary">
+                    Add HOA
+                  </button>
+                  <button 
+                    onClick={() => setIsEditingHOA(null)} 
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={handleAddNewHOA}
+              className="btn-primary flex items-center justify-center gap-2 w-full"
+            >
+              <Plus className="w-4 h-4" />
+              ADD NEW HOA
+            </button>
+          )}
         </div>
       </motion.div>
 
@@ -288,7 +472,7 @@ export const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="glass-card p-6"
+        className="brutal-card p-6"
       >
         <div className="flex items-center gap-3 mb-6">
           <Bell className="w-5 h-5 text-yellow-400" />
@@ -335,7 +519,7 @@ export const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="glass-card p-6"
+        className="brutal-card p-6"
       >
         <div className="flex items-center gap-3 mb-6">
           <CreditCard className="w-5 h-5 text-blue-400" />
@@ -343,7 +527,7 @@ export const Settings: React.FC = () => {
         </div>
         
         <div className="space-y-6">
-          <div className="glass-surface p-4 rounded-xl">
+          <div className="brutal-surface p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold">{currentPlan.name} Plan</h3>
@@ -396,34 +580,34 @@ export const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="glass-card p-6"
+        className="brutal-card p-6"
       >
         <div className="flex items-center gap-3 mb-6">
-          <Shield className="w-5 h-5 text-red-400" />
-          <h2 className="text-xl font-bold">Security</h2>
+          <Shield className="w-5 h-5 text-brutal-electric" />
+          <h2 className="text-xl font-bold">SECURITY</h2>
         </div>
         
         <div className="space-y-4">
           <button 
             onClick={handleChangePassword}
-            className="btn-secondary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 mb-4 w-full justify-center"
           >
             <Key className="w-4 h-4" />
-            Change Password
+            CHANGE PASSWORD
           </button>
           <button 
             onClick={handleTwoFactor}
-            className="btn-secondary flex items-center gap-2"
+            className="btn-secondary flex items-center gap-2 mb-4 w-full justify-center"
           >
             <Smartphone className="w-4 h-4" />
-            Two-Factor Authentication
+            TWO-FACTOR AUTHENTICATION
           </button>
           <button 
             onClick={handleDownloadData}
-            className="btn-secondary flex items-center gap-2"
+            className="btn-secondary flex items-center gap-2 w-full justify-center"
           >
             <Download className="w-4 h-4" />
-            Download Data
+            DOWNLOAD DATA
           </button>
         </div>
       </motion.div>
@@ -433,9 +617,9 @@ export const Settings: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="glass-card p-6"
+        className="brutal-card p-6"
       >
-        <h2 className="text-xl font-bold mb-6">Appearance</h2>
+        <h2 className="text-xl font-bold mb-6">APPEARANCE</h2>
         
         <div className="flex items-center justify-between">
           <div>
@@ -443,6 +627,29 @@ export const Settings: React.FC = () => {
             <p className="text-sm text-gray-600 dark:text-gray-300">Toggle between light and dark themes</p>
           </div>
           <ThemeToggle />
+        </div>
+      </motion.div>
+
+      {/* Account Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="brutal-card p-6"
+      >
+        <h2 className="text-xl font-bold mb-6">ACCOUNT ACTIONS</h2>
+        
+        <div className="space-y-4">
+          <button 
+            onClick={handleSignOut}
+            className="btn-secondary w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
+          >
+            <ExternalLink className="w-4 h-4" />
+            SIGN OUT
+          </button>
+          <p className="text-xs text-gray-500 text-center">
+            You will be redirected to the login page
+          </p>
         </div>
       </motion.div>
     </div>

@@ -172,13 +172,13 @@ export const Pricing: React.FC = () => {
     }
 
     if (!plan.productId) {
-      error('Setup Required', 'Paddle product ID not configured. Please set environment variables.')
+      error('Billing Coming Soon', 'Payment processing is being set up. Check back soon!')
       return
     }
 
     // Check if Paddle is configured
     if (!import.meta.env.VITE_PADDLE_CLIENT_TOKEN) {
-      error('Setup Required', 'Paddle not configured. Please set VITE_PADDLE_CLIENT_TOKEN environment variable.')
+      error('Billing Coming Soon', 'Payment processing is being set up. Check back soon!')
       return
     }
 
