@@ -46,6 +46,14 @@ export const ViolationGenerator: React.FC = () => {
       // Upload photos first if any
       let photoUrls: string[] = []
       if (formData.photos.length > 0) {
+        // Add a flag to temporarily disable photo upload for testing
+        const SKIP_PHOTO_UPLOAD = import.meta.env.VITE_SKIP_PHOTO_UPLOAD === 'true'
+        
+        if (SKIP_PHOTO_UPLOAD) {
+          console.log('📷 Photo upload disabled via environment variable')
+          showError('Photo Upload Disabled', 'Photo upload is temporarily disabled. Continuing without photos.')
+          photoUrls = []
+        } else {
         try {
           console.log('📤 Starting photo upload...', formData.photos.length, 'photos')
           
@@ -65,6 +73,8 @@ export const ViolationGenerator: React.FC = () => {
           console.error('❌ Photo upload failed:', uploadError)
           showError('Photo Upload Failed', `Could not upload photos: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Continuing without photos.`)
           // Continue without photos - don't block the violation generation
+          photoUrls = [] // Ensure it's empty array
+        }
         }
       }
 
