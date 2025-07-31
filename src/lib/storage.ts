@@ -20,23 +20,13 @@ class StorageService {
 
       console.log('📁 Uploading to bucket:', this.bucket, 'file path:', filePath)
 
-      // Check authentication first
-      const { data: { user } } = await supabase.auth.getUser()
-      console.log('👤 Current user for upload:', user ? 'authenticated' : 'not authenticated')
+      // Skip auth check - let Supabase storage policies handle it
+      console.log('🚀 Attempting direct upload to:', filePath)
       
-      if (!user) {
-        throw new Error('User must be authenticated to upload photos')
-      }
-
-      // Upload file to Supabase Storage (no timeout - let Supabase handle it)
-      console.log('🚀 Attempting authenticated upload to:', filePath)
-      
+      // Try the simplest possible upload
       const { data, error } = await supabase.storage
         .from(this.bucket)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true  // Allow overwrite in case of conflicts
-        })
+        .upload(filePath, file)
 
       if (error) {
         console.error('❌ Supabase upload error:', error)
