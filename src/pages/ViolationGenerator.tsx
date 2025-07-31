@@ -54,17 +54,8 @@ export const ViolationGenerator: React.FC = () => {
             return storageService.uploadPhoto(photo)
           })
           
-          const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => {
-              reject(new Error('Photo upload timeout after 45 seconds'))
-            }, 45000)
-          })
-
-          console.log('⏱️ Starting upload with 45s timeout...')
-          const uploadResults = await Promise.race([
-            Promise.all(uploadPromises),
-            timeoutPromise
-          ])
+          console.log('⏱️ Starting upload (no timeout - letting Supabase handle it)...')
+          const uploadResults = await Promise.all(uploadPromises)
           
           photoUrls = uploadResults.map(result => result.url)
           setUploadedPhotoUrls(photoUrls)

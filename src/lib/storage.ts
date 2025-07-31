@@ -10,9 +10,8 @@ class StorageService {
 
   async uploadPhoto(file: File, violationId?: string): Promise<UploadResult> {
     try {
-      // First ensure bucket exists
-      console.log('📤 Starting upload with bucket check...')
-      await this.ensureBucketExists()
+      // Skip bucket check since we know it exists from your SQL verification
+      console.log('📤 Starting direct upload (bucket verified via SQL)...')
 
       // Generate unique filename
       const fileExt = file.name.split('.').pop()
@@ -22,11 +21,13 @@ class StorageService {
       console.log('📁 Uploading to bucket:', this.bucket, 'file path:', filePath)
 
       // Upload file to Supabase Storage (no timeout - let Supabase handle it)
+      console.log('🚀 Attempting upload to:', filePath)
+      
       const { data, error } = await supabase.storage
         .from(this.bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true  // Allow overwrite in case of conflicts
         })
 
       if (error) {
