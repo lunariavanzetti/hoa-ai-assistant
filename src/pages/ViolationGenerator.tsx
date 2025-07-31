@@ -73,6 +73,7 @@ export const ViolationGenerator: React.FC = () => {
         } catch (uploadError) {
           console.error('❌ Photo upload failed:', uploadError)
           showError('Photo Upload Failed', `Could not upload photos: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Continuing without photos.`)
+          // Continue without photos - don't block the violation generation
         }
       }
 

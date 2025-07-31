@@ -31,9 +31,14 @@ class StorageService {
 
       if (error) {
         console.error('❌ Supabase upload error:', error)
+        console.error('❌ Error details:', {
+          message: error.message,
+          statusCode: error.statusCode,
+          error: error.error
+        })
         
         // If bucket doesn't exist, try to create it
-        if (error.message.includes('Bucket not found')) {
+        if (error.message.includes('Bucket not found') || error.message.includes('bucket does not exist')) {
           console.log('🏗️ Bucket not found, creating...')
           await this.createBucket()
           
@@ -60,6 +65,15 @@ class StorageService {
             url: publicUrl,
             path: retryData.path
           }
+        }
+        
+        // More specific error messages
+        if (error.message.includes('insufficient_scope') || error.message.includes('access_denied')) {
+          throw new Error('Storage permission denied. Please check your Supabase storage policies.')
+        }
+        
+        if (error.message.includes('payload_too_large')) {
+          throw new Error('File too large. Please choose a smaller image (under 10MB).')
         }
         
         throw new Error(`Upload failed: ${error.message}`)
