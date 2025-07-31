@@ -20,7 +20,7 @@ export const MeetingSummary: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedMinutes, setGeneratedMinutes] = useState('')
   const [error, setError] = useState('')
-  const [uploadedFileName, setUploadedFileName] = useState('')
+  const [_uploadedFileName, setUploadedFileName] = useState('')
   const { success, error: showError } = useToast()
 
   const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
