@@ -66,11 +66,6 @@ class PaddleClient {
       
       console.log('Opening checkout with config:', JSON.stringify(checkoutConfig, null, 2))
       
-      // Add error listener before opening checkout
-      paddle.Checkout.on('checkout.error', (error: any) => {
-        console.error('Paddle Checkout Error Event:', error)
-      })
-      
       const checkout = await paddle.Checkout.open(checkoutConfig)
       
       console.log('Checkout opened successfully:', checkout)
