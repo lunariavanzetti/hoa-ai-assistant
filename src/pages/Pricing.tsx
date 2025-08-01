@@ -43,8 +43,14 @@ interface PricingPlan {
 // Helper function to get environment-specific price IDs
 const getPriceId = (plan: string, cycle: 'monthly' | 'yearly') => {
   const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
-  const prefix = environment === 'sandbox' ? 'VITE_PADDLE_SANDBOX' : 'VITE_PADDLE_PRODUCTION'
   
+  // Use Paddle's official demo price for testing in sandbox
+  if (environment === 'sandbox') {
+    console.log('🧪 Using Paddle demo price for sandbox testing')
+    return 'pri_01gsz91wy9k1yn7kx82aafwvea' // Paddle's official demo price
+  }
+  
+  const prefix = 'VITE_PADDLE_PRODUCTION' // This won't be reached in sandbox
   const priceKey = `${prefix}_${plan.toUpperCase()}_${cycle.toUpperCase()}_PRICE_ID`
   return (import.meta.env as any)[priceKey]
 }
