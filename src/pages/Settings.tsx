@@ -9,7 +9,7 @@ import { analytics, getPlanDetails } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 
 export const Settings: React.FC = () => {
-  const { user, updateUser, signOut } = useAuthStore()
+  const { user, signOut } = useAuthStore()
   const { success, error } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [profileData, setProfileData] = useState({
