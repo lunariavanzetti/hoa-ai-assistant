@@ -92,9 +92,9 @@ class PaddleClient {
       if (paddle.Checkout && paddle.Checkout.open) {
         console.log('Using paddle.Checkout.open method')
         checkout = await paddle.Checkout.open(checkoutConfig)
-      } else if (paddle.open) {
+      } else if ((paddle as any).open) {
         console.log('Using paddle.open method')
-        checkout = await paddle.open(checkoutConfig)
+        checkout = await (paddle as any).open(checkoutConfig)
       } else {
         console.log('Available paddle methods:', Object.keys(paddle))
         throw new Error('No checkout method found on Paddle instance')

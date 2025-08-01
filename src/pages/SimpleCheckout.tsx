@@ -62,9 +62,9 @@ export const SimpleCheckout: React.FC = () => {
       if (paddle.Checkout && paddle.Checkout.open) {
         log('Using paddle.Checkout.open method')
         result = await paddle.Checkout.open(checkoutConfig)
-      } else if (paddle.open) {
+      } else if ((paddle as any).open) {
         log('Using paddle.open method')
-        result = await paddle.open(checkoutConfig)
+        result = await (paddle as any).open(checkoutConfig)
       } else {
         log(`Available paddle methods: ${Object.keys(paddle).join(', ')}`)
         throw new Error('No checkout method found')
