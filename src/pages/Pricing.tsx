@@ -174,6 +174,18 @@ export const Pricing: React.FC = () => {
   ]
 
   const handleSelectPlan = async (plan: PricingPlan) => {
+    console.log('=== PLAN SELECTION DEBUG ===')
+    console.log('Selected plan:', plan.id)
+    console.log('Plan priceId:', plan.priceId)
+    console.log('Environment:', import.meta.env.VITE_PADDLE_ENVIRONMENT)
+    
+    // Debug all environment variables
+    console.log('All Paddle Environment Variables:')
+    Object.keys(import.meta.env).filter(key => key.includes('PADDLE')).forEach(key => {
+      console.log(`${key}:`, (import.meta.env as any)[key] || 'MISSING')
+    })
+    console.log('=== END PLAN DEBUG ===')
+
     if (plan.id === 'free') {
       // Free plan - redirect to signup
       window.location.href = '/auth'
@@ -181,12 +193,20 @@ export const Pricing: React.FC = () => {
     }
 
     if (!plan.priceId) {
+      console.error('Missing price ID for plan:', plan.id)
+      console.error('Expected variable name:', `VITE_PADDLE_SANDBOX_${plan.id.toUpperCase()}_${billingCycle.toUpperCase()}_PRICE_ID`)
       error('Billing Coming Soon', 'Payment processing is being set up. Check back soon!')
       return
     }
 
     // Check if Paddle is configured
-    if (!import.meta.env.VITE_PADDLE_CLIENT_TOKEN) {
+    const env = import.meta.env.VITE_PADDLE_ENVIRONMENT
+    const clientToken = env === 'sandbox' 
+      ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
+      : import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN
+
+    if (!clientToken) {
+      console.error('Missing client token for environment:', env)
       error('Billing Coming Soon', 'Payment processing is being set up. Check back soon!')
       return
     }
