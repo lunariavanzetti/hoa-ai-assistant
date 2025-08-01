@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { User, Building2, Bell, CreditCard, Shield, Upload, Plus, ExternalLink, Download, Key, Smartphone, Edit3, Trash2 } from 'lucide-react'
+import { User, Building2, Bell, CreditCard, Shield, Plus, ExternalLink, Download, Key, Smartphone, Edit3, Trash2 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/components/ui/Toaster'
@@ -14,8 +14,7 @@ export const Settings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [profileData, setProfileData] = useState({
     fullName: '',
-    email: '',
-    photo: null as File | null
+    email: ''
   })
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
@@ -31,8 +30,7 @@ export const Settings: React.FC = () => {
       console.log('User data loaded:', user)
       setProfileData({
         fullName: user.full_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '',
-        email: user.email || '',
-        photo: null
+        email: user.email || ''
       })
       
       // Load HOA properties from database
@@ -41,7 +39,12 @@ export const Settings: React.FC = () => {
   }, [user])
 
   const loadHOAProperties = async () => {
-    if (!user) return
+    if (!user) {
+      console.log('No user, skipping HOA load')
+      return
+    }
+    
+    console.log('Loading HOA properties for user:', user.id)
     
     try {
       const { data, error } = await supabase
@@ -50,12 +53,17 @@ export const Settings: React.FC = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: true })
       
-      if (error) throw error
+      if (error) {
+        console.error('Error loading HOA properties:', error)
+        throw error
+      }
       
+      console.log('HOA properties loaded:', data)
       setHoaProperties(data || [])
     } catch (err) {
       console.error('Error loading HOA properties:', err)
-      // Set default HOA if none exist
+      console.log('Setting default HOA due to error')
+      // Set default HOA if none exist or if there's an error
       setHoaProperties([{
         id: '1',
         name: 'Sunset Ridge Community',
@@ -89,14 +97,11 @@ export const Settings: React.FC = () => {
         throw updateError
       }
       
-      if (profileData.photo) {
-        success('Photo Selected', 'Photo upload feature will be implemented with proper Supabase Storage configuration.')
-      }
       
       success('Profile Updated', 'Your profile changes have been saved successfully.')
       analytics.track('Profile Updated', {
         user_id: user.id,
-        fields_updated: profileData.photo ? ['full_name', 'photo'] : ['full_name']
+        fields_updated: ['full_name']
       })
     } catch (err) {
       console.error('Profile update error:', err)
@@ -106,13 +111,6 @@ export const Settings: React.FC = () => {
     }
   }
 
-  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setProfileData(prev => ({ ...prev, photo: file }))
-      success('Photo Selected', 'Click "Save Changes" to update your profile photo.')
-    }
-  }
 
   const handleAddNewHOA = () => {
     setIsEditingHOA('new')
@@ -128,19 +126,26 @@ export const Settings: React.FC = () => {
   }
 
   const handleSaveHOA = async () => {
+    console.log('handleSaveHOA triggered with:', { hoaForm, isEditingHOA, user: user?.id })
+    
     if (!hoaForm.name.trim() || !hoaForm.address.trim()) {
+      console.log('Validation failed: missing name or address')
       error('Invalid Data', 'Please enter both HOA name and address.')
       return
     }
 
     if (!user) {
+      console.log('No user found')
       error('No User', 'Please log in to manage HOA properties.')
       return
     }
 
     setIsLoading(true)
     try {
+      console.log('Attempting to save HOA to database...')
+      
       if (isEditingHOA === 'new') {
+        console.log('Adding new HOA to database')
         const { data, error: insertError } = await supabase
           .from('hoa_properties')
           .insert({
@@ -150,9 +155,13 @@ export const Settings: React.FC = () => {
           })
           .select()
 
-        if (insertError) throw insertError
+        if (insertError) {
+          console.error('Database insert error:', insertError)
+          throw insertError
+        }
 
-        if (data) {
+        console.log('HOA inserted successfully:', data)
+        if (data && data[0]) {
           setHoaProperties(prev => [...prev, data[0]])
         }
         success('HOA Added', `${hoaForm.name} has been added to your properties!`)
@@ -162,6 +171,7 @@ export const Settings: React.FC = () => {
           current_hoa_count: hoaProperties.length + 1
         })
       } else {
+        console.log('Updating existing HOA:', isEditingHOA)
         const { error: updateError } = await supabase
           .from('hoa_properties')
           .update({
@@ -171,7 +181,10 @@ export const Settings: React.FC = () => {
           .eq('id', isEditingHOA)
           .eq('user_id', user.id)
 
-        if (updateError) throw updateError
+        if (updateError) {
+          console.error('Database update error:', updateError)
+          throw updateError
+        }
 
         setHoaProperties(prev => prev.map(hoa => 
           hoa.id === isEditingHOA 
@@ -186,11 +199,12 @@ export const Settings: React.FC = () => {
         })
       }
       
+      console.log('HOA operation completed successfully')
       setIsEditingHOA(null)
       setHoaForm({ name: '', address: '' })
     } catch (err) {
       console.error('HOA save error:', err)
-      error('Save Failed', `Failed to save HOA: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      error('Save Failed', `Failed to save HOA: ${err instanceof Error ? err.message : 'Unknown error'}. Check console for details.`)
     } finally {
       setIsLoading(false)
     }
@@ -395,32 +409,6 @@ export const Settings: React.FC = () => {
             </div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium mb-2">Profile Photo</label>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-                {profileData.photo ? (
-                  <img 
-                    src={URL.createObjectURL(profileData.photo)} 
-                    alt="Profile" 
-                    className="w-16 h-16 rounded-full object-cover" 
-                  />
-                ) : (
-                  <User className="w-8 h-8 text-white" />
-                )}
-              </div>
-              <label className="btn-secondary cursor-pointer">
-                <Upload className="w-4 h-4 mr-2" />
-                Change Photo
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
           
           <button 
             onClick={handleProfileSave}
@@ -468,12 +456,17 @@ export const Settings: React.FC = () => {
                     className="input-liquid w-full"
                   />
                   <div className="flex gap-2">
-                    <button onClick={handleSaveHOA} className="btn-primary">
-                      Save
+                    <button 
+                      onClick={handleSaveHOA} 
+                      disabled={isLoading}
+                      className={`btn-primary ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {isLoading ? 'Saving...' : 'Save'}
                     </button>
                     <button 
                       onClick={() => setIsEditingHOA(null)} 
-                      className="btn-secondary"
+                      disabled={isLoading}
+                      className={`btn-secondary ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       Cancel
                     </button>
@@ -524,12 +517,17 @@ export const Settings: React.FC = () => {
                   className="input-liquid w-full"
                 />
                 <div className="flex gap-2">
-                  <button onClick={handleSaveHOA} className="btn-primary">
-                    Add HOA
+                  <button 
+                    onClick={handleSaveHOA} 
+                    disabled={isLoading}
+                    className={`btn-primary ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {isLoading ? 'Adding...' : 'Add HOA'}
                   </button>
                   <button 
                     onClick={() => setIsEditingHOA(null)} 
-                    className="btn-secondary"
+                    disabled={isLoading}
+                    className={`btn-secondary ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Cancel
                   </button>

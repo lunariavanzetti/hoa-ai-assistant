@@ -189,13 +189,37 @@ export const Pricing: React.FC = () => {
       return
     }
 
+    console.log('=== PADDLE CHECKOUT DEBUG ===')
+    console.log('User:', user?.id)
+    console.log('Plan:', plan.id)
+    console.log('Billing Cycle:', billingCycle)
+    console.log('Plan Price ID:', plan.priceId)
+    console.log('Environment Variables Check:')
+    console.log('VITE_PADDLE_CLIENT_TOKEN:', !!import.meta.env.VITE_PADDLE_CLIENT_TOKEN)
+    console.log('VITE_PADDLE_ENVIRONMENT:', import.meta.env.VITE_PADDLE_ENVIRONMENT)
+    console.log('All Price IDs:')
+    console.log('- PRO_MONTHLY:', import.meta.env.VITE_PADDLE_PRO_MONTHLY_PRICE_ID)
+    console.log('- PRO_YEARLY:', import.meta.env.VITE_PADDLE_PRO_YEARLY_PRICE_ID)
+    console.log('- AGENCY_MONTHLY:', import.meta.env.VITE_PADDLE_AGENCY_MONTHLY_PRICE_ID)
+    console.log('- AGENCY_YEARLY:', import.meta.env.VITE_PADDLE_AGENCY_YEARLY_PRICE_ID)
+    console.log('- ENTERPRISE_MONTHLY:', import.meta.env.VITE_PADDLE_ENTERPRISE_MONTHLY_PRICE_ID)
+    console.log('- ENTERPRISE_YEARLY:', import.meta.env.VITE_PADDLE_ENTERPRISE_YEARLY_PRICE_ID)
+    console.log('=== END DEBUG ===')
+
     setLoading(plan.id)
     try {
       console.log('Opening checkout for plan:', plan.id, 'with priceId:', plan.priceId)
+      console.log('User paddle_customer_id:', user.paddle_customer_id)
       await paddleClient.openCheckout(plan.priceId!, user.paddle_customer_id)
     } catch (err) {
       console.error('Checkout error:', err)
-      error('Checkout Error', `Failed to open billing checkout: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      console.error('Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        priceId: plan.priceId,
+        customerId: user.paddle_customer_id
+      })
+      error('Checkout Error', `Failed to open billing checkout: ${err instanceof Error ? err.message : 'Unknown error'}. Check console for details.`)
     } finally {
       setLoading(null)
     }
