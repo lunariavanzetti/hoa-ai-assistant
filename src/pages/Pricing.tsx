@@ -37,7 +37,7 @@ interface PricingPlan {
   }
   highlights: string[]
   targetAudience: string
-  productId?: string
+  priceId?: string
 }
 
 export const Pricing: React.FC = () => {
@@ -98,7 +98,7 @@ export const Pricing: React.FC = () => {
         'Priority support'
       ],
       targetAudience: 'HOAs with 50-300 units',
-      productId: import.meta.env.VITE_PADDLE_PRO_PRODUCT_ID
+      priceId: billingCycle === 'monthly' ? import.meta.env.VITE_PADDLE_PRO_MONTHLY_PRICE_ID : import.meta.env.VITE_PADDLE_PRO_YEARLY_PRICE_ID
     },
     {
       id: 'agency',
@@ -129,7 +129,7 @@ export const Pricing: React.FC = () => {
         'Advanced features'
       ],
       targetAudience: 'Large HOAs (300+ units)',
-      productId: import.meta.env.VITE_PADDLE_AGENCY_PRODUCT_ID
+      priceId: billingCycle === 'monthly' ? import.meta.env.VITE_PADDLE_AGENCY_MONTHLY_PRICE_ID : import.meta.env.VITE_PADDLE_AGENCY_YEARLY_PRICE_ID
     },
     {
       id: 'enterprise',
@@ -160,7 +160,7 @@ export const Pricing: React.FC = () => {
         'Enterprise security'
       ],
       targetAudience: 'Property management companies',
-      productId: import.meta.env.VITE_PADDLE_ENTERPRISE_PRODUCT_ID
+      priceId: billingCycle === 'monthly' ? import.meta.env.VITE_PADDLE_ENTERPRISE_MONTHLY_PRICE_ID : import.meta.env.VITE_PADDLE_ENTERPRISE_YEARLY_PRICE_ID
     }
   ]
 
@@ -171,7 +171,7 @@ export const Pricing: React.FC = () => {
       return
     }
 
-    if (!plan.productId) {
+    if (!plan.priceId) {
       error('Billing Coming Soon', 'Payment processing is being set up. Check back soon!')
       return
     }
@@ -191,8 +191,8 @@ export const Pricing: React.FC = () => {
 
     setLoading(plan.id)
     try {
-      console.log('Opening checkout for plan:', plan.id, 'with productId:', plan.productId)
-      await paddleClient.openCheckout(plan.productId, user.paddle_customer_id)
+      console.log('Opening checkout for plan:', plan.id, 'with priceId:', plan.priceId)
+      await paddleClient.openCheckout(plan.priceId!, user.paddle_customer_id)
     } catch (err) {
       console.error('Checkout error:', err)
       error('Checkout Error', `Failed to open billing checkout: ${err instanceof Error ? err.message : 'Unknown error'}`)

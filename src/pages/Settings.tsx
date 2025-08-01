@@ -21,27 +21,48 @@ export const Settings: React.FC = () => {
     emailNotifications: true,
     pushNotifications: false
   })
-  const [hoaProperties, setHoaProperties] = useState([
-    {
-      id: '1',
-      name: 'Sunset Ridge Community',
-      address: '123 Community Dr, City, ST 12345'
-    }
-  ])
+  const [hoaProperties, setHoaProperties] = useState<Array<{id: string, name: string, address: string}>>([])
   const [isEditingHOA, setIsEditingHOA] = useState<string | null>(null)
   const [hoaForm, setHoaForm] = useState({ name: '', address: '' })
 
-  // Load user data on component mount
+  // Load user data and HOAs on component mount
   useEffect(() => {
     if (user) {
       console.log('User data loaded:', user)
       setProfileData({
-        fullName: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '',
+        fullName: user.full_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '',
         email: user.email || '',
         photo: null
       })
+      
+      // Load HOA properties from database
+      loadHOAProperties()
     }
   }, [user])
+
+  const loadHOAProperties = async () => {
+    if (!user) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('hoa_properties')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
+      
+      if (error) throw error
+      
+      setHoaProperties(data || [])
+    } catch (err) {
+      console.error('Error loading HOA properties:', err)
+      // Set default HOA if none exist
+      setHoaProperties([{
+        id: '1',
+        name: 'Sunset Ridge Community',
+        address: '123 Community Dr, City, ST 12345'
+      }])
+    }
+  }
 
   const handleProfileSave = async () => {
     if (!user) {
@@ -58,14 +79,19 @@ export const Settings: React.FC = () => {
     try {
       console.log('Updating profile with data:', { full_name: profileData.fullName })
       
-      // For now, just simulate successful update since Supabase auth update might have issues
-      // In production, you'd want to implement proper profile storage in a separate table
+      // Update the users table with the new profile data
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ full_name: profileData.fullName })
+        .eq('id', user.id)
+      
+      if (updateError) {
+        throw updateError
+      }
+      
       if (profileData.photo) {
         success('Photo Selected', 'Photo upload feature will be implemented with proper Supabase Storage configuration.')
       }
-      
-      // Simulate successful update to avoid timeout issues
-      await new Promise(resolve => setTimeout(resolve, 1000))
       
       success('Profile Updated', 'Your profile changes have been saved successfully.')
       analytics.track('Profile Updated', {
@@ -101,55 +127,103 @@ export const Settings: React.FC = () => {
     setHoaForm({ name: hoa.name, address: hoa.address })
   }
 
-  const handleSaveHOA = () => {
+  const handleSaveHOA = async () => {
     if (!hoaForm.name.trim() || !hoaForm.address.trim()) {
       error('Invalid Data', 'Please enter both HOA name and address.')
       return
     }
 
-    if (isEditingHOA === 'new') {
-      const newHOA = {
-        id: Date.now().toString(),
-        name: hoaForm.name,
-        address: hoaForm.address
-      }
-      setHoaProperties(prev => [...prev, newHOA])
-      success('HOA Added', `${hoaForm.name} has been added to your properties!`)
-      analytics.track('Add HOA Clicked', {
-        user_id: user?.id,
-        hoa_name: hoaForm.name,
-        current_hoa_count: hoaProperties.length + 1
-      })
-    } else {
-      setHoaProperties(prev => prev.map(hoa => 
-        hoa.id === isEditingHOA 
-          ? { ...hoa, name: hoaForm.name, address: hoaForm.address }
-          : hoa
-      ))
-      success('HOA Updated', `${hoaForm.name} has been updated!`)
-      analytics.track('HOA Edited', {
-        user_id: user?.id,
-        hoa_id: isEditingHOA,
-        hoa_name: hoaForm.name
-      })
+    if (!user) {
+      error('No User', 'Please log in to manage HOA properties.')
+      return
     }
-    
-    setIsEditingHOA(null)
-    setHoaForm({ name: '', address: '' })
+
+    setIsLoading(true)
+    try {
+      if (isEditingHOA === 'new') {
+        const { data, error: insertError } = await supabase
+          .from('hoa_properties')
+          .insert({
+            user_id: user.id,
+            name: hoaForm.name,
+            address: hoaForm.address
+          })
+          .select()
+
+        if (insertError) throw insertError
+
+        if (data) {
+          setHoaProperties(prev => [...prev, data[0]])
+        }
+        success('HOA Added', `${hoaForm.name} has been added to your properties!`)
+        analytics.track('Add HOA Clicked', {
+          user_id: user.id,
+          hoa_name: hoaForm.name,
+          current_hoa_count: hoaProperties.length + 1
+        })
+      } else {
+        const { error: updateError } = await supabase
+          .from('hoa_properties')
+          .update({
+            name: hoaForm.name,
+            address: hoaForm.address
+          })
+          .eq('id', isEditingHOA)
+          .eq('user_id', user.id)
+
+        if (updateError) throw updateError
+
+        setHoaProperties(prev => prev.map(hoa => 
+          hoa.id === isEditingHOA 
+            ? { ...hoa, name: hoaForm.name, address: hoaForm.address }
+            : hoa
+        ))
+        success('HOA Updated', `${hoaForm.name} has been updated!`)
+        analytics.track('HOA Edited', {
+          user_id: user.id,
+          hoa_id: isEditingHOA,
+          hoa_name: hoaForm.name
+        })
+      }
+      
+      setIsEditingHOA(null)
+      setHoaForm({ name: '', address: '' })
+    } catch (err) {
+      console.error('HOA save error:', err)
+      error('Save Failed', `Failed to save HOA: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleDeleteHOA = (hoaId: string) => {
+  const handleDeleteHOA = async (hoaId: string) => {
     const hoa = hoaProperties.find(h => h.id === hoaId)
-    if (!hoa) return
+    if (!hoa || !user) return
 
     if (confirm(`Are you sure you want to delete ${hoa.name}?`)) {
-      setHoaProperties(prev => prev.filter(h => h.id !== hoaId))
-      success('HOA Deleted', `${hoa.name} has been removed from your properties.`)
-      analytics.track('HOA Deleted', {
-        user_id: user?.id,
-        hoa_id: hoaId,
-        hoa_name: hoa.name
-      })
+      setIsLoading(true)
+      try {
+        const { error: deleteError } = await supabase
+          .from('hoa_properties')
+          .delete()
+          .eq('id', hoaId)
+          .eq('user_id', user.id)
+
+        if (deleteError) throw deleteError
+
+        setHoaProperties(prev => prev.filter(h => h.id !== hoaId))
+        success('HOA Deleted', `${hoa.name} has been removed from your properties.`)
+        analytics.track('HOA Deleted', {
+          user_id: user.id,
+          hoa_id: hoaId,
+          hoa_name: hoa.name
+        })
+      } catch (err) {
+        console.error('HOA delete error:', err)
+        error('Delete Failed', `Failed to delete HOA: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -187,20 +261,23 @@ export const Settings: React.FC = () => {
       return
     }
 
+    setIsLoading(true)
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth?mode=reset`
+        redirectTo: `${window.location.origin}/reset-password`
       })
 
       if (resetError) throw resetError
 
       success('Email Sent', 'Password reset instructions have been sent to your email.')
       analytics.track('Password Reset Requested', {
-        user_id: user?.id
+        user_id: user.id
       })
     } catch (err) {
       console.error('Password reset error:', err)
       error('Reset Failed', 'Failed to send password reset email. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -249,8 +326,18 @@ export const Settings: React.FC = () => {
 
   const handleSignOut = async () => {
     if (confirm('Are you sure you want to sign out?')) {
-      await signOut()
-      success('Signed Out', 'You have been successfully signed out.')
+      setIsLoading(true)
+      try {
+        await signOut()
+        success('Signed Out', 'You have been successfully signed out.')
+        // Force redirect to home page
+        window.location.href = '/'
+      } catch (err) {
+        console.error('Sign out error:', err)
+        error('Sign Out Failed', 'Failed to sign out. Please try again.')
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
