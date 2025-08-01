@@ -22,20 +22,49 @@ class PaddleClient {
   }
 
   async openCheckout(priceId: string, customerId?: string) {
+    console.log('=== PADDLE CLIENT DEBUG ===')
+    console.log('Initializing Paddle with:')
+    console.log('- Client Token:', import.meta.env.VITE_PADDLE_CLIENT_TOKEN?.substring(0, 20) + '...')
+    console.log('- Environment:', import.meta.env.VITE_PADDLE_ENVIRONMENT)
+    console.log('- Price ID:', priceId)
+    console.log('- Customer ID:', customerId)
+    
     const paddle = await this.initialize()
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      const checkout = await paddle.Checkout.open({
+      const checkoutConfig = {
         items: [{ priceId, quantity: 1 }],
-        customerId,
+        ...(customerId && { customerId }),
         successUrl: `${window.location.origin}/billing/success`,
-        closeUrl: `${window.location.origin}/billing`
-      })
+        closeUrl: `${window.location.origin}/pricing`
+      }
       
+      console.log('Opening checkout with config:', checkoutConfig)
+      
+      const checkout = await paddle.Checkout.open(checkoutConfig)
+      
+      console.log('Checkout opened successfully:', checkout)
       return checkout
     } catch (error) {
-      console.error('Error opening checkout:', error)
+      console.error('=== PADDLE CHECKOUT ERROR ===')
+      console.error('Error details:', error)
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error')
+      console.error('Error stack:', error instanceof Error ? error.stack : undefined)
+      
+      // Check for specific error types
+      if (error instanceof Error) {
+        if (error.message.includes('401') || error.message.includes('403')) {
+          throw new Error('Authentication failed. Please check Paddle configuration and client token.')
+        }
+        if (error.message.includes('price')) {
+          throw new Error(`Price ID "${priceId}" not found or not active in Paddle. Please verify the price exists and is active.`)
+        }
+        if (error.message.includes('JWT')) {
+          throw new Error('JWT token retrieval failed. This usually means the client token is invalid or the price is not properly configured.')
+        }
+      }
+      
       throw error
     }
   }

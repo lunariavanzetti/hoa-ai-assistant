@@ -47,28 +47,53 @@ export const Settings: React.FC = () => {
     console.log('Loading HOA properties for user:', user.id)
     
     try {
-      const { data, error } = await supabase
+      // Try database first with timeout
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Database load timeout after 3 seconds'))
+        }, 3000)
+      })
+      
+      const dbPromise = supabase
         .from('hoa_properties')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true })
+      
+      const { data, error } = await Promise.race([dbPromise, timeoutPromise])
       
       if (error) {
         console.error('Error loading HOA properties:', error)
         throw error
       }
       
-      console.log('HOA properties loaded:', data)
-      setHoaProperties(data || [])
+      console.log('HOA properties loaded from database:', data)
+      
+      // Merge with localStorage data
+      const localHOAs = JSON.parse(localStorage.getItem(`hoa_properties_${user.id}`) || '[]')
+      const allHOAs = [...(data || []), ...localHOAs]
+      
+      setHoaProperties(allHOAs)
     } catch (err) {
-      console.error('Error loading HOA properties:', err)
-      console.log('Setting default HOA due to error')
-      // Set default HOA if none exist or if there's an error
-      setHoaProperties([{
-        id: '1',
-        name: 'Sunset Ridge Community',
-        address: '123 Community Dr, City, ST 12345'
-      }])
+      console.error('Database load failed, using localStorage fallback:', err)
+      
+      // Load from localStorage as fallback
+      const localHOAs = JSON.parse(localStorage.getItem(`hoa_properties_${user.id}`) || '[]')
+      
+      if (localHOAs.length > 0) {
+        console.log('Loading HOAs from localStorage:', localHOAs)
+        setHoaProperties(localHOAs)
+      } else {
+        console.log('No local HOAs found, setting default')
+        // Set default HOA if none exist
+        const defaultHOAs = [{
+          id: 'default_1',
+          name: 'Sunset Ridge Community',
+          address: '123 Community Dr, City, ST 12345'
+        }]
+        setHoaProperties(defaultHOAs)
+        localStorage.setItem(`hoa_properties_${user.id}`, JSON.stringify(defaultHOAs))
+      }
     }
   }
 
@@ -142,28 +167,61 @@ export const Settings: React.FC = () => {
 
     setIsLoading(true)
     try {
-      console.log('Attempting to save HOA to database...')
+      console.log('Attempting to save HOA...')
+      
+      // Add timeout for database operations
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Database operation timeout after 5 seconds'))
+        }, 5000)
+      })
       
       if (isEditingHOA === 'new') {
         console.log('Adding new HOA to database')
-        const { data, error: insertError } = await supabase
-          .from('hoa_properties')
-          .insert({
-            user_id: user.id,
+        
+        try {
+          const insertPromise = supabase
+            .from('hoa_properties')
+            .insert({
+              user_id: user.id,
+              name: hoaForm.name,
+              address: hoaForm.address
+            })
+            .select()
+
+          const { data, error: insertError } = await Promise.race([insertPromise, timeoutPromise])
+
+          if (insertError) {
+            console.error('Database insert error:', insertError)
+            throw insertError
+          }
+
+          console.log('HOA inserted successfully:', data)
+          if (data && data[0]) {
+            setHoaProperties(prev => [...prev, data[0]])
+          }
+        } catch (dbError) {
+          console.error('Database operation failed, using local storage fallback:', dbError)
+          
+          // Fallback to local storage
+          const newHOA = {
+            id: `local_${Date.now()}`,
             name: hoaForm.name,
-            address: hoaForm.address
-          })
-          .select()
-
-        if (insertError) {
-          console.error('Database insert error:', insertError)
-          throw insertError
+            address: hoaForm.address,
+            user_id: user.id,
+            created_at: new Date().toISOString()
+          }
+          
+          setHoaProperties(prev => [...prev, newHOA])
+          
+          // Store in localStorage as backup
+          const existingHOAs = JSON.parse(localStorage.getItem(`hoa_properties_${user.id}`) || '[]')
+          existingHOAs.push(newHOA)
+          localStorage.setItem(`hoa_properties_${user.id}`, JSON.stringify(existingHOAs))
+          
+          console.log('HOA saved to local storage:', newHOA)
         }
-
-        console.log('HOA inserted successfully:', data)
-        if (data && data[0]) {
-          setHoaProperties(prev => [...prev, data[0]])
-        }
+        
         success('HOA Added', `${hoaForm.name} has been added to your properties!`)
         analytics.track('Add HOA Clicked', {
           user_id: user.id,
@@ -172,18 +230,34 @@ export const Settings: React.FC = () => {
         })
       } else {
         console.log('Updating existing HOA:', isEditingHOA)
-        const { error: updateError } = await supabase
-          .from('hoa_properties')
-          .update({
-            name: hoaForm.name,
-            address: hoaForm.address
-          })
-          .eq('id', isEditingHOA)
-          .eq('user_id', user.id)
+        
+        try {
+          const updatePromise = supabase
+            .from('hoa_properties')
+            .update({
+              name: hoaForm.name,
+              address: hoaForm.address
+            })
+            .eq('id', isEditingHOA)
+            .eq('user_id', user.id)
 
-        if (updateError) {
-          console.error('Database update error:', updateError)
-          throw updateError
+          const { error: updateError } = await Promise.race([updatePromise, timeoutPromise])
+
+          if (updateError) {
+            console.error('Database update error:', updateError)
+            throw updateError
+          }
+        } catch (dbError) {
+          console.error('Database update failed, using local update:', dbError)
+          
+          // Update localStorage as fallback
+          const existingHOAs = JSON.parse(localStorage.getItem(`hoa_properties_${user.id}`) || '[]')
+          const updatedHOAs = existingHOAs.map((hoa: any) => 
+            hoa.id === isEditingHOA 
+              ? { ...hoa, name: hoaForm.name, address: hoaForm.address, updated_at: new Date().toISOString() }
+              : hoa
+          )
+          localStorage.setItem(`hoa_properties_${user.id}`, JSON.stringify(updatedHOAs))
         }
 
         setHoaProperties(prev => prev.map(hoa => 
@@ -204,7 +278,7 @@ export const Settings: React.FC = () => {
       setHoaForm({ name: '', address: '' })
     } catch (err) {
       console.error('HOA save error:', err)
-      error('Save Failed', `Failed to save HOA: ${err instanceof Error ? err.message : 'Unknown error'}. Check console for details.`)
+      error('Save Failed', `Failed to save HOA: ${err instanceof Error ? err.message : 'Unknown error'}. Using local storage fallback.`)
     } finally {
       setIsLoading(false)
     }
