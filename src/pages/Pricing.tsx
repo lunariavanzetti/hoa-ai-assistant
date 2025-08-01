@@ -40,6 +40,15 @@ interface PricingPlan {
   priceId?: string
 }
 
+// Helper function to get environment-specific price IDs
+const getPriceId = (plan: string, cycle: 'monthly' | 'yearly') => {
+  const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
+  const prefix = environment === 'sandbox' ? 'VITE_PADDLE_SANDBOX' : 'VITE_PADDLE_PRODUCTION'
+  
+  const priceKey = `${prefix}_${plan.toUpperCase()}_${cycle.toUpperCase()}_PRICE_ID`
+  return (import.meta.env as any)[priceKey]
+}
+
 export const Pricing: React.FC = () => {
   const { user } = useAuthStore()
   const { error } = useToast()
@@ -98,7 +107,7 @@ export const Pricing: React.FC = () => {
         'Priority support'
       ],
       targetAudience: 'HOAs with 50-300 units',
-      priceId: billingCycle === 'monthly' ? import.meta.env.VITE_PADDLE_PRO_MONTHLY_PRICE_ID : import.meta.env.VITE_PADDLE_PRO_YEARLY_PRICE_ID
+      priceId: getPriceId('pro', billingCycle)
     },
     {
       id: 'agency',
@@ -129,7 +138,7 @@ export const Pricing: React.FC = () => {
         'Advanced features'
       ],
       targetAudience: 'Large HOAs (300+ units)',
-      priceId: billingCycle === 'monthly' ? import.meta.env.VITE_PADDLE_AGENCY_MONTHLY_PRICE_ID : import.meta.env.VITE_PADDLE_AGENCY_YEARLY_PRICE_ID
+      priceId: getPriceId('agency', billingCycle)
     },
     {
       id: 'enterprise',
@@ -160,7 +169,7 @@ export const Pricing: React.FC = () => {
         'Enterprise security'
       ],
       targetAudience: 'Property management companies',
-      priceId: billingCycle === 'monthly' ? import.meta.env.VITE_PADDLE_ENTERPRISE_MONTHLY_PRICE_ID : import.meta.env.VITE_PADDLE_ENTERPRISE_YEARLY_PRICE_ID
+      priceId: getPriceId('enterprise', billingCycle)
     }
   ]
 
@@ -195,15 +204,28 @@ export const Pricing: React.FC = () => {
     console.log('Billing Cycle:', billingCycle)
     console.log('Plan Price ID:', plan.priceId)
     console.log('Environment Variables Check:')
-    console.log('VITE_PADDLE_CLIENT_TOKEN:', !!import.meta.env.VITE_PADDLE_CLIENT_TOKEN)
-    console.log('VITE_PADDLE_ENVIRONMENT:', import.meta.env.VITE_PADDLE_ENVIRONMENT)
-    console.log('All Price IDs:')
-    console.log('- PRO_MONTHLY:', import.meta.env.VITE_PADDLE_PRO_MONTHLY_PRICE_ID)
-    console.log('- PRO_YEARLY:', import.meta.env.VITE_PADDLE_PRO_YEARLY_PRICE_ID)
-    console.log('- AGENCY_MONTHLY:', import.meta.env.VITE_PADDLE_AGENCY_MONTHLY_PRICE_ID)
-    console.log('- AGENCY_YEARLY:', import.meta.env.VITE_PADDLE_AGENCY_YEARLY_PRICE_ID)
-    console.log('- ENTERPRISE_MONTHLY:', import.meta.env.VITE_PADDLE_ENTERPRISE_MONTHLY_PRICE_ID)
-    console.log('- ENTERPRISE_YEARLY:', import.meta.env.VITE_PADDLE_ENTERPRISE_YEARLY_PRICE_ID)
+    const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT
+    console.log('VITE_PADDLE_ENVIRONMENT:', environment)
+    
+    if (environment === 'sandbox') {
+      console.log('VITE_PADDLE_SANDBOX_CLIENT_TOKEN:', !!import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN)
+      console.log('Sandbox Price IDs:')
+      console.log('- PRO_MONTHLY:', import.meta.env.VITE_PADDLE_SANDBOX_PRO_MONTHLY_PRICE_ID)
+      console.log('- PRO_YEARLY:', import.meta.env.VITE_PADDLE_SANDBOX_PRO_YEARLY_PRICE_ID)
+      console.log('- AGENCY_MONTHLY:', import.meta.env.VITE_PADDLE_SANDBOX_AGENCY_MONTHLY_PRICE_ID)
+      console.log('- AGENCY_YEARLY:', import.meta.env.VITE_PADDLE_SANDBOX_AGENCY_YEARLY_PRICE_ID)
+      console.log('- ENTERPRISE_MONTHLY:', import.meta.env.VITE_PADDLE_SANDBOX_ENTERPRISE_MONTHLY_PRICE_ID)
+      console.log('- ENTERPRISE_YEARLY:', import.meta.env.VITE_PADDLE_SANDBOX_ENTERPRISE_YEARLY_PRICE_ID)
+    } else {
+      console.log('VITE_PADDLE_PRODUCTION_CLIENT_TOKEN:', !!import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN)
+      console.log('Production Price IDs:')
+      console.log('- PRO_MONTHLY:', import.meta.env.VITE_PADDLE_PRODUCTION_PRO_MONTHLY_PRICE_ID)
+      console.log('- PRO_YEARLY:', import.meta.env.VITE_PADDLE_PRODUCTION_PRO_YEARLY_PRICE_ID)
+      console.log('- AGENCY_MONTHLY:', import.meta.env.VITE_PADDLE_PRODUCTION_AGENCY_MONTHLY_PRICE_ID)
+      console.log('- AGENCY_YEARLY:', import.meta.env.VITE_PADDLE_PRODUCTION_AGENCY_YEARLY_PRICE_ID)
+      console.log('- ENTERPRISE_MONTHLY:', import.meta.env.VITE_PADDLE_PRODUCTION_ENTERPRISE_MONTHLY_PRICE_ID)
+      console.log('- ENTERPRISE_YEARLY:', import.meta.env.VITE_PADDLE_PRODUCTION_ENTERPRISE_YEARLY_PRICE_ID)
+    }
     console.log('=== END DEBUG ===')
 
     setLoading(plan.id)

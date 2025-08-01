@@ -6,14 +6,27 @@ class PaddleClient {
     if (this.isInitialized) return this.paddle
 
     try {
+      const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
+      const clientToken = environment === 'sandbox' 
+        ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
+        : import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN
+
+      console.log('Initializing Paddle with environment:', environment)
+      console.log('Using client token:', clientToken ? 'Found' : 'Missing')
+
+      if (!clientToken) {
+        throw new Error(`Missing Paddle client token for ${environment} environment`)
+      }
+
       // Dynamic import to avoid build issues
       const paddle = await import('@paddle/paddle-js')
       this.paddle = await paddle.initializePaddle({
-        token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN!,
-        environment: import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
+        token: clientToken,
+        environment
       })
       
       this.isInitialized = true
+      console.log('Paddle initialized successfully for', environment)
       return this.paddle
     } catch (error) {
       console.error('Error initializing Paddle:', error)
