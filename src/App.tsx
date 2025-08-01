@@ -15,6 +15,9 @@ import { OnboardingDesigner } from '@/pages/OnboardingDesigner'
 import { Pricing } from '@/pages/Pricing'
 import { Settings } from '@/pages/Settings'
 import { SimpleCheckout } from '@/pages/SimpleCheckout'
+import { TermsOfService } from '@/pages/TermsOfService'
+import { PrivacyPolicy } from '@/pages/PrivacyPolicy'
+import { RefundPolicy } from '@/pages/RefundPolicy'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
@@ -34,6 +37,9 @@ function App() {
                   <Route path="/" element={<Landing />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/refund-policy" element={<RefundPolicy />} />
                   <Route path="*" element={<Landing />} />
                 </>
               ) : (
@@ -50,6 +56,9 @@ function App() {
                   <Route path="pricing" element={<Pricing />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="paddle-test" element={<SimpleCheckout />} />
+                  <Route path="terms-of-service" element={<TermsOfService />} />
+                  <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="refund-policy" element={<RefundPolicy />} />
                   <Route path="auth/callback" element={<AuthCallback />} />
                 </Route>
               )}

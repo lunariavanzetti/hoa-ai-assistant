@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Zap, Shield, Clock, Star, Check } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate()
@@ -307,6 +307,63 @@ export const Landing: React.FC = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">K</span>
+                </div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Kateriss
+                </span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-md">
+                AI-powered HOA management platform helping communities save time and improve efficiency through intelligent automation.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                © 2025 Kateriss. All rights reserved.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h3>
+              <ul className="space-y-2">
+                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link></li>
+                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link></li>
+                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Demo</Link></li>
+                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link to="/terms-of-service" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
+                <li><Link to="/privacy-policy" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/refund-policy" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Refund Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Built for HOA managers who value efficiency and compliance.
+              </p>
+              <div className="mt-4 md:mt-0">
+                <ThemeToggle />
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
