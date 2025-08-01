@@ -35,10 +35,17 @@ class PaddleClient {
   }
 
   async openCheckout(priceId: string, customerId?: string) {
+    const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
+    const clientToken = environment === 'sandbox' 
+      ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
+      : import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN
+
     console.log('=== PADDLE CLIENT DEBUG ===')
     console.log('Initializing Paddle with:')
-    console.log('- Client Token:', import.meta.env.VITE_PADDLE_CLIENT_TOKEN?.substring(0, 20) + '...')
-    console.log('- Environment:', import.meta.env.VITE_PADDLE_ENVIRONMENT)
+    console.log('- Environment:', environment)
+    console.log('- Client Token (first 20 chars):', clientToken?.substring(0, 20) + '...')
+    console.log('- Client Token Length:', clientToken?.length)
+    console.log('- Client Token Valid:', clientToken?.startsWith(environment === 'sandbox' ? 'test_' : 'live_'))
     console.log('- Price ID:', priceId)
     console.log('- Customer ID:', customerId)
     
@@ -46,14 +53,23 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      const checkoutConfig = {
+      const checkoutConfig: any = {
         items: [{ priceId, quantity: 1 }],
-        ...(customerId && { customerId }),
         successUrl: `${window.location.origin}/billing/success`,
         closeUrl: `${window.location.origin}/pricing`
       }
       
-      console.log('Opening checkout with config:', checkoutConfig)
+      // Only add customerId if it exists and is not null
+      if (customerId && customerId.trim()) {
+        checkoutConfig.customerId = customerId
+      }
+      
+      console.log('Opening checkout with config:', JSON.stringify(checkoutConfig, null, 2))
+      
+      // Add error listener before opening checkout
+      paddle.Checkout.on('checkout.error', (error: any) => {
+        console.error('Paddle Checkout Error Event:', error)
+      })
       
       const checkout = await paddle.Checkout.open(checkoutConfig)
       
