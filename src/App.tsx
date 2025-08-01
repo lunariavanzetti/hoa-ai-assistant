@@ -14,6 +14,7 @@ import { DataMonitor } from '@/pages/DataMonitor'
 import { OnboardingDesigner } from '@/pages/OnboardingDesigner'
 import { Pricing } from '@/pages/Pricing'
 import { Settings } from '@/pages/Settings'
+import { SimpleCheckout } from '@/pages/SimpleCheckout'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
@@ -48,6 +49,7 @@ function App() {
                   <Route path="onboarding" element={<OnboardingDesigner />} />
                   <Route path="pricing" element={<Pricing />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="paddle-test" element={<SimpleCheckout />} />
                   <Route path="auth/callback" element={<AuthCallback />} />
                 </Route>
               )}
