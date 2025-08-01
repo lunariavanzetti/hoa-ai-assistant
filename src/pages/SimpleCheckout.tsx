@@ -32,23 +32,11 @@ export const SimpleCheckout: React.FC = () => {
       
       // Test initialization
       log('🚀 Initializing Paddle...')
-      let paddle: any = null
-      
-      if (paddleModule.Paddle?.Setup) {
-        log('Using Paddle.Setup method')
-        paddle = await paddleModule.Paddle.Setup({
-          token: token,
-          environment: env as any
-        })
-      } else if (paddleModule.initializePaddle) {
-        log('Using initializePaddle method')
-        paddle = await paddleModule.initializePaddle({
-          token: token,
-          environment: env
-        })
-      } else {
-        throw new Error('No initialization method found')
-      }
+      log('Using initializePaddle method')
+      const paddle = await paddleModule.initializePaddle({
+        token: token,
+        environment: env as 'production' | 'sandbox'
+      })
       
       if (!paddle) {
         throw new Error('Paddle initialization returned null')
@@ -69,7 +57,19 @@ export const SimpleCheckout: React.FC = () => {
       
       log(`Checkout config: ${JSON.stringify(checkoutConfig, null, 2)}`)
       
-      const result = await paddle.Checkout.open(checkoutConfig)
+      // Try different checkout methods
+      let result: any
+      if (paddle.Checkout && paddle.Checkout.open) {
+        log('Using paddle.Checkout.open method')
+        result = await paddle.Checkout.open(checkoutConfig)
+      } else if (paddle.open) {
+        log('Using paddle.open method')
+        result = await paddle.open(checkoutConfig)
+      } else {
+        log(`Available paddle methods: ${Object.keys(paddle).join(', ')}`)
+        throw new Error('No checkout method found')
+      }
+      
       log(`✅ Checkout result: ${JSON.stringify(result)}`)
       
       setStatus('✅ Test completed successfully!')

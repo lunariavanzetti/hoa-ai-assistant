@@ -24,46 +24,15 @@ class PaddleClient {
       const paddleModule = await import('@paddle/paddle-js')
       console.log('📦 Paddle module loaded:', Object.keys(paddleModule))
       
-      // Try multiple initialization methods for compatibility
-      let initMethod = 'unknown'
-      try {
-        // Method 1: Paddle.Setup (v1.4.2)
-        if (paddleModule.Paddle?.Setup) {
-          console.log('🚀 Using Paddle.Setup method (v1.4.2)')
-          initMethod = 'Paddle.Setup'
-          this.paddle = await paddleModule.Paddle.Setup({
-            token: clientToken,
-            environment: environment as any
-          })
-        }
-        // Method 2: initializePaddle (newer versions)
-        else if (paddleModule.initializePaddle) {
-          console.log('🚀 Using initializePaddle method (newer version)')
-          initMethod = 'initializePaddle'
-          this.paddle = await paddleModule.initializePaddle({
-            token: clientToken,
-            environment
-          })
-        }
-        // Method 3: Direct constructor
-        else if (paddleModule.Paddle) {
-          console.log('🚀 Using Paddle constructor')
-          initMethod = 'Paddle constructor'
-          this.paddle = new paddleModule.Paddle({
-            token: clientToken,
-            environment
-          })
-        }
-        else {
-          throw new Error('No known Paddle initialization method found')
-        }
-      } catch (setupError) {
-        console.error(`❌ ${initMethod} failed:`, setupError)
-        throw setupError
-      }
+      // For v1.4.2, use initializePaddle method
+      console.log('🚀 Using initializePaddle method (v1.4.2)')
+      this.paddle = await paddleModule.initializePaddle({
+        token: clientToken,
+        environment: environment as 'production' | 'sandbox'
+      })
       
       if (!this.paddle) {
-        throw new Error(`${initMethod} returned null/undefined`)
+        throw new Error('initializePaddle returned null/undefined')
       }
       
       this.isInitialized = true
@@ -118,7 +87,18 @@ class PaddleClient {
       // Add network monitoring
       console.log('🌐 Starting network monitoring for Paddle requests...')
       
-      const checkout = await paddle.Checkout.open(checkoutConfig)
+      // Try different checkout methods based on SDK version
+      let checkout: any
+      if (paddle.Checkout && paddle.Checkout.open) {
+        console.log('Using paddle.Checkout.open method')
+        checkout = await paddle.Checkout.open(checkoutConfig)
+      } else if (paddle.open) {
+        console.log('Using paddle.open method')
+        checkout = await paddle.open(checkoutConfig)
+      } else {
+        console.log('Available paddle methods:', Object.keys(paddle))
+        throw new Error('No checkout method found on Paddle instance')
+      }
       
       console.log('Checkout opened successfully:', checkout)
       return checkout
