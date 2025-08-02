@@ -19,7 +19,7 @@ export const PrivacyPolicy: React.FC = () => {
             <section>
               <h2 className="heading-2">1. Introduction</h2>
               <p>
-                Kateriss ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, 
+                HOA AI Assistant Kateriss ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, 
                 use, disclose, and safeguard your information when you use our HOA management service ("Service").
               </p>
               <p>
@@ -204,8 +204,8 @@ export const PrivacyPolicy: React.FC = () => {
                 If you have any questions about this Privacy Policy or our privacy practices, please contact us:
               </p>
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <p><strong>Email:</strong> privacy@kateriss.com</p>
-                <p><strong>Support Email:</strong> support@kateriss.com</p>
+                <p><strong>Email:</strong> privacy@hoa-ai-assistant.com</p>
+                <p><strong>Support Email:</strong> support@hoa-ai-assistant.com</p>
                 <p><strong>Website:</strong> https://hoa-ai-assistant.vercel.app</p>
               </div>
             </section>

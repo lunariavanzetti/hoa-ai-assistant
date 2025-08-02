@@ -19,7 +19,7 @@ export const TermsOfService: React.FC = () => {
             <section>
               <h2 className="heading-2">1. Acceptance of Terms</h2>
               <p>
-                By accessing and using Kateriss ("Service"), you accept and agree to be bound by the terms and provision of this agreement. 
+                By accessing and using HOA AI Assistant Kateriss ("Service"), you accept and agree to be bound by the terms and provision of this agreement. 
                 If you do not agree to abide by the above, please do not use this service.
               </p>
             </section>
@@ -27,7 +27,7 @@ export const TermsOfService: React.FC = () => {
             <section>
               <h2 className="heading-2">2. Description of Service</h2>
               <p>
-                Kateriss is an AI-powered software-as-a-service (SaaS) platform designed for Homeowners Association (HOA) management. 
+                HOA AI Assistant Kateriss is an AI-powered software-as-a-service (SaaS) platform designed for Homeowners Association (HOA) management. 
                 Our service provides:
               </p>
               <ul>
@@ -57,7 +57,7 @@ export const TermsOfService: React.FC = () => {
             <section>
               <h2 className="heading-2">4. Subscription and Payment</h2>
               <p>
-                Kateriss offers subscription-based pricing plans. By subscribing to our service:
+                HOA AI Assistant Kateriss offers subscription-based pricing plans. By subscribing to our service:
               </p>
               <ul>
                 <li>You agree to pay all fees associated with your chosen plan</li>
@@ -93,7 +93,7 @@ export const TermsOfService: React.FC = () => {
             <section>
               <h2 className="heading-2">7. Intellectual Property</h2>
               <p>
-                The Service and its original content, features, and functionality are owned by Kateriss and are protected by 
+                The Service and its original content, features, and functionality are owned by HOA AI Assistant Kateriss and are protected by 
                 international copyright, trademark, patent, trade secret, and other intellectual property laws.
               </p>
             </section>
@@ -119,7 +119,7 @@ export const TermsOfService: React.FC = () => {
             <section>
               <h2 className="heading-2">10. Limitation of Liability</h2>
               <p>
-                IN NO EVENT SHALL KATERISS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, 
+                IN NO EVENT SHALL HOA AI ASSISTANT KATERISS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, 
                 INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM 
                 YOUR USE OF THE SERVICE.
               </p>
@@ -157,7 +157,7 @@ export const TermsOfService: React.FC = () => {
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <p><strong>Email:</strong> support@kateriss.com</p>
+                <p><strong>Email:</strong> support@hoa-ai-assistant.com</p>
                 <p><strong>Website:</strong> https://hoa-ai-assistant.vercel.app</p>
               </div>
             </section>

@@ -19,7 +19,7 @@ export const RefundPolicy: React.FC = () => {
             <section>
               <h2 className="heading-2">1. Overview</h2>
               <p>
-                At Kateriss, we stand behind our HOA management service and want you to be completely satisfied with your subscription. 
+                At HOA AI Assistant Kateriss, we stand behind our HOA management service and want you to be completely satisfied with your subscription. 
                 This Refund Policy outlines the circumstances under which refunds may be provided and the process for requesting them.
               </p>
             </section>
@@ -177,7 +177,7 @@ export const RefundPolicy: React.FC = () => {
                 For refund requests or questions about this policy, please contact us:
               </p>
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <p><strong>Email:</strong> support@kateriss.com</p>
+                <p><strong>Email:</strong> support@hoa-ai-assistant.com</p>
                 <p><strong>Subject Line:</strong> "Refund Request - [Your Account Email]"</p>
                 <p><strong>Response Time:</strong> Within 1 business day</p>
                 <p><strong>Website:</strong> https://hoa-ai-assistant.vercel.app</p>
@@ -187,14 +187,14 @@ export const RefundPolicy: React.FC = () => {
             <section>
               <h2 className="heading-2">13. Satisfaction Guarantee</h2>
               <p>
-                Our goal is your complete satisfaction with Kateriss. If you're experiencing any issues with our service, 
+                Our goal is your complete satisfaction with HOA AI Assistant Kateriss. If you're experiencing any issues with our service, 
                 please reach out to our support team before considering a refund. We're often able to resolve concerns 
                 and help you get the most value from our platform.
               </p>
               
               <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
                 <p className="text-green-800 dark:text-green-200 font-medium">
-                  We're confident that Kateriss will save your HOA time and improve your management efficiency. 
+                  We're confident that HOA AI Assistant Kateriss will save your HOA time and improve your management efficiency. 
                   Try us risk-free for 30 days!
                 </p>
               </div>
