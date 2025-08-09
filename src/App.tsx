@@ -18,6 +18,7 @@ import { SimpleCheckout } from '@/pages/SimpleCheckout'
 import { TermsOfService } from '@/pages/TermsOfService'
 import { PrivacyPolicy } from '@/pages/PrivacyPolicy'
 import { RefundPolicy } from '@/pages/RefundPolicy'
+import { Templates } from '@/pages/Templates'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
@@ -41,6 +42,7 @@ function App() {
                   <Route path="/terms-of-service" element={<TermsOfService />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />
+                  <Route path="/templates" element={<Templates />} />
                   <Route path="*" element={<Landing />} />
                 </>
               ) : (
@@ -60,6 +62,7 @@ function App() {
                   <Route path="terms-of-service" element={<TermsOfService />} />
                   <Route path="privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="refund-policy" element={<RefundPolicy />} />
+                  <Route path="templates" element={<Templates />} />
                   <Route path="auth/callback" element={<AuthCallback />} />
                 </Route>
               )}

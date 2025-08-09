@@ -336,6 +336,7 @@ export const Landing: React.FC = () => {
               <ul className="space-y-2">
                 <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link></li>
                 <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link></li>
+                <li><Link to="/templates" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Free Templates</Link></li>
                 <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Demo</Link></li>
                 <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link></li>
               </ul>
