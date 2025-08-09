@@ -118,15 +118,25 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ loading: true, error: null })
           
+          console.log('Signing out user...')
           const { error } = await supabase.auth.signOut()
           if (error) throw error
 
+          // Clear all state
           set({ 
             user: null, 
             session: null, 
-            loading: false 
+            loading: false,
+            error: null
           })
+          
+          // Force clear localStorage
+          localStorage.removeItem('auth-storage')
+          
+          console.log('Sign out successful')
+          
         } catch (error) {
+          console.error('Sign out error:', error)
           set({ 
             error: (error as AuthError).message, 
             loading: false 
@@ -262,36 +272,14 @@ export const useAuthStore = create<AuthState>()(
       clearError: () => set({ error: null })
     }),
     {
-      name: 'auth-store',
-      partialize: (state) => ({ user: state.user, session: state.session })
+      name: 'auth-storage',
+      partialize: (state) => ({ 
+        // Don't persist session - only persist user info
+        // Session should be managed by Supabase directly
+        user: state.user
+      })
     }
   )
 )
 
-// Initialize auth state listener
-supabase.auth.onAuthStateChange(async (_event, session) => {
-  const { setUser, setSession, setLoading } = useAuthStore.getState()
-  
-  setLoading(true)
-  setSession(session)
-
-  if (session?.user) {
-    try {
-      // Fetch user profile
-      const { data: profile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      setUser(profile)
-    } catch (error) {
-      console.error('Error fetching user profile:', error)
-      setUser(null)
-    }
-  } else {
-    setUser(null)
-  }
-  
-  setLoading(false)
-})
+// Remove this duplicate listener - it's handled in AuthProvider now

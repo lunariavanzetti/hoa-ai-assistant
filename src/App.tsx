@@ -26,7 +26,22 @@ import { useAuthStore } from '@/stores/auth'
 import { Analytics } from '@vercel/analytics/react'
 
 function App() {
-  const { user } = useAuthStore()
+  const { user, loading } = useAuthStore()
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <ThemeProvider>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+          </div>
+        </div>
+        <Analytics />
+      </ThemeProvider>
+    )
+  }
 
   return (
     <ThemeProvider>

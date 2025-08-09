@@ -44,7 +44,7 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
   })
 
   // Check if user has paid subscription (mock check for now)
-  const hasPaidPlan = user?.subscription_status === 'active' // You'll implement this
+  const hasPaidPlan = (user as any)?.subscription_status === 'active' // You'll implement this
 
   const checkUsageLimit = (feature: FeatureType, action: () => void) => {
     // If user has paid plan, allow unlimited usage
