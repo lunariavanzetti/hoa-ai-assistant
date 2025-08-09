@@ -22,6 +22,7 @@ import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
 import { useAuthStore } from '@/stores/auth'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   const { user } = useAuthStore()
@@ -66,6 +67,7 @@ function App() {
           </div>
         </ToastProvider>
       </AuthProvider>
+      <Analytics />
     </ThemeProvider>
   )
 }

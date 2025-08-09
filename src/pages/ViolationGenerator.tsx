@@ -5,6 +5,7 @@ import { openAIService, type ViolationData } from '@/lib/openai'
 import { useToast } from '@/components/ui/Toaster'
 import { PhotoUpload } from '@/components/ui/PhotoUpload'
 import { storageService } from '@/lib/storage'
+import { useUsageLimits } from '@/hooks/useUsageLimits'
 
 export const ViolationGenerator: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ export const ViolationGenerator: React.FC = () => {
   const [error, setError] = useState('')
   const [_uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
   const { success, error: showError } = useToast()
+  const { checkUsageLimit, UpgradeModalComponent, getRemainingUsage } = useUsageLimits()
 
   const violationTypes = [
     'Landscaping/Lawn Care',
@@ -39,10 +41,12 @@ export const ViolationGenerator: React.FC = () => {
       return
     }
 
-    setIsGenerating(true)
-    setError('')
-    
-    try {
+    // Check usage limits before proceeding
+    checkUsageLimit('violation_letters', async () => {
+      setIsGenerating(true)
+      setError('')
+      
+      try {
       // Upload photos first if any
       let photoUrls: string[] = []
       if (formData.photos.length > 0) {
@@ -115,9 +119,10 @@ export const ViolationGenerator: React.FC = () => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate letter'
       setError(errorMessage)
       showError('Generation Failed', errorMessage)
-    } finally {
-      setIsGenerating(false)
-    }
+      } finally {
+        setIsGenerating(false)
+      }
+    })
   }
 
   return (
@@ -303,6 +308,33 @@ export const ViolationGenerator: React.FC = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Usage Limits Indicator */}
+      <div className="glass-card p-4 border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+              Free Plan Usage
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-300">
+              {getRemainingUsage('violation_letters')} violation letters remaining this month
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="w-16 h-2 bg-amber-200 dark:bg-amber-700 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-amber-500 dark:bg-amber-400 transition-all duration-300"
+                style={{ width: `${100 - (getRemainingUsage('violation_letters') / 2) * 100}%` }}
+              />
+            </div>
+            <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
+              {2 - getRemainingUsage('violation_letters')}/2 used
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <UpgradeModalComponent />
     </div>
   )
 }
