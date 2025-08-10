@@ -42,18 +42,18 @@ function App() {
     }
   }, [loading])
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log('🔍 App render state:', { 
-      user: user ? 'Logged in' : 'Not logged in', 
-      loading,
-      hasSession: !!user
-    })
-  })
+  // Debug logging (remove after fixing)
+  // React.useEffect(() => {
+  //   console.log('🔍 App render state:', { 
+  //     user: user ? 'Logged in' : 'Not logged in', 
+  //     loading,
+  //     hasSession: !!user
+  //   })
+  // })
 
   // Show loading state while checking authentication
   if (loading) {
-    console.log('⏳ Showing loading state')
+    // console.log('⏳ Showing loading state')
     return (
       <ThemeProvider>
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">

@@ -7,13 +7,22 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const { setUser, setSession, setLoading } = useAuthStore()
+  // Use getState() directly to avoid dependency issues
 
   useEffect(() => {
     let mounted = true
+    let initialized = false
 
     const initializeAuth = async () => {
+      if (initialized) {
+        console.log('🔄 Auth already initialized, skipping')
+        return
+      }
+      
+      initialized = true
+      
       try {
+        const { setLoading, setSession, setUser } = useAuthStore.getState()
         setLoading(true)
         console.log('🔐 Initializing auth...')
         
@@ -40,6 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('❌ Auth initialization error:', error)
         if (mounted) {
+          const { setSession, setUser, setLoading } = useAuthStore.getState()
           setSession(null)
           setUser(null)
           setLoading(false)
@@ -47,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
-    // Initialize auth
+    // Initialize auth only once
     initializeAuth()
 
     // Listen for auth changes
@@ -56,6 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔄 Auth state changed:', event, session ? 'Session exists' : 'No session')
         
         if (mounted) {
+          const { setSession, setUser, setLoading } = useAuthStore.getState()
           setSession(session)
           setUser(session?.user as any || null)
           
@@ -69,7 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [setUser, setSession, setLoading])
+  }, []) // Remove dependencies to prevent re-initialization
 
   return <>{children}</>
 }
