@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       session: null,
-      loading: true, // Start with loading true, AuthProvider will set it to false
+      loading: false, // Remove loading state complexity
       error: null,
 
       signIn: async (email: string, password: string) => {

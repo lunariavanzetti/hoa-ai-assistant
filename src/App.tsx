@@ -24,48 +24,12 @@ import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
 import { useAuthStore } from '@/stores/auth'
 import { Analytics } from '@vercel/analytics/react'
-import React from 'react'
+// import React from 'react'
 
 function App() {
-  const { user, loading } = useAuthStore()
+  const { user } = useAuthStore()
 
-  // Add timeout for loading state to prevent infinite loading
-  React.useEffect(() => {
-    if (loading) {
-      const timeout = setTimeout(() => {
-        console.log('⚠️ Loading timeout reached, forcing stop')
-        const { setLoading } = useAuthStore.getState()
-        setLoading(false)
-      }, 5000) // 5 second timeout
-
-      return () => clearTimeout(timeout)
-    }
-  }, [loading])
-
-  // Debug logging (remove after fixing)
-  // React.useEffect(() => {
-  //   console.log('🔍 App render state:', { 
-  //     user: user ? 'Logged in' : 'Not logged in', 
-  //     loading,
-  //     hasSession: !!user
-  //   })
-  // })
-
-  // Show loading state while checking authentication
-  if (loading) {
-    // console.log('⏳ Showing loading state')
-    return (
-      <ThemeProvider>
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-300">Loading...</p>
-          </div>
-        </div>
-        <Analytics />
-      </ThemeProvider>
-    )
-  }
+  console.log('🎯 App render - User state:', user ? 'Authenticated' : 'Not authenticated')
 
   return (
     <ThemeProvider>
