@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       session: null,
-      loading: false,
+      loading: true, // Start with loading true, AuthProvider will set it to false
       error: null,
 
       signIn: async (email: string, password: string) => {
@@ -274,8 +274,8 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({ 
-        // Don't persist session - only persist user info
-        // Session should be managed by Supabase directly
+        // Only persist user info, not session or loading state
+        // Session and loading should be managed by Supabase directly
         user: state.user
       })
     }
