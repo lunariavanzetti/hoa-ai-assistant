@@ -43,8 +43,9 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
     feature: 'violation_letters'
   })
 
-  // Check if user has paid subscription (mock check for now)
-  const hasPaidPlan = (user as any)?.subscription_status === 'active' // You'll implement this
+  // Check if user has paid subscription
+  const hasPaidPlan = (user as any)?.subscription_status === 'active' || 
+                     (user as any)?.paddle_subscription_id // Has active Paddle subscription
 
   const checkUsageLimit = (feature: FeatureType, action: () => void) => {
     // If user has paid plan, allow unlimited usage

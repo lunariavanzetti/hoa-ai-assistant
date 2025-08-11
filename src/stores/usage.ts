@@ -3,8 +3,8 @@ import { persist } from 'zustand/middleware'
 
 // Usage limits for free plan
 export const FREE_PLAN_LIMITS = {
-  violation_letters: 2,
-  complaint_responses: 2,
+  violation_letters: 5,
+  complaint_responses: 10,
   meeting_summaries: 2,
   reports: 1
 } as const
