@@ -276,7 +276,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Documentation**: [docs.kateriss.com](https://docs.kateriss.com)
-- **Support Email**: support@kateriss.com
+- **Support Email**: support@kateriss.space
 - **Community Discord**: [discord.gg/kateriss](https://discord.gg/kateriss)
 
 ## 🎯 Roadmap

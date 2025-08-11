@@ -266,12 +266,12 @@ export const Landing: React.FC = () => {
                 </li>
               </ul>
               
-              <button 
-                onClick={handleGetStarted}
-                className="btn-secondary w-full"
+              <a 
+                href="mailto:support@kateriss.space?subject=Enterprise%20Sales%20Inquiry"
+                className="btn-secondary w-full inline-block text-center"
               >
                 Contact Sales
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -338,7 +338,7 @@ export const Landing: React.FC = () => {
                 <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link></li>
                 <li><Link to="/templates" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Free Templates</Link></li>
                 <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Demo</Link></li>
-                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</Link></li>
+                <li><a href="mailto:support@kateriss.space" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</a></li>
               </ul>
             </div>
 

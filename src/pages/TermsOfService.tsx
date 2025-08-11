@@ -157,8 +157,8 @@ export const TermsOfService: React.FC = () => {
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <p><strong>Email:</strong> support@hoa-ai-assistant.com</p>
-                <p><strong>Website:</strong> https://hoa-ai-assistant.vercel.app</p>
+                <p><strong>Email:</strong> support@kateriss.space</p>
+                <p><strong>Website:</strong> https://kateriss.space</p>
               </div>
             </section>
           </div>

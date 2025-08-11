@@ -204,9 +204,9 @@ export const PrivacyPolicy: React.FC = () => {
                 If you have any questions about this Privacy Policy or our privacy practices, please contact us:
               </p>
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <p><strong>Email:</strong> privacy@hoa-ai-assistant.com</p>
-                <p><strong>Support Email:</strong> support@hoa-ai-assistant.com</p>
-                <p><strong>Website:</strong> https://hoa-ai-assistant.vercel.app</p>
+                <p><strong>Email:</strong> privacy@kateriss.space</p>
+                <p><strong>Support Email:</strong> support@kateriss.space</p>
+                <p><strong>Website:</strong> https://kateriss.space</p>
               </div>
             </section>
           </div>

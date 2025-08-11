@@ -74,7 +74,7 @@ export const RefundPolicy: React.FC = () => {
               <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">Step-by-Step Process:</h3>
                 <ol className="space-y-2">
-                  <li><strong>1. Contact Support:</strong> Email us at support@kateriss.com</li>
+                  <li><strong>1. Contact Support:</strong> Email us at support@kateriss.space</li>
                   <li><strong>2. Include Information:</strong> Provide your account email and subscription details</li>
                   <li><strong>3. Reason (Optional):</strong> While not required, feedback helps us improve</li>
                   <li><strong>4. Confirmation:</strong> We'll confirm your refund request within 1 business day</li>
@@ -177,10 +177,10 @@ export const RefundPolicy: React.FC = () => {
                 For refund requests or questions about this policy, please contact us:
               </p>
               <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                <p><strong>Email:</strong> support@hoa-ai-assistant.com</p>
+                <p><strong>Email:</strong> support@kateriss.space</p>
                 <p><strong>Subject Line:</strong> "Refund Request - [Your Account Email]"</p>
                 <p><strong>Response Time:</strong> Within 1 business day</p>
-                <p><strong>Website:</strong> https://hoa-ai-assistant.vercel.app</p>
+                <p><strong>Website:</strong> https://kateriss.space</p>
               </div>
             </section>
 
