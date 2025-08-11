@@ -1,13 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Zap, Shield, Clock, Star, Check } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
 import { useNavigate, Link } from 'react-router-dom'
+import { paddleClient } from '@/lib/paddleClient'
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate()
   const { signInWithProvider } = useAuthStore()
+
+  // Initialize Paddle.js for Retain payment recovery
+  useEffect(() => {
+    const initializePaddle = async () => {
+      try {
+        await paddleClient.initialize()
+        console.log('✅ Paddle.js initialized on homepage for Retain')
+      } catch (error) {
+        console.error('❌ Failed to initialize Paddle.js on homepage:', error)
+      }
+    }
+    
+    initializePaddle()
+  }, [])
 
   const handleGetStarted = () => {
     navigate('/auth')
