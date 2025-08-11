@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { 
@@ -11,6 +11,8 @@ import {
   Users,
   Calendar
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth'
+import { paddleClient } from '@/lib/paddleClient'
 
 const stats = [
   {
@@ -88,6 +90,38 @@ const recentActivity = [
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
+  const { user } = useAuthStore()
+
+  // Initialize Paddle.js with customer data for in-app Retain notifications
+  useEffect(() => {
+    const initializePaddleWithUser = async () => {
+      try {
+        const paddle = await paddleClient.initialize()
+        
+        if (user?.email) {
+          // Pass customer details to Paddle Retain for in-app notifications
+          console.log('🔄 Initializing Paddle Retain with user:', user.email)
+          
+          // Initialize with customer data for Retain
+          await paddle.Setup({
+            pwCustomer: user.email, // Customer identifier for Retain
+            customer: {
+              email: user.email,
+              id: user.id
+            }
+          })
+          
+          console.log('✅ Paddle Retain initialized with customer data')
+        }
+      } catch (error) {
+        console.error('❌ Failed to initialize Paddle with user data:', error)
+      }
+    }
+    
+    if (user) {
+      initializePaddleWithUser()
+    }
+  }, [user])
 
   const handleViewAll = () => {
     navigate('/violations')
