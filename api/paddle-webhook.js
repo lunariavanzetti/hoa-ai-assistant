@@ -1,9 +1,9 @@
 // Vercel Serverless Function for Paddle Webhooks
 // File: /api/paddle-webhook.js
 
-import { createClient } from '@supabase/supabase-js'
+const { createClient } = require('@supabase/supabase-js')
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   console.log('🎣 Webhook called:', req.method, req.url)
   
   // Enable CORS
