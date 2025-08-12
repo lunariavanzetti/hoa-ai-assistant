@@ -4,6 +4,11 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
+  "functions": {
+    "api/paddle-webhook.js": {
+      "maxDuration": 10
+    }
+  },
   "redirects": [
     {
       "source": "/auth/callback",
@@ -12,6 +17,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/paddle-webhook",
+      "destination": "/api/paddle-webhook.js"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
