@@ -20,11 +20,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('🔄 Auth state changed:', event)
-        const { setSession, setUser } = useAuthStore.getState()
+        const { setSession, setUser, checkSubscriptionStatus } = useAuthStore.getState()
         setSession(session)
         setUser(session?.user as any || null)
+
+        // Check subscription status when user signs in
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('🔍 User signed in, checking subscription status...')
+          setTimeout(() => {
+            checkSubscriptionStatus()
+          }, 2000) // Wait 2 seconds for user profile to be loaded
+        }
       }
     )
 

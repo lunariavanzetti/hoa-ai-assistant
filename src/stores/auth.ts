@@ -17,6 +17,7 @@ interface AuthState {
   resetPassword: (email: string) => Promise<void>
   updateProfile: (updates: Partial<User>) => Promise<void>
   updateUser: (updates: { data?: { full_name?: string } }) => Promise<void>
+  checkSubscriptionStatus: () => Promise<void>
   setUser: (user: User | null) => void
   setSession: (session: Session | null) => void
   setLoading: (loading: boolean) => void
@@ -58,6 +59,11 @@ export const useAuthStore = create<AuthState>()(
               session: data.session,
               loading: false 
             })
+
+            // Automatically check subscription status after sign in
+            setTimeout(() => {
+              get().checkSubscriptionStatus()
+            }, 1000)
           }
         } catch (error) {
           set({ 
@@ -262,6 +268,53 @@ export const useAuthStore = create<AuthState>()(
             loading: false 
           })
           throw error
+        }
+      },
+
+      checkSubscriptionStatus: async () => {
+        try {
+          const { user } = get()
+          if (!user?.email) return
+
+          console.log('🔄 Checking subscription status for:', user.email)
+
+          // Check with Paddle backend to see if user has active subscription
+          const response = await fetch('/api/check-subscription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: user.email })
+          })
+
+          if (response.ok) {
+            const result = await response.json()
+            
+            if (result.hasActiveSubscription && result.subscriptionTier !== user.subscription_tier) {
+              console.log('🎉 Found active subscription! Upgrading user to:', result.subscriptionTier)
+              
+              // Update user in database
+              const { data, error } = await supabase
+                .from('users')
+                .update({
+                  subscription_tier: result.subscriptionTier,
+                  subscription_status: 'active',
+                  paddle_customer_id: result.paddleCustomerId,
+                  paddle_subscription_id: result.paddleSubscriptionId,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', user.id)
+                .select()
+                .single()
+
+              if (!error && data) {
+                set({ user: data })
+                console.log('✅ User automatically upgraded to:', result.subscriptionTier)
+              }
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error checking subscription status:', error)
         }
       },
 
