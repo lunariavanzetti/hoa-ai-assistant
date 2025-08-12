@@ -18,6 +18,7 @@ interface AuthState {
   updateProfile: (updates: Partial<User>) => Promise<void>
   updateUser: (updates: { data?: { full_name?: string } }) => Promise<void>
   checkSubscriptionStatus: () => Promise<void>
+  refreshUserData: () => Promise<void>
   setUser: (user: User | null) => void
   setSession: (session: Session | null) => void
   setLoading: (loading: boolean) => void
@@ -315,6 +316,34 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error('❌ Error checking subscription status:', error)
+        }
+      },
+
+      refreshUserData: async () => {
+        try {
+          const { session } = get()
+          if (!session?.user) return
+
+          console.log('🔄 Refreshing user data from database...')
+
+          // Fetch fresh user data from database
+          const { data: profile, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+
+          if (error) {
+            console.error('❌ Error refreshing user data:', error)
+            return
+          }
+
+          if (profile) {
+            set({ user: profile })
+            console.log('✅ User data refreshed:', profile.subscription_tier)
+          }
+        } catch (error) {
+          console.error('❌ Error refreshing user data:', error)
         }
       },
 

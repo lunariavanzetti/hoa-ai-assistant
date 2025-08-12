@@ -11,11 +11,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('🚀 AuthProvider mounted')
     
     // Get initial session immediately
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       console.log('📋 Initial session:', session ? 'Found' : 'None')
-      const { setSession, setUser } = useAuthStore.getState()
+      const { setSession, setUser, refreshUserData } = useAuthStore.getState()
       setSession(session)
       setUser(session?.user as any || null)
+      
+      // Refresh user data from database if user is logged in
+      if (session?.user) {
+        console.log('🔄 Refreshing user data on app load...')
+        setTimeout(() => {
+          refreshUserData()
+        }, 1000)
+      }
     })
 
     // Listen for auth changes

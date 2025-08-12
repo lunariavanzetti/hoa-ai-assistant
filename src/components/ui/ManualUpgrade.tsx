@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 export const ManualUpgrade: React.FC = () => {
   const [upgrading, setUpgrading] = useState(false)
   const [message, setMessage] = useState('')
-  const { user, setUser } = useAuthStore()
+  const { user, setUser, refreshUserData } = useAuthStore()
 
   const handleUpgrade = async () => {
     if (!user?.email) return
@@ -36,6 +36,11 @@ export const ManualUpgrade: React.FC = () => {
         setUser(data)
         setMessage('✅ Successfully upgraded to Pro!')
         console.log('✅ User upgraded to Pro:', data)
+        
+        // Also refresh user data to make sure everything is in sync
+        setTimeout(() => {
+          refreshUserData()
+        }, 1000)
       }
 
     } catch (error) {
@@ -51,13 +56,22 @@ export const ManualUpgrade: React.FC = () => {
     return null
   }
 
-  // Don't show if already Pro
+  // Show refresh button if already Pro
   if (user?.subscription_tier === 'pro') {
     return (
       <div className="bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg p-4 mb-4">
-        <div className="text-green-800 dark:text-green-200">
-          ✅ You already have Pro access!
+        <div className="text-green-800 dark:text-green-200 mb-3">
+          ✅ You have Pro access! If you still see "Free Plan" elsewhere, click refresh:
         </div>
+        <button
+          onClick={() => {
+            refreshUserData()
+            window.location.reload()
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+        >
+          Refresh Pro Status
+        </button>
       </div>
     )
   }
