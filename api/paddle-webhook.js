@@ -42,6 +42,19 @@ export default async function handler(req, res) {
     const eventType = req.body?.event_type
     console.log('📬 Event type:', eventType)
 
+    // Check environment variables
+    console.log('🔧 SUPABASE_URL exists:', !!process.env.SUPABASE_URL)
+    console.log('🔧 SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+    
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.log('❌ Missing Supabase environment variables')
+      return res.status(500).json({ 
+        error: 'Missing Supabase configuration',
+        hasUrl: !!process.env.SUPABASE_URL,
+        hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      })
+    }
+
     // Initialize Supabase client with service role key for admin access
     const supabase = createClient(
       process.env.SUPABASE_URL,
