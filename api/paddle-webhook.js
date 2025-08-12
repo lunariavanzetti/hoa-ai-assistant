@@ -1,6 +1,8 @@
 // Vercel Serverless Function for Paddle Webhooks
 // File: /api/paddle-webhook.js
 
+const https = require('https')
+
 module.exports = async (req, res) => {
   console.log('🎣 Webhook called:', req.method, req.url)
   
@@ -94,32 +96,63 @@ module.exports = async (req, res) => {
           updated_at: new Date().toISOString()
         }
 
-        const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${customerEmail}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-            'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify(updateData)
+        // Use native HTTPS module for better compatibility
+        const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${customerEmail}`)
+        const postData = JSON.stringify(updateData)
+
+        const result = await new Promise((resolve, reject) => {
+          const options = {
+            hostname: url.hostname,
+            port: 443,
+            path: url.pathname + url.search,
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+              'Prefer': 'return=representation',
+              'Content-Length': Buffer.byteLength(postData)
+            }
+          }
+
+          const req = https.request(options, (res) => {
+            let responseData = ''
+            
+            res.on('data', (chunk) => {
+              responseData += chunk
+            })
+            
+            res.on('end', () => {
+              console.log('📡 Response status:', res.statusCode)
+              console.log('📡 Response data:', responseData)
+              
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                resolve({ success: true, data: responseData })
+              } else {
+                resolve({ success: false, status: res.statusCode, data: responseData })
+              }
+            })
+          })
+
+          req.on('error', (error) => {
+            console.error('💥 HTTPS request error:', error)
+            reject(error)
+          })
+
+          req.write(postData)
+          req.end()
         })
 
-        console.log('📡 Response status:', response.status)
-        console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()))
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('💥 Database update failed:', errorText)
+        if (!result.success) {
+          console.error('💥 Database update failed:', result.data)
           return res.status(500).json({ 
             error: 'Failed to update user subscription',
-            status: response.status,
-            details: errorText
+            status: result.status,
+            details: result.data
           })
         }
 
-        const data = await response.json()
-        console.log('✅ Database update successful:', data)
+        console.log('✅ Database update successful:', result.data)
         
       } catch (dbError) {
         console.error('💥 Database connection error:', dbError)
