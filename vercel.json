@@ -1,5 +1,15 @@
 {
-  "framework": "vite",
+  "functions": {
+    "api/paddle-webhook.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/test.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/hello.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
