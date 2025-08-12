@@ -5,7 +5,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/components/ui/Toaster'
 import { paddleClient } from '@/lib/paddleClient'
-import { analytics, getPlanDetails } from '@/lib/analytics'
+import { analytics, getPlanDetails, getCurrentUserPlan } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 
 export const Settings: React.FC = () => {
@@ -429,7 +429,8 @@ export const Settings: React.FC = () => {
     }
   }
 
-  const currentPlan = getPlanDetails(user?.subscription_tier || 'free')
+  const userPlanTier = getCurrentUserPlan(user)
+  const currentPlan = getPlanDetails(userPlanTier)
   const usageData = {
     letters: 7,
     limit: currentPlan.limits.letters === 999999 ? 'unlimited' : currentPlan.limits.letters

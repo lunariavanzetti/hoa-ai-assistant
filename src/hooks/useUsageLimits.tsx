@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useUsageStore, FREE_PLAN_LIMITS } from '@/stores/usage'
 import { useAuthStore } from '@/stores/auth'
 import { UpgradeModal } from '@/components/ui/UpgradeModal'
+import { getCurrentUserPlan } from '@/lib/analytics'
 
 type FeatureType = keyof typeof FREE_PLAN_LIMITS
 
@@ -43,9 +44,9 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
     feature: 'violation_letters'
   })
 
-  // Check if user has paid subscription
-  const hasPaidPlan = (user as any)?.subscription_status === 'active' || 
-                     (user as any)?.paddle_subscription_id // Has active Paddle subscription
+  // Check if user has paid subscription using the same logic as Settings
+  const userPlanTier = getCurrentUserPlan(user)
+  const hasPaidPlan = userPlanTier !== 'free'
 
   const checkUsageLimit = (feature: FeatureType, action: () => void) => {
     // If user has paid plan, allow unlimited usage

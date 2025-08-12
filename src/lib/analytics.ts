@@ -78,6 +78,21 @@ export const getTierFromPlanName = (planName: string): string => {
   return planName.toLowerCase()
 }
 
+// Helper function to detect user's actual subscription plan
+export const getCurrentUserPlan = (user: any) => {
+  // Check if user has an active subscription
+  const hasActiveSubscription = (user as any)?.subscription_status === 'active' || 
+                               (user as any)?.paddle_subscription_id
+
+  if (!hasActiveSubscription) {
+    return 'free'
+  }
+
+  // If they have a subscription but no specific tier, default to 'pro'
+  // In a real app, you'd check the actual product ID or price ID to determine tier
+  return user?.subscription_tier || 'pro'
+}
+
 export const getPlanDetails = (tier: string) => {
   const plans = {
     free: {

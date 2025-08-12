@@ -13,6 +13,8 @@ import {
   Building2
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useAuthStore } from '@/stores/auth'
+import { getCurrentUserPlan, getPlanDetails } from '@/lib/analytics'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -28,6 +30,9 @@ const navigation = [
 ]
 
 export const Sidebar: React.FC = () => {
+  const { user } = useAuthStore()
+  const userPlanTier = getCurrentUserPlan(user)
+  const currentPlan = getPlanDetails(userPlanTier)
   return (
     <motion.div 
       initial={{ x: -300 }}
@@ -66,19 +71,27 @@ export const Sidebar: React.FC = () => {
         </ul>
       </nav>
 
-      {/* Upgrade prompt for free users */}
+      {/* Plan status */}
       <div className="p-4">
         <div className="glass-card p-4 text-center">
-          <h3 className="font-semibold text-sm mb-2">Upgrade to Pro</h3>
-          <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
-            Unlock unlimited AI letters and advanced features
-          </p>
-          <button 
-            onClick={() => window.location.href = '/pricing'}
-            className="btn-primary w-full text-sm py-2"
-          >
-            Upgrade Now
-          </button>
+          <h3 className="font-semibold text-sm mb-2">{currentPlan.name} Plan</h3>
+          {userPlanTier === 'free' ? (
+            <>
+              <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
+                Unlock unlimited AI letters and advanced features
+              </p>
+              <button 
+                onClick={() => window.location.href = '/pricing'}
+                className="btn-primary w-full text-sm py-2"
+              >
+                Upgrade Now
+              </button>
+            </>
+          ) : (
+            <p className="text-xs text-gray-600 dark:text-gray-300">
+              Active subscription • Premium features unlocked
+            </p>
+          )}
         </div>
       </div>
     </motion.div>
