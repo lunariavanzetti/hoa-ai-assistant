@@ -54,10 +54,20 @@ module.exports = async (req, res) => {
 
     const subscriptions = await paddleResponse.json()
     console.log('📊 Found subscriptions:', subscriptions.data?.length || 0)
+    console.log('📋 All subscriptions:', JSON.stringify(subscriptions.data, null, 2))
+
+    // Find any subscription for this email (not just active ones)
+    const userSubscriptions = subscriptions.data?.filter(sub => 
+      sub.customer?.email === email
+    )
+    
+    console.log(`👤 Subscriptions for ${email}:`, userSubscriptions?.length || 0)
+    if (userSubscriptions?.length > 0) {
+      console.log('📝 User subscription details:', JSON.stringify(userSubscriptions, null, 2))
+    }
 
     // Find active subscription for this email
-    const activeSubscription = subscriptions.data?.find(sub => 
-      sub.customer?.email === email && 
+    const activeSubscription = userSubscriptions?.find(sub => 
       sub.status === 'active'
     )
 
