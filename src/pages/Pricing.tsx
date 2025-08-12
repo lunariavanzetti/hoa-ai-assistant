@@ -44,13 +44,23 @@ interface PricingPlan {
 const getPriceId = (plan: string, cycle: 'monthly' | 'yearly') => {
   const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
   
+  // TEMPORARY: Use test prices for Pro and Agency during testing
+  const TEST_MODE = true // Set to false after testing
+  
+  if (TEST_MODE && environment === 'production' && (plan === 'pro' || plan === 'agency')) {
+    const testPriceKey = `VITE_PADDLE_PRODUCTION_TEST_${plan.toUpperCase()}_${cycle.toUpperCase()}_PRICE_ID`
+    const testPriceId = (import.meta.env as any)[testPriceKey]
+    console.log('🧪 Using test price:', testPriceKey, '=', testPriceId)
+    return testPriceId
+  }
+  
   // Use Paddle's official demo price for testing in sandbox
   if (environment === 'sandbox') {
     console.log('🧪 Using Paddle demo price for sandbox testing')
     return 'pri_01gsz91wy9k1yn7kx82aafwvea' // Paddle's official demo price
   }
   
-  const prefix = 'VITE_PADDLE_PRODUCTION' // This won't be reached in sandbox
+  const prefix = 'VITE_PADDLE_PRODUCTION'
   const priceKey = `${prefix}_${plan.toUpperCase()}_${cycle.toUpperCase()}_PRICE_ID`
   return (import.meta.env as any)[priceKey]
 }
