@@ -91,22 +91,36 @@ export default async function handler(req, res) {
       console.log('🎯 Determined subscription tier:', subscriptionTier)
 
       // Update user subscription in database
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          subscription_tier: subscriptionTier,
-          subscription_status: 'active',
-          paddle_customer_id: paddleCustomerId,
-          paddle_subscription_id: paddleSubscriptionId,
-          updated_at: new Date().toISOString()
-        })
-        .eq('email', customerEmail)
+      try {
+        console.log('🔄 Attempting database update...')
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({
+            subscription_tier: subscriptionTier,
+            subscription_status: 'active',
+            paddle_customer_id: paddleCustomerId,
+            paddle_subscription_id: paddleSubscriptionId,
+            updated_at: new Date().toISOString()
+          })
+          .eq('email', customerEmail)
 
-      if (error) {
-        console.error('💥 Database update error:', error)
+        if (error) {
+          console.error('💥 Database update error:', error)
+          return res.status(500).json({ 
+            error: 'Failed to update user subscription',
+            details: error.message,
+            errorCode: error.code,
+            errorHint: error.hint
+          })
+        }
+
+        console.log('✅ Database update successful:', data)
+      } catch (dbError) {
+        console.error('💥 Database connection error:', dbError)
         return res.status(500).json({ 
-          error: 'Failed to update user subscription',
-          details: error.message 
+          error: 'Database connection failed',
+          details: dbError.message,
+          type: dbError.constructor.name
         })
       }
 
