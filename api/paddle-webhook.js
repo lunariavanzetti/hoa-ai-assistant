@@ -1,8 +1,6 @@
 // Vercel Serverless Function for Paddle Webhooks
 // File: /api/paddle-webhook.js
 
-const { createClient } = require('@supabase/supabase-js')
-
 module.exports = async (req, res) => {
   console.log('🎣 Webhook called:', req.method, req.url)
   
@@ -55,12 +53,6 @@ module.exports = async (req, res) => {
       })
     }
 
-    // Initialize Supabase client with service role key for admin access
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
-
     if (eventType === 'subscription.created' || eventType === 'subscription.activated') {
       console.log(`🎉 ${eventType} webhook!`)
       
@@ -90,31 +82,45 @@ module.exports = async (req, res) => {
 
       console.log('🎯 Determined subscription tier:', subscriptionTier)
 
-      // Update user subscription in database
+      // Update user subscription using direct REST API call
       try {
-        console.log('🔄 Attempting database update...')
-        const { data, error } = await supabase
-          .from('users')
-          .update({
-            subscription_tier: subscriptionTier,
-            subscription_status: 'active',
-            paddle_customer_id: paddleCustomerId,
-            paddle_subscription_id: paddleSubscriptionId,
-            updated_at: new Date().toISOString()
-          })
-          .eq('email', customerEmail)
+        console.log('🔄 Attempting database update via REST API...')
+        
+        const updateData = {
+          subscription_tier: subscriptionTier,
+          subscription_status: 'active',
+          paddle_customer_id: paddleCustomerId,
+          paddle_subscription_id: paddleSubscriptionId,
+          updated_at: new Date().toISOString()
+        }
 
-        if (error) {
-          console.error('💥 Database update error:', error)
+        const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${customerEmail}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(updateData)
+        })
+
+        console.log('📡 Response status:', response.status)
+        console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()))
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('💥 Database update failed:', errorText)
           return res.status(500).json({ 
             error: 'Failed to update user subscription',
-            details: error.message,
-            errorCode: error.code,
-            errorHint: error.hint
+            status: response.status,
+            details: errorText
           })
         }
 
+        const data = await response.json()
         console.log('✅ Database update successful:', data)
+        
       } catch (dbError) {
         console.error('💥 Database connection error:', dbError)
         return res.status(500).json({ 
@@ -123,8 +129,6 @@ module.exports = async (req, res) => {
           type: dbError.constructor.name
         })
       }
-
-      console.log('✅ Successfully updated user subscription:', data)
     }
 
     if (eventType === 'subscription.cancelled' || eventType === 'subscription.expired') {
@@ -136,25 +140,44 @@ module.exports = async (req, res) => {
       console.log('📋 Paddle Subscription ID:', paddleSubscriptionId)
 
       if (paddleSubscriptionId) {
-        // Downgrade user to free tier
-        const { data, error } = await supabase
-          .from('users')
-          .update({
+        try {
+          // Downgrade user to free tier using REST API
+          const updateData = {
             subscription_tier: 'free',
             subscription_status: 'cancelled',
             updated_at: new Date().toISOString()
-          })
-          .eq('paddle_subscription_id', paddleSubscriptionId)
+          }
 
-        if (error) {
+          const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?paddle_subscription_id=eq.${paddleSubscriptionId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+              'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+          })
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            console.error('💥 Database downgrade failed:', errorText)
+            return res.status(500).json({ 
+              error: 'Failed to downgrade user subscription',
+              status: response.status,
+              details: errorText
+            })
+          }
+
+          const data = await response.json()
+          console.log('✅ Successfully downgraded user subscription:', data)
+        } catch (error) {
           console.error('💥 Database downgrade error:', error)
           return res.status(500).json({ 
             error: 'Failed to downgrade user subscription',
             details: error.message 
           })
         }
-
-        console.log('✅ Successfully downgraded user subscription:', data)
       }
     }
 
