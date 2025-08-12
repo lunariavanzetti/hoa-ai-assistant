@@ -94,7 +94,7 @@ module.exports = async (req, res) => {
       try {
         console.log('🔄 Attempting database update...')
         const { data, error } = await supabase
-          .from('profiles')
+          .from('users')
           .update({
             subscription_tier: subscriptionTier,
             subscription_status: 'active',
@@ -138,7 +138,7 @@ module.exports = async (req, res) => {
       if (paddleSubscriptionId) {
         // Downgrade user to free tier
         const { data, error } = await supabase
-          .from('profiles')
+          .from('users')
           .update({
             subscription_tier: 'free',
             subscription_status: 'cancelled',
