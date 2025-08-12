@@ -156,10 +156,18 @@ module.exports = async (req, res) => {
         
       } catch (dbError) {
         console.error('💥 Database connection error:', dbError)
-        return res.status(500).json({ 
-          error: 'Database connection failed',
-          details: dbError.message,
-          type: dbError.constructor.name
+        console.error('⚠️  FALLBACK: Logging subscription for manual processing')
+        console.log(`🔔 SUBSCRIPTION CREATED: ${customerEmail} -> ${subscriptionTier} (Paddle Sub: ${paddleSubscriptionId})`)
+        
+        // Return success since we've logged the event for manual processing
+        return res.status(200).json({
+          success: true,
+          fallback: true,
+          message: 'Subscription logged for manual processing',
+          customer_email: customerEmail,
+          subscription_tier: subscriptionTier,
+          paddle_subscription_id: paddleSubscriptionId,
+          timestamp: new Date().toISOString()
         })
       }
     }
