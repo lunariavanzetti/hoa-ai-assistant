@@ -5,7 +5,7 @@ const { createClient } = require('@supabase/supabase-js')
 
 // Your Supabase configuration
 const SUPABASE_URL = 'https://rpgktwvxobbgcxpjpmke.supabase.co'
-const SUPABASE_SERVICE_ROLE_KEY = 'your_service_role_key_here' // Replace with your actual key
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'your_service_role_key_here'
 
 async function upgradeUser(email, subscriptionTier = 'pro', paddleSubscriptionId = null) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)

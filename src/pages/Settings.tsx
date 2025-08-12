@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/Toaster'
 import { paddleClient } from '@/lib/paddleClient'
 import { analytics, getPlanDetails, getCurrentUserPlan } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
+import { ManualUpgrade } from '@/components/ui/ManualUpgrade'
 
 export const Settings: React.FC = () => {
   const { user, signOut } = useAuthStore()
@@ -446,6 +447,7 @@ export const Settings: React.FC = () => {
         <p className="text-gray-600 dark:text-gray-300">
           Manage your account, HOA properties, and preferences.
         </p>
+        <ManualUpgrade />
       </motion.div>
 
       {/* Profile Settings */}
