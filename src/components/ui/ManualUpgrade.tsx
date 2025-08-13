@@ -51,10 +51,15 @@ export const ManualUpgrade: React.FC = () => {
     }
   }
 
-  // Only show for admin users (for debugging)
-  if (user?.email !== 'v1ktor1ach124@gmail.com') {
-    return null
-  }
+  // ADMIN ONLY: This component is only for debugging/testing purposes
+  // Regular users should NEVER see this - their Pro features activate automatically via Paddle webhooks
+  // COMPLETELY HIDE from all users for now to prevent confusion
+  return null
+  
+  // Disabled admin check to prevent any user confusion:
+  // if (user?.email !== 'v1ktor1ach124@gmail.com') {
+  //   return null
+  // }
 
   // Show refresh button for all tiers (for debugging)
   if (user?.subscription_tier && user.subscription_tier !== 'free') {
