@@ -51,26 +51,26 @@ export const ManualUpgrade: React.FC = () => {
     }
   }
 
-  // Only show for the specific user who purchased subscription
+  // Only show for admin users (for debugging)
   if (user?.email !== 'v1ktor1ach124@gmail.com') {
     return null
   }
 
-  // Show refresh button if already Pro
-  if (user?.subscription_tier === 'pro') {
+  // Show refresh button for all tiers (for debugging)
+  if (user?.subscription_tier && user.subscription_tier !== 'free') {
     return (
-      <div className="bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg p-4 mb-4">
-        <div className="text-green-800 dark:text-green-200 mb-3">
-          ✅ You have Pro access! If you still see "Free Plan" elsewhere, click refresh:
+      <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 mb-4">
+        <div className="text-gray-700 dark:text-gray-300 text-sm mb-3">
+          Current Tier: <span className="font-semibold capitalize">{user.subscription_tier}</span>
         </div>
         <button
           onClick={() => {
             refreshUserData()
             window.location.reload()
           }}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+          className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 text-sm rounded-md transition-colors"
         >
-          Refresh Pro Status
+          Refresh Tier Status
         </button>
       </div>
     )

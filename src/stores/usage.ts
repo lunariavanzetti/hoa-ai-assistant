@@ -1,13 +1,40 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-// Usage limits for free plan
-export const FREE_PLAN_LIMITS = {
-  violation_letters: 5,
-  complaint_responses: 10,
-  meeting_summaries: 2,
-  reports: 1
+// Usage limits by plan tier
+export const PLAN_LIMITS = {
+  free: {
+    violation_letters: 5,
+    complaint_responses: 10,
+    meeting_summaries: 2,
+    reports: 1,
+    hoas: 1
+  },
+  pro: {
+    violation_letters: 50,
+    complaint_responses: 200,
+    meeting_summaries: 10,
+    reports: 5,
+    hoas: 10
+  },
+  agency: {
+    violation_letters: 999999,
+    complaint_responses: 999999,
+    meeting_summaries: 999999,
+    reports: 999999,
+    hoas: 999999
+  },
+  enterprise: {
+    violation_letters: 999999,
+    complaint_responses: 999999,
+    meeting_summaries: 999999,
+    reports: 999999,
+    hoas: 999999
+  }
 } as const
+
+// Keep backward compatibility
+export const FREE_PLAN_LIMITS = PLAN_LIMITS.free
 
 // Reset on first day of each month
 const getMonthKey = () => {

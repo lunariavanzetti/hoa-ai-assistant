@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useUsageStore, FREE_PLAN_LIMITS } from '@/stores/usage'
+import { useUsageStore, PLAN_LIMITS } from '@/stores/usage'
 import { useAuthStore } from '@/stores/auth'
 import { UpgradeModal } from '@/components/ui/UpgradeModal'
 import { getCurrentUserPlan } from '@/lib/analytics'
 
-type FeatureType = keyof typeof FREE_PLAN_LIMITS
+type FeatureType = keyof typeof PLAN_LIMITS.free
+type PlanTier = keyof typeof PLAN_LIMITS
 
 interface UseUsageLimitsReturn {
   checkUsageLimit: (feature: FeatureType, action: () => void) => void
@@ -12,6 +13,10 @@ interface UseUsageLimitsReturn {
   getRemainingUsage: (feature: FeatureType) => number
   getUsagePercentage: (feature: FeatureType) => number
   canUseFeature: (feature: FeatureType) => boolean
+  getCurrentUsage: (feature: FeatureType) => number
+  getFeatureLimit: (feature: FeatureType) => number
+  getUserPlan: () => PlanTier
+  getUsageDisplay: (feature: FeatureType) => string
 }
 
 const FEATURE_CONFIG = {
@@ -35,7 +40,7 @@ const FEATURE_CONFIG = {
 
 export const useUsageLimits = (): UseUsageLimitsReturn => {
   const { user } = useAuthStore()
-  const { canUseFeature, incrementUsage, getRemainingUsage, getUsagePercentage } = useUsageStore()
+  const { canUseFeature, incrementUsage, getRemainingUsage, getUsagePercentage, usage } = useUsageStore()
   const [upgradeModal, setUpgradeModal] = useState<{
     isOpen: boolean
     feature: FeatureType
@@ -44,27 +49,51 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
     feature: 'violation_letters'
   })
 
-  // Check if user has paid subscription using the same logic as Settings
-  const userPlanTier = getCurrentUserPlan(user)
+  // Get user's current plan tier
+  const userPlanTier = getCurrentUserPlan(user) as PlanTier
   const hasPaidPlan = userPlanTier !== 'free'
 
-  const checkUsageLimit = (feature: FeatureType, action: () => void) => {
-    // If user has paid plan, allow unlimited usage
-    if (hasPaidPlan) {
-      action()
-      return
-    }
+  // Get the limits for current user's plan
+  const getCurrentPlanLimits = () => PLAN_LIMITS[userPlanTier] || PLAN_LIMITS.free
 
-    // Check if user can use this feature
-    if (canUseFeature(feature)) {
+  const getFeatureLimit = (feature: FeatureType): number => {
+    return getCurrentPlanLimits()[feature]
+  }
+
+  const getCurrentUsage = (feature: FeatureType): number => {
+    return usage[feature] || 0
+  }
+
+  const getUsageDisplay = (feature: FeatureType): string => {
+    const currentUsage = getCurrentUsage(feature)
+    const limit = getFeatureLimit(feature)
+    
+    if (limit >= 999999) {
+      return `${currentUsage} used this month`
+    }
+    
+    return `${currentUsage}/${limit} used this month`
+  }
+
+  const checkUsageLimit = (feature: FeatureType, action: () => void) => {
+    const currentUsage = getCurrentUsage(feature)
+    const limit = getFeatureLimit(feature)
+    
+    // Check if user can use this feature based on their plan limits
+    if (currentUsage < limit) {
       incrementUsage(feature)
       action()
     } else {
-      // Show upgrade modal
-      setUpgradeModal({
-        isOpen: true,
-        feature
-      })
+      // Show upgrade modal for free users only
+      if (userPlanTier === 'free') {
+        setUpgradeModal({
+          isOpen: true,
+          feature
+        })
+      } else {
+        // For paid users who hit limits, just execute (shouldn't happen with 999999 limits)
+        action()
+      }
     }
   }
 
@@ -83,6 +112,10 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
     UpgradeModalComponent,
     getRemainingUsage,
     getUsagePercentage,
-    canUseFeature: hasPaidPlan ? () => true : canUseFeature
+    canUseFeature: (feature: FeatureType) => getCurrentUsage(feature) < getFeatureLimit(feature),
+    getCurrentUsage,
+    getFeatureLimit,
+    getUserPlan: () => userPlanTier,
+    getUsageDisplay
   }
 }

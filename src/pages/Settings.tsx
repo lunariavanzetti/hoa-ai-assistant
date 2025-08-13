@@ -8,6 +8,7 @@ import { paddleClient } from '@/lib/paddleClient'
 import { analytics, getPlanDetails, getCurrentUserPlan } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 import { ManualUpgrade } from '@/components/ui/ManualUpgrade'
+import { UsageDisplay } from '@/components/ui/UsageDisplay'
 
 export const Settings: React.FC = () => {
   const { user, signOut } = useAuthStore()
@@ -704,20 +705,7 @@ export const Settings: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Usage this month:</span>
-                <span>
-                  {usageData.letters}/{usageData.limit === 'unlimited' ? '∞' : usageData.limit} letters
-                </span>
-              </div>
-              {usageData.limit !== 'unlimited' && (
-                <div className="progress-liquid">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${(usageData.letters / (usageData.limit as number)) * 100}%` }}
-                  ></div>
-                </div>
-              )}
+              <UsageDisplay feature="violation_letters" />
             </div>
           </div>
           
