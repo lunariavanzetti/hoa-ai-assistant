@@ -16,76 +16,41 @@ import { paddleClient } from '@/lib/paddleClient'
 
 const stats = [
   {
-    name: 'Active Violations',
-    value: '12',
-    change: '+2 from last month',
-    changeType: 'increase',
+    name: 'AI Letters Generated',
+    value: '0',
+    change: 'Start creating violation letters',
+    changeType: 'neutral',
     icon: AlertTriangle,
     color: 'text-red-400'
   },
   {
-    name: 'Open Complaints',
-    value: '8',
-    change: '-3 from last month',
-    changeType: 'decrease',
+    name: 'Complaint Responses',
+    value: '0',
+    change: 'Generate professional responses',
+    changeType: 'neutral',
     icon: MessageCircle,
     color: 'text-blue-400'
   },
   {
-    name: 'Reports Generated',
-    value: '24',
-    change: '+12 from last month',
-    changeType: 'increase',
+    name: 'Meeting Minutes',
+    value: '0',
+    change: 'Create official meeting records',
+    changeType: 'neutral',
     icon: FileText,
     color: 'text-green-400'
   },
   {
-    name: 'Time Saved',
-    value: '45hrs',
-    change: '+15hrs from last month',
-    changeType: 'increase',
+    name: 'Monthly Reports',
+    value: '0',
+    change: 'Generate executive summaries',
+    changeType: 'neutral',
     icon: Clock,
     color: 'text-purple-400'
   }
 ]
 
-const recentActivity = [
-  {
-    id: 1,
-    type: 'violation',
-    title: 'Lawn maintenance violation created',
-    subtitle: '123 Oak Street',
-    time: '2 hours ago',
-    icon: AlertTriangle,
-    color: 'text-red-400'
-  },
-  {
-    id: 2,
-    type: 'complaint',
-    title: 'Noise complaint resolved',
-    subtitle: '456 Pine Avenue',
-    time: '4 hours ago',
-    icon: CheckCircle,
-    color: 'text-green-400'
-  },
-  {
-    id: 3,
-    type: 'meeting',
-    title: 'Board meeting summary generated',
-    subtitle: 'March 2024 Meeting',
-    time: '1 day ago',
-    icon: Calendar,
-    color: 'text-blue-400'
-  },
-  {
-    id: 4,
-    type: 'report',
-    title: 'Monthly report completed',
-    subtitle: 'February 2024',
-    time: '2 days ago',
-    icon: FileText,
-    color: 'text-purple-400'
-  }
+const recentActivity: any[] = [
+  // No mock activity - will show empty state until user creates real content
 ]
 
 export const Dashboard: React.FC = () => {
@@ -157,7 +122,7 @@ export const Dashboard: React.FC = () => {
       >
         <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">Welcome back! 👋</h1>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          Here's what's happening with your HOA today. You've saved 45 hours this month with AI automation.
+          Welcome to your AI-powered HOA management dashboard. Start automating your community management tasks.
         </p>
       </motion.div>
 
@@ -205,18 +170,26 @@ export const Dashboard: React.FC = () => {
           </div>
           
           <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl glass-surface">
-                <div className={`p-2 rounded-xl glass-surface ${activity.color}`}>
-                  <activity.icon className="w-4 h-4" />
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl glass-surface">
+                  <div className={`p-2 rounded-xl glass-surface ${activity.color}`}>
+                    <activity.icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm sm:text-base font-medium">{activity.title}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{activity.subtitle}</p>
+                  </div>
+                  <div className="text-xs text-gray-500 text-right whitespace-nowrap">{activity.time}</div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm sm:text-base font-medium">{activity.title}</p>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{activity.subtitle}</p>
-                </div>
-                <div className="text-xs text-gray-500 text-right whitespace-nowrap">{activity.time}</div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-sm">No recent activity yet</p>
+                <p className="text-xs mt-1">Start by creating your first AI letter or complaint response</p>
               </div>
-            ))}
+            )}
           </div>
         </motion.div>
 
@@ -262,20 +235,20 @@ export const Dashboard: React.FC = () => {
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>AI Letters</span>
-                  <span>7/10</span>
+                  <span>0/∞</span>
                 </div>
                 <div className="progress-liquid">
-                  <div className="progress-fill" style={{ width: '70%' }}></div>
+                  <div className="progress-fill" style={{ width: '0%' }}></div>
                 </div>
               </div>
               
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Complaints</span>
-                  <span>23/50</span>
+                  <span>Complaint Responses</span>
+                  <span>0/∞</span>
                 </div>
                 <div className="progress-liquid">
-                  <div className="progress-fill" style={{ width: '46%' }}></div>
+                  <div className="progress-fill" style={{ width: '0%' }}></div>
                 </div>
               </div>
             </div>
