@@ -49,6 +49,7 @@ interface UsageState {
     complaint_responses: number
     meeting_summaries: number
     reports: number
+    hoas: number
   }
   
   // Track monthly reset
@@ -69,7 +70,8 @@ export const useUsageStore = create<UsageState>()(
         violation_letters: 0,
         complaint_responses: 0,
         meeting_summaries: 0,
-        reports: 0
+        reports: 0,
+        hoas: 0
       },
       monthKey: getMonthKey(),
 
@@ -83,7 +85,8 @@ export const useUsageStore = create<UsageState>()(
               violation_letters: 0,
               complaint_responses: 0,
               meeting_summaries: 0,
-              reports: 0
+              reports: 0,
+              hoas: 0
             },
             monthKey: currentMonthKey
           })

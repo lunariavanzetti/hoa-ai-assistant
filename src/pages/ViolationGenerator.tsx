@@ -24,7 +24,7 @@ export const ViolationGenerator: React.FC = () => {
   const [error, setError] = useState('')
   const [_uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
   const { success, error: showError } = useToast()
-  const { checkUsageLimit, UpgradeModalComponent, getRemainingUsage } = useUsageLimits()
+  const { checkUsageLimit, UpgradeModalComponent } = useUsageLimits()
 
   const violationTypes = [
     'Landscaping/Lawn Care',

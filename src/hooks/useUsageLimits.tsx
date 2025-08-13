@@ -35,12 +35,16 @@ const FEATURE_CONFIG = {
   reports: {
     title: "Advanced Reporting",
     description: "Generate comprehensive reports with analytics, trends, and compliance tracking."
+  },
+  hoas: {
+    title: "Manage More HOAs",
+    description: "Add and manage multiple HOA properties with advanced organization features."
   }
 } as const
 
 export const useUsageLimits = (): UseUsageLimitsReturn => {
   const { user } = useAuthStore()
-  const { canUseFeature, incrementUsage, getRemainingUsage, getUsagePercentage, usage } = useUsageStore()
+  const { incrementUsage, usage } = useUsageStore()
   const [upgradeModal, setUpgradeModal] = useState<{
     isOpen: boolean
     feature: FeatureType
@@ -51,7 +55,6 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
 
   // Get user's current plan tier
   const userPlanTier = getCurrentUserPlan(user) as PlanTier
-  const hasPaidPlan = userPlanTier !== 'free'
 
   // Get the limits for current user's plan
   const getCurrentPlanLimits = () => PLAN_LIMITS[userPlanTier] || PLAN_LIMITS.free
@@ -106,6 +109,18 @@ export const useUsageLimits = (): UseUsageLimitsReturn => {
       description={FEATURE_CONFIG[upgradeModal.feature].description}
     />
   )
+
+  const getRemainingUsage = (feature: FeatureType): number => {
+    const currentUsage = getCurrentUsage(feature)
+    const limit = getFeatureLimit(feature)
+    return Math.max(0, limit - currentUsage)
+  }
+
+  const getUsagePercentage = (feature: FeatureType): number => {
+    const currentUsage = getCurrentUsage(feature)
+    const limit = getFeatureLimit(feature)
+    return (currentUsage / limit) * 100
+  }
 
   return {
     checkUsageLimit,

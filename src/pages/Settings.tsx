@@ -433,10 +433,6 @@ export const Settings: React.FC = () => {
 
   const userPlanTier = getCurrentUserPlan(user)
   const currentPlan = getPlanDetails(userPlanTier)
-  const usageData = {
-    letters: 7,
-    limit: currentPlan.limits.letters === 999999 ? 'unlimited' : currentPlan.limits.letters
-  }
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <motion.div

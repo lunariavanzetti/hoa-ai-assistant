@@ -2,7 +2,7 @@ import React from 'react'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
 
 interface UsageDisplayProps {
-  feature: 'violation_letters' | 'complaint_responses' | 'meeting_summaries' | 'reports'
+  feature: 'violation_letters' | 'complaint_responses' | 'meeting_summaries' | 'reports' | 'hoas'
   className?: string
 }
 
@@ -13,15 +13,6 @@ export const UsageDisplay: React.FC<UsageDisplayProps> = ({
   const { getUsageDisplay, getUserPlan } = useUsageLimits()
   const userPlan = getUserPlan()
   
-  const getFeatureName = (feature: string) => {
-    const names = {
-      violation_letters: 'violation letters',
-      complaint_responses: 'complaint responses',
-      meeting_summaries: 'meeting summaries',
-      reports: 'reports'
-    }
-    return names[feature as keyof typeof names] || feature
-  }
 
   const getPlanDisplay = () => {
     const plans = {
