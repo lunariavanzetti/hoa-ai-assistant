@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { 
@@ -8,53 +8,51 @@ import {
   TrendingUp,
   Clock,
   Users,
-  Calendar
+  Calendar,
+  Lock
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import { paddleClient } from '@/lib/paddleClient'
+import { usageTrackingService, type UsageStats, type UserActivity } from '@/lib/usageTracking'
+import { getCurrentUserPlan } from '@/lib/analytics'
 
-const stats = [
-  {
-    name: 'AI Letters Generated',
-    value: '0',
-    change: 'Start creating violation letters',
-    changeType: 'neutral',
-    icon: AlertTriangle,
-    color: 'text-red-400'
-  },
-  {
-    name: 'Complaint Responses',
-    value: '0',
-    change: 'Generate professional responses',
-    changeType: 'neutral',
-    icon: MessageCircle,
-    color: 'text-blue-400'
-  },
-  {
-    name: 'Meeting Minutes',
-    value: '0',
-    change: 'Create official meeting records',
-    changeType: 'neutral',
-    icon: FileText,
-    color: 'text-green-400'
-  },
-  {
-    name: 'Monthly Reports',
-    value: '0',
-    change: 'Generate executive summaries',
-    changeType: 'neutral',
-    icon: Clock,
-    color: 'text-purple-400'
-  }
-]
-
-const recentActivity: any[] = [
-  // No mock activity - will show empty state until user creates real content
-]
+// Dynamic stats will be generated from real usage data
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuthStore()
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
+  const [recentActivity, setRecentActivity] = useState<UserActivity[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  const userPlan = getCurrentUserPlan(user)
+  const isPro = userPlan !== 'free'
+
+  // Load user usage data
+  useEffect(() => {
+    const loadUsageData = async () => {
+      if (!user?.id) return
+      
+      setLoading(true)
+      try {
+        // Load usage statistics
+        const stats = await usageTrackingService.getUserStats(user.id)
+        setUsageStats(stats)
+        
+        // Load recent activity (only for Pro+ users)
+        if (isPro) {
+          const activities = await usageTrackingService.getRecentActivities(user.id, 5)
+          setRecentActivity(activities)
+        }
+      } catch (error) {
+        console.error('Failed to load usage data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadUsageData()
+  }, [user?.id, isPro])
 
   // Initialize Paddle.js with customer data for in-app Retain notifications
   useEffect(() => {
@@ -111,6 +109,46 @@ export const Dashboard: React.FC = () => {
     navigate('/pricing')
   }
 
+  // Generate dynamic stats from real usage data
+  const getStatsData = () => {
+    if (!usageStats) return []
+    
+    return [
+      {
+        name: 'AI Letters Generated',
+        value: usageStats.violation_letters.toString(),
+        change: isPro ? `${usageStats.violation_letters} total created` : 'Upgrade to track usage',
+        changeType: isPro ? 'neutral' : 'upgrade',
+        icon: AlertTriangle,
+        color: 'text-red-400'
+      },
+      {
+        name: 'Complaint Responses',
+        value: usageStats.complaint_responses.toString(),
+        change: isPro ? `${usageStats.complaint_responses} total created` : 'Upgrade to track usage',
+        changeType: isPro ? 'neutral' : 'upgrade',
+        icon: MessageCircle,
+        color: 'text-blue-400'
+      },
+      {
+        name: 'Meeting Minutes',
+        value: usageStats.meeting_minutes.toString(),
+        change: isPro ? `${usageStats.meeting_minutes} total created` : 'Upgrade to track usage',
+        changeType: isPro ? 'neutral' : 'upgrade',
+        icon: FileText,
+        color: 'text-green-400'
+      },
+      {
+        name: 'Monthly Reports',
+        value: usageStats.monthly_reports.toString(),
+        change: isPro ? `${usageStats.monthly_reports} total created` : 'Upgrade to track usage',
+        changeType: isPro ? 'neutral' : 'upgrade',
+        icon: Clock,
+        color: 'text-purple-400'
+      }
+    ]
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Welcome Header */}
@@ -127,7 +165,23 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {stats.map((stat, index) => (
+        {loading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="glass-card p-4 sm:p-6 animate-pulse">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-8 h-8 bg-gray-300 rounded"></div>
+                <div className="w-4 h-4 bg-gray-300 rounded"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-8 bg-gray-300 rounded w-16"></div>
+                <div className="h-4 bg-gray-300 rounded w-24"></div>
+                <div className="h-3 bg-gray-300 rounded w-20"></div>
+              </div>
+            </div>
+          ))
+        ) : (
+          getStatsData().map((stat, index) => (
           <motion.div
             key={stat.name}
             initial={{ opacity: 0, y: 20 }}
@@ -137,21 +191,31 @@ export const Dashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${stat.color}`} />
-              <TrendingUp className={`w-4 h-4 ${
-                stat.changeType === 'increase' ? 'text-green-400' : 'text-red-400'
-              }`} />
+              {stat.changeType === 'upgrade' ? (
+                <Lock className="w-4 h-4 text-gray-400" />
+              ) : (
+                <TrendingUp className={`w-4 h-4 ${
+                  stat.changeType === 'increase' ? 'text-green-400' : 'text-gray-400'
+                }`} />
+              )}
             </div>
             <div>
-              <p className="text-2xl sm:text-3xl font-bold text-gradient mb-1">{stat.value}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gradient mb-1">
+                {isPro ? stat.value : '•••'}
+              </p>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2">{stat.name}</p>
               <p className={`text-xs ${
-                stat.changeType === 'increase' ? 'text-green-400' : 'text-red-400'
-              }`}>
+                stat.changeType === 'upgrade' 
+                  ? 'text-amber-600 cursor-pointer hover:text-amber-500' 
+                  : 'text-gray-400'
+              }`}
+              onClick={stat.changeType === 'upgrade' ? handleUpgrade : undefined}>
                 {stat.change}
               </p>
             </div>
           </motion.div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Main Content Grid */}
@@ -165,23 +229,52 @@ export const Dashboard: React.FC = () => {
         >
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <h2 className="text-lg sm:text-xl font-bold">Recent Activity</h2>
-            <button onClick={handleViewAll} className="btn-secondary text-sm">View All</button>
+            {isPro && <button onClick={handleViewAll} className="btn-secondary text-sm">View All</button>}
           </div>
           
           <div className="space-y-4">
-            {recentActivity.length > 0 ? (
-              recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl glass-surface">
-                  <div className={`p-2 rounded-xl glass-surface ${activity.color}`}>
-                    <activity.icon className="w-4 h-4" />
+            {!isPro ? (
+              // Free tier - show Pro upgrade prompt
+              <div className="text-center py-8 glass-surface rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-900/20">
+                <Lock className="w-12 h-12 mx-auto mb-4 text-amber-600" />
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Activity History - Pro Feature</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mb-4">
+                  Track and view your generated content history with Pro+
+                </p>
+                <button 
+                  onClick={handleUpgrade}
+                  className="btn-primary text-sm py-2 px-4"
+                >
+                  Upgrade to Pro
+                </button>
+              </div>
+            ) : recentActivity.length > 0 ? (
+              recentActivity.map((activity) => {
+                const activityIcon = activity.activity_type === 'violation_letter' ? AlertTriangle :
+                                   activity.activity_type === 'complaint_response' ? MessageCircle :
+                                   activity.activity_type === 'meeting_minutes' ? Calendar : FileText
+                
+                const activityColor = activity.activity_type === 'violation_letter' ? 'text-red-400' :
+                                    activity.activity_type === 'complaint_response' ? 'text-blue-400' :
+                                    activity.activity_type === 'meeting_minutes' ? 'text-green-400' : 'text-purple-400'
+                
+                return (
+                  <div key={activity.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl glass-surface">
+                    <div className={`p-2 rounded-xl glass-surface ${activityColor}`}>
+                      {React.createElement(activityIcon, { className: "w-4 h-4" })}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm sm:text-base font-medium">{activity.title}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+                        {new Date(activity.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-xs text-gray-500 text-right whitespace-nowrap">
+                      {new Date(activity.created_at).toLocaleTimeString()}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm sm:text-base font-medium">{activity.title}</p>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{activity.subtitle}</p>
-                  </div>
-                  <div className="text-xs text-gray-500 text-right whitespace-nowrap">{activity.time}</div>
-                </div>
-              ))
+                )
+              })
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />

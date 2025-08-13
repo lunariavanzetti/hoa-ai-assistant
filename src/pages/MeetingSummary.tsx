@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { Upload, Mic, FileText, Calendar, Users, Clock, AlertCircle } from 'lucide-react'
 import { openAIService, type MeetingData } from '@/lib/openai'
 import { useToast } from '@/components/ui/Toaster'
+import { usageTrackingService } from '@/lib/usageTracking'
+import { useAuthStore } from '@/stores/auth'
 
 export const MeetingSummary: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +24,7 @@ export const MeetingSummary: React.FC = () => {
   const [error, setError] = useState('')
   const [_uploadedFileName, setUploadedFileName] = useState('')
   const { success, error: showError } = useToast()
+  const { user } = useAuthStore()
 
   const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -111,6 +114,27 @@ export const MeetingSummary: React.FC = () => {
 
       const minutes = await openAIService.generateMeetingSummary(meetingData)
       setGeneratedMinutes(minutes)
+      
+      // Track this activity for analytics
+      if (user?.id) {
+        await usageTrackingService.trackActivity(
+          user.id,
+          'meeting_minutes',
+          `Meeting Minutes - ${formData.meetingType}`,
+          minutes,
+          {
+            meeting_type: formData.meetingType,
+            meeting_date: formData.meetingDate,
+            meeting_location: formData.meetingLocation,
+            meeting_duration: formData.meetingDuration,
+            quorum_met: formData.quorumMet,
+            previous_minutes_approved: formData.previousMinutesApproved,
+            board_members: formData.boardMembers,
+            attendees_count: formData.attendees.split(',').filter(a => a.trim()).length
+          }
+        )
+      }
+      
       success('Meeting Minutes Generated!', 'Official meeting minutes created successfully')
     } catch (error) {
       console.error('Error generating minutes:', error)

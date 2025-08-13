@@ -7,6 +7,8 @@ import { PhotoUpload } from '@/components/ui/PhotoUpload'
 import { storageService } from '@/lib/storage'
 import { useUsageLimits } from '@/hooks/useUsageLimits'
 import { UsageDisplay } from '@/components/ui/UsageDisplay'
+import { usageTrackingService } from '@/lib/usageTracking'
+import { useAuthStore } from '@/stores/auth'
 
 export const ViolationGenerator: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +27,7 @@ export const ViolationGenerator: React.FC = () => {
   const [_uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([])
   const { success, error: showError } = useToast()
   const { checkUsageLimit, UpgradeModalComponent } = useUsageLimits()
+  const { user } = useAuthStore()
 
   const violationTypes = [
     'Landscaping/Lawn Care',
@@ -114,6 +117,25 @@ export const ViolationGenerator: React.FC = () => {
 
       const letter = await openAIService.generateViolationLetter(violationData)
       setGeneratedLetter(letter)
+      
+      // Track this activity for analytics
+      if (user?.id) {
+        await usageTrackingService.trackActivity(
+          user.id,
+          'violation_letter',
+          `Violation Letter - ${formData.violationType}`,
+          letter,
+          {
+            resident_name: formData.residentName,
+            property_address: formData.residentAddress,
+            violation_type: formData.violationType,
+            severity_level: formData.severityLevel,
+            photos_attached: formData.photos.length > 0,
+            photo_count: formData.photos.length
+          }
+        )
+      }
+      
       success('Letter Generated!', `Professional violation letter created${photoUrls.length > 0 ? ` with ${photoUrls.length} photos` : ''}`)
     } catch (error) {
       console.error('Error generating letter:', error)

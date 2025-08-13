@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { FileText, TrendingUp, BarChart3, Building2, DollarSign, AlertCircle, Calendar } from 'lucide-react'
 import { openAIService, type MonthlyReportData } from '@/lib/openai'
 import { useToast } from '@/components/ui/Toaster'
+import { usageTrackingService } from '@/lib/usageTracking'
+import { useAuthStore } from '@/stores/auth'
 
 export const Reports: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +26,7 @@ export const Reports: React.FC = () => {
   const [generatedReport, setGeneratedReport] = useState('')
   const [error, setError] = useState('')
   const { success, error: showError } = useToast()
+  const { user } = useAuthStore()
 
   const handleGenerate = async () => {
     if (!formData.reportPeriod || !formData.boardMembers) {
@@ -54,6 +57,36 @@ export const Reports: React.FC = () => {
 
       const report = await openAIService.generateMonthlyReport(reportData)
       setGeneratedReport(report)
+      
+      // Track this activity for analytics
+      if (user?.id) {
+        await usageTrackingService.trackActivity(
+          user.id,
+          'monthly_report',
+          `Monthly Report - ${formData.reportPeriod}`,
+          report,
+          {
+            report_period: formData.reportPeriod,
+            total_units: formData.totalUnits,
+            occupied_units: formData.occupiedUnits,
+            occupancy_rate: Math.round((formData.occupiedUnits / formData.totalUnits) * 100),
+            management_company: formData.managementCompany,
+            has_violations_data: !!formData.violationsData,
+            has_complaints_data: !!formData.complaintsData,
+            has_financial_data: !!formData.financialData,
+            has_maintenance_data: !!formData.maintenanceData,
+            data_completeness: [
+              formData.violationsData,
+              formData.complaintsData,
+              formData.financialData,
+              formData.maintenanceData,
+              formData.meetingData,
+              formData.communityEvents
+            ].filter(Boolean).length
+          }
+        )
+      }
+      
       success('Monthly Report Generated!', 'Comprehensive performance analysis created successfully')
     } catch (error) {
       console.error('Error generating report:', error)

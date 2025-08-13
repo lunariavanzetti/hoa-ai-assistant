@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { Send, MessageCircle, AlertCircle } from 'lucide-react'
 import { openAIService, type ComplaintData } from '@/lib/openai'
 import { useToast } from '@/components/ui/Toaster'
+import { usageTrackingService } from '@/lib/usageTracking'
+import { useAuthStore } from '@/stores/auth'
 
 export const ComplaintReply: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +21,7 @@ export const ComplaintReply: React.FC = () => {
   const [generatedResponse, setGeneratedResponse] = useState('')
   const [error, setError] = useState('')
   const { success, error: showError } = useToast()
+  const { user } = useAuthStore()
 
   const complaintCategories = [
     'Maintenance & Repairs',
@@ -62,6 +65,25 @@ export const ComplaintReply: React.FC = () => {
 
       const response = await openAIService.generateComplaintResponse(complaintData)
       setGeneratedResponse(response)
+      
+      // Track this activity for analytics
+      if (user?.id) {
+        await usageTrackingService.trackActivity(
+          user.id,
+          'complaint_response',
+          `Complaint Response - ${formData.complaintCategory}`,
+          response,
+          {
+            resident_name: formData.residentName,
+            complaint_category: formData.complaintCategory,
+            priority_level: formData.priorityLevel,
+            previous_complaints: formData.previousComplaints,
+            manager_name: formData.managerName,
+            resolution_timeline: formData.expectedResolutionTime
+          }
+        )
+      }
+      
       success('Response Generated!', 'Professional complaint response created successfully')
     } catch (error) {
       console.error('Error generating response:', error)
