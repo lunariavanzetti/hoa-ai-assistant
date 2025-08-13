@@ -295,39 +295,39 @@ export const Pricing: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-12">
+    <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10 lg:space-y-12">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-6"
+        className="text-center space-y-4 sm:space-y-6"
       >
-        <h1 className="heading-1">CHOOSE YOUR PLAN</h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+        <h1 className="heading-1 text-2xl sm:text-3xl lg:text-4xl xl:text-5xl">CHOOSE YOUR PLAN</h1>
+        <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
           Transform your HOA management with AI automation. From small communities to large property portfolios, 
           we have the perfect solution for your needs.
         </p>
 
         {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-4">
-          <span className={`font-medium ${billingCycle === 'monthly' ? 'text-brutal-electric' : 'text-gray-600'}`}>
+        <div className="flex items-center justify-center gap-3 sm:gap-4">
+          <span className={`text-sm sm:text-base font-medium ${billingCycle === 'monthly' ? 'text-brutal-electric' : 'text-gray-600'}`}>
             Monthly
           </span>
           <button
             onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-            className={`relative w-14 h-8 rounded-full transition-colors ${
+            className={`relative w-12 h-7 sm:w-14 sm:h-8 rounded-full transition-colors ${
               billingCycle === 'yearly' ? 'bg-brutal-electric' : 'bg-gray-300'
             }`}
           >
-            <div className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform ${
-              billingCycle === 'yearly' ? 'translate-x-6' : 'translate-x-0'
+            <div className={`absolute top-1 left-1 w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full transition-transform ${
+              billingCycle === 'yearly' ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0'
             }`} />
           </button>
-          <span className={`font-medium ${billingCycle === 'yearly' ? 'text-brutal-electric' : 'text-gray-600'}`}>
+          <span className={`text-sm sm:text-base font-medium ${billingCycle === 'yearly' ? 'text-brutal-electric' : 'text-gray-600'}`}>
             Yearly
           </span>
           {billingCycle === 'yearly' && (
-            <span className="bg-brutal-electric text-black px-2 py-1 text-xs font-bold rounded">
+            <span className="bg-brutal-electric text-black px-2 py-1 text-xs font-bold rounded whitespace-nowrap">
               2 MONTHS FREE
             </span>
           )}
@@ -335,42 +335,42 @@ export const Pricing: React.FC = () => {
       </motion.div>
 
       {/* Pricing Cards */}
-      <div className="grid lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
         {plans.map((plan, index) => (
           <motion.div
             key={plan.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={`brutal-card p-8 relative ${
-              plan.popular ? 'border-brutal-electric border-4' : ''
+            className={`brutal-card p-4 sm:p-6 lg:p-8 relative ${
+              plan.popular ? 'border-brutal-electric border-2 sm:border-4' : ''
             }`}
           >
             {/* Popular Badge */}
             {plan.badge && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <div className="bg-brutal-electric text-black px-4 py-1 text-xs font-bold uppercase">
+                <div className="bg-brutal-electric text-black px-3 sm:px-4 py-1 text-xs font-bold uppercase">
                   {plan.badge}
                 </div>
               </div>
             )}
 
             {/* Plan Header */}
-            <div className="text-center space-y-4 mb-8">
+            <div className="text-center space-y-3 sm:space-y-4 mb-6 sm:mb-8">
               <div className="text-brutal-electric mx-auto">
                 {plan.icon}
               </div>
               <div>
-                <h3 className="heading-3 mb-2">{plan.name}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                <h3 className="heading-3 text-lg sm:text-xl lg:text-2xl mb-2">{plan.name}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mb-3 sm:mb-4">
                   {plan.description}
                 </p>
                 <div className="space-y-1">
-                  <div className="text-4xl font-bold">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold">
                     {formatPrice(plan.price)}
                   </div>
                   {billingCycle === 'yearly' && plan.price > 0 && (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-xs sm:text-sm text-gray-500">
                       ${plan.price}/year
                     </div>
                   )}
@@ -382,33 +382,33 @@ export const Pricing: React.FC = () => {
             </div>
 
             {/* Features */}
-            <div className="space-y-6 mb-8">
+            <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
               {/* Core Features */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Violation Letters</span>
                   </div>
                   <span className="font-bold">{formatFeature(plan.features.letters)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4" />
+                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Complaint Responses</span>
                   </div>
                   <span className="font-bold">{formatFeature(plan.features.complaints)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
-                    <Mic className="w-4 h-4" />
+                    <Mic className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Meeting Summaries</span>
                   </div>
                   <span className="font-bold">{formatFeature(plan.features.meetings)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
+                    <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Monthly Reports</span>
                   </div>
                   <span className="font-bold">{formatFeature(plan.features.reports)}</span>
@@ -416,18 +416,18 @@ export const Pricing: React.FC = () => {
               </div>
 
               {/* Support */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center gap-2 text-sm mb-3">
-                  <Phone className="w-4 h-4" />
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-3 sm:pt-4">
+                <div className="flex items-center gap-2 text-xs sm:text-sm mb-2 sm:mb-3">
+                  <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span className="font-medium">{plan.features.support}</span>
                 </div>
               </div>
 
               {/* Extra Features */}
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 {plan.features.extras.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 flex-shrink-0" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -438,7 +438,7 @@ export const Pricing: React.FC = () => {
             <button
               onClick={() => handleSelectPlan(plan)}
               disabled={loading === plan.id}
-              className={`w-full py-3 px-6 font-bold uppercase tracking-wide transition-all ${
+              className={`w-full py-2 sm:py-3 px-4 sm:px-6 text-sm sm:text-base font-bold uppercase tracking-wide transition-all ${
                 plan.popular
                   ? 'btn-primary'
                   : 'btn-secondary'
@@ -456,10 +456,10 @@ export const Pricing: React.FC = () => {
             </button>
 
             {/* Highlights */}
-            <div className="mt-6 space-y-2">
+            <div className="mt-4 sm:mt-6 space-y-1 sm:space-y-2">
               {plan.highlights.map((highlight, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                  <Zap className="w-3 h-3 text-brutal-electric" />
+                  <Zap className="w-3 h-3 text-brutal-electric flex-shrink-0" />
                   <span>{highlight}</span>
                 </div>
               ))}
@@ -473,57 +473,57 @@ export const Pricing: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="brutal-card p-8"
+        className="brutal-card p-4 sm:p-6 lg:p-8"
       >
-        <h2 className="heading-2 text-center mb-8">FREQUENTLY ASKED QUESTIONS</h2>
+        <h2 className="heading-2 text-lg sm:text-xl lg:text-2xl xl:text-3xl text-center mb-6 sm:mb-8">FREQUENTLY ASKED QUESTIONS</h2>
         
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <h3 className="font-bold mb-2">Can I change plans anytime?</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <h3 className="text-sm sm:text-base font-bold mb-2">Can I change plans anytime?</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                 Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately 
                 and you'll be prorated for the difference.
               </p>
             </div>
             
             <div>
-              <h3 className="font-bold mb-2">What happens if I exceed my limits?</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <h3 className="text-sm sm:text-base font-bold mb-2">What happens if I exceed my limits?</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                 You'll receive notifications when approaching your limits. You can upgrade anytime to 
                 continue using the service without interruption.
               </p>
             </div>
             
             <div>
-              <h3 className="font-bold mb-2">Is there a free trial?</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <h3 className="text-sm sm:text-base font-bold mb-2">Is there a free trial?</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                 Yes! Our Free plan lets you test all core features with generous limits. 
                 No credit card required to get started.
               </p>
             </div>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <h3 className="font-bold mb-2">What payment methods do you accept?</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <h3 className="text-sm sm:text-base font-bold mb-2">What payment methods do you accept?</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                 We accept all major credit cards, PayPal, and ACH bank transfers. 
                 All payments are processed securely through Paddle.
               </p>
             </div>
             
             <div>
-              <h3 className="font-bold mb-2">Can I cancel anytime?</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <h3 className="text-sm sm:text-base font-bold mb-2">Can I cancel anytime?</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                 Absolutely! Cancel anytime with no cancellation fees. Your subscription 
                 remains active until the end of your billing period.
               </p>
             </div>
             
             <div>
-              <h3 className="font-bold mb-2">Do you offer discounts for annual plans?</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <h3 className="text-sm sm:text-base font-bold mb-2">Do you offer discounts for annual plans?</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                 Yes! Annual plans save you 2 months (17% discount) compared to monthly billing. 
                 Switch to yearly billing to unlock these savings.
               </p>
@@ -537,24 +537,24 @@ export const Pricing: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="text-center space-y-8"
+        className="text-center space-y-6 sm:space-y-8"
       >
-        <div className="flex justify-center items-center gap-8 flex-wrap">
+        <div className="flex justify-center items-center gap-4 sm:gap-6 lg:gap-8 flex-wrap">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <Shield className="w-5 h-5" />
-            <span className="text-sm">Secure Payment Processing</span>
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-xs sm:text-sm">Secure Payment Processing</span>
           </div>
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <Clock className="w-5 h-5" />
-            <span className="text-sm">30-Day Money Back Guarantee</span>
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-xs sm:text-sm">30-Day Money Back Guarantee</span>
           </div>
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <Award className="w-5 h-5" />
-            <span className="text-sm">SOC 2 Compliant</span>
+            <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-xs sm:text-sm">SOC 2 Compliant</span>
           </div>
         </div>
         
-        <p className="text-sm text-gray-500">
+        <p className="text-xs sm:text-sm text-gray-500 px-4">
           Join 500+ HOA managers already saving 10+ hours per week with AI automation
         </p>
       </motion.div>

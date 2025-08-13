@@ -10,11 +10,16 @@ import {
   UserCheck,
   DollarSign,
   Settings,
-  Building2
+  Building2,
+  X
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '@/stores/auth'
 import { getCurrentUserPlan, getPlanDetails } from '@/lib/analytics'
+
+interface SidebarProps {
+  onClose?: () => void
+}
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -29,26 +34,43 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
-export const Sidebar: React.FC = () => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const { user } = useAuthStore()
   const userPlanTier = getCurrentUserPlan(user)
   const currentPlan = getPlanDetails(userPlanTier)
+  
+  const handleNavClick = () => {
+    // Close mobile sidebar when navigating
+    onClose?.()
+  }
+
   return (
     <motion.div 
       initial={{ x: -300 }}
       animate={{ x: 0 }}
-      className="w-64 h-screen glass-surface m-4 rounded-3xl flex flex-col"
+      className="w-64 h-screen glass-surface m-2 lg:m-4 rounded-2xl lg:rounded-3xl flex flex-col"
     >
       {/* Logo */}
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-white" />
+      <div className="p-4 sm:p-6 border-b border-white/10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold text-gradient">Kateriss</h1>
+              <p className="text-xs text-gray-500">HOA AI Assistant</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-gradient">Kateriss</h1>
-            <p className="text-xs text-gray-500">HOA AI Assistant</p>
-          </div>
+          {/* Mobile close button */}
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -59,12 +81,13 @@ export const Sidebar: React.FC = () => {
             <li key={item.name}>
               <NavLink
                 to={item.href}
+                onClick={handleNavClick}
                 className={({ isActive }) =>
                   `nav-item flex items-center gap-3 ${isActive ? 'active' : ''}`
                 }
               >
                 <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.name}</span>
+                <span className="font-medium text-sm sm:text-base">{item.name}</span>
               </NavLink>
             </li>
           ))}

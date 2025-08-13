@@ -81,36 +81,36 @@ export const Reports: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="brutal-card p-8"
+        className="brutal-card p-4 sm:p-6 lg:p-8"
       >
-        <h1 className="heading-2 mb-2">AI MONTHLY REPORTS GENERATOR</h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">AI MONTHLY REPORTS GENERATOR</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
           Generate comprehensive executive-level monthly performance reports with advanced analytics and strategic insights.
         </p>
       </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {/* Form Section */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="lg:col-span-1 space-y-6"
+          className="lg:col-span-1 space-y-4 sm:space-y-6"
         >
           {/* Basic Info */}
-          <div className="brutal-card p-6">
-            <h2 className="heading-3 mb-6 flex items-center gap-2">
-              <Building2 className="w-6 h-6" />
+          <div className="brutal-card p-4 sm:p-6">
+            <h2 className="heading-3 text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
               REPORT DETAILS
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Report Period *</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Report Period *</label>
                 <input
                   type="month"
                   value={formData.reportPeriod}
@@ -119,9 +119,9 @@ export const Reports: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-bold mb-2 uppercase">Total Units</label>
+                  <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Total Units</label>
                   <input
                     type="number"
                     value={formData.totalUnits}
@@ -132,7 +132,7 @@ export const Reports: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold mb-2 uppercase">Occupied Units</label>
+                  <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Occupied Units</label>
                   <input
                     type="number"
                     value={formData.occupiedUnits}
@@ -145,7 +145,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Board Members *</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Board Members *</label>
                 <textarea
                   value={formData.boardMembers}
                   onChange={(e) => setFormData(prev => ({ ...prev, boardMembers: e.target.value }))}
@@ -156,7 +156,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Management Company</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Management Company</label>
                 <input
                   type="text"
                   value={formData.managementCompany}
@@ -169,15 +169,15 @@ export const Reports: React.FC = () => {
           </div>
 
           {/* Data Inputs */}
-          <div className="brutal-card p-6">
-            <h2 className="heading-3 mb-6 flex items-center gap-2">
-              <BarChart3 className="w-6 h-6" />
+          <div className="brutal-card p-4 sm:p-6">
+            <h2 className="heading-3 text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
               OPERATIONAL DATA
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Violations Data</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Violations Data</label>
                 <textarea
                   value={formData.violationsData}
                   onChange={(e) => setFormData(prev => ({ ...prev, violationsData: e.target.value }))}
@@ -188,7 +188,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Complaints Data</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Complaints Data</label>
                 <textarea
                   value={formData.complaintsData}
                   onChange={(e) => setFormData(prev => ({ ...prev, complaintsData: e.target.value }))}
@@ -199,7 +199,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Financial Data</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Financial Data</label>
                 <textarea
                   value={formData.financialData}
                   onChange={(e) => setFormData(prev => ({ ...prev, financialData: e.target.value }))}
@@ -210,7 +210,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Maintenance Data</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Maintenance Data</label>
                 <textarea
                   value={formData.maintenanceData}
                   onChange={(e) => setFormData(prev => ({ ...prev, maintenanceData: e.target.value }))}
@@ -221,7 +221,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Meeting Data</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Meeting Data</label>
                 <textarea
                   value={formData.meetingData}
                   onChange={(e) => setFormData(prev => ({ ...prev, meetingData: e.target.value }))}
@@ -232,7 +232,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 uppercase">Community Events</label>
+                <label className="block text-xs sm:text-sm font-bold mb-2 uppercase">Community Events</label>
                 <textarea
                   value={formData.communityEvents}
                   onChange={(e) => setFormData(prev => ({ ...prev, communityEvents: e.target.value }))}
@@ -244,10 +244,10 @@ export const Reports: React.FC = () => {
             </div>
 
             {error && (
-              <div className="brutal-surface p-4 border border-red-500 bg-red-50 dark:bg-red-900/20 mt-4">
+              <div className="brutal-surface p-3 sm:p-4 border border-red-500 bg-red-50 dark:bg-red-900/20 mt-3 sm:mt-4">
                 <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                  <AlertCircle className="w-5 h-5" />
-                  <span className="font-medium">{error}</span>
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base font-medium">{error}</span>
                 </div>
               </div>
             )}
@@ -255,17 +255,19 @@ export const Reports: React.FC = () => {
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="btn-primary w-full mt-6 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="btn-primary w-full mt-4 sm:mt-6 flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base py-2 sm:py-3"
             >
               {isGenerating ? (
                 <>
                   <div className="loading-liquid"></div>
-                  GENERATING REPORT...
+                  <span className="hidden sm:inline">GENERATING REPORT...</span>
+                  <span className="sm:hidden">GENERATING...</span>
                 </>
               ) : (
                 <>
-                  <TrendingUp className="w-5 h-5" />
-                  GENERATE MONTHLY REPORT
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">GENERATE MONTHLY REPORT</span>
+                  <span className="sm:hidden">GENERATE</span>
                 </>
               )}
             </button>
@@ -279,49 +281,49 @@ export const Reports: React.FC = () => {
           transition={{ delay: 0.2 }}
           className="lg:col-span-2"
         >
-          <div className="brutal-card p-6">
-            <h2 className="heading-3 mb-6 flex items-center gap-2">
-              <FileText className="w-6 h-6" />
+          <div className="brutal-card p-4 sm:p-6">
+            <h2 className="heading-3 text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
               EXECUTIVE MONTHLY REPORT
             </h2>
             
             {generatedReport ? (
               <div className="space-y-4">
-                <div className="brutal-surface p-6 bg-white dark:bg-black border border-gray-300 dark:border-gray-600 max-h-96 overflow-y-auto">
-                  <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                <div className="brutal-surface p-3 sm:p-6 bg-white dark:bg-black border border-gray-300 dark:border-gray-600 max-h-64 sm:max-h-96 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap font-mono text-xs sm:text-sm leading-relaxed">
                     {generatedReport}
                   </pre>
                 </div>
                 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <button
                     onClick={() => navigator.clipboard.writeText(generatedReport)}
-                    className="btn-secondary flex-1"
+                    className="btn-secondary flex-1 text-sm sm:text-base py-2 sm:py-3"
                   >
                     COPY REPORT
                   </button>
                   <button 
                     onClick={handleDownloadPDF}
-                    className="btn-primary flex-1"
+                    className="btn-primary flex-1 text-sm sm:text-base py-2 sm:py-3"
                   >
                     DOWNLOAD PDF
                   </button>
                 </div>
 
-                <div className="brutal-surface p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                <div className="brutal-surface p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300">
+                  <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
                     <strong>Executive Report:</strong> This comprehensive analysis includes operational metrics, 
                     financial performance, strategic recommendations, and forward-looking insights for board review.
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="brutal-surface p-8 text-center bg-gray-50 dark:bg-gray-800">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-300 mb-2">
+              <div className="brutal-surface p-4 sm:p-8 text-center bg-gray-50 dark:bg-gray-800">
+                <TrendingUp className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-2">
                   Executive monthly report will appear here
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Fill out the report details and operational data, then click "Generate Monthly Report"
                 </p>
               </div>
@@ -335,39 +337,39 @@ export const Reports: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="brutal-card p-8"
+        className="brutal-card p-4 sm:p-6 lg:p-8"
       >
-        <h2 className="heading-3 mb-6">COMPREHENSIVE REPORT SECTIONS</h2>
+        <h2 className="heading-3 text-lg sm:text-xl mb-4 sm:mb-6">COMPREHENSIVE REPORT SECTIONS</h2>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="brutal-surface p-6 text-center bg-gray-50 dark:bg-gray-800">
-            <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="font-bold mb-2 uppercase">Executive Summary</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="brutal-surface p-4 sm:p-6 text-center bg-gray-50 dark:bg-gray-800">
+            <TrendingUp className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-sm sm:text-base font-bold mb-2 uppercase">Executive Summary</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               C-level overview with KPIs, accomplishments, and strategic priorities
             </p>
           </div>
 
-          <div className="brutal-surface p-6 text-center bg-gray-50 dark:bg-gray-800">
-            <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="font-bold mb-2 uppercase">Operational Metrics</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="brutal-surface p-4 sm:p-6 text-center bg-gray-50 dark:bg-gray-800">
+            <BarChart3 className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-sm sm:text-base font-bold mb-2 uppercase">Operational Metrics</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               Violations, complaints, communication effectiveness dashboard
             </p>
           </div>
 
-          <div className="brutal-surface p-6 text-center bg-gray-50 dark:bg-gray-800">
-            <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="font-bold mb-2 uppercase">Financial Analysis</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="brutal-surface p-4 sm:p-6 text-center bg-gray-50 dark:bg-gray-800">
+            <DollarSign className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-sm sm:text-base font-bold mb-2 uppercase">Financial Analysis</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               Revenue, expenses, reserves, and budget performance analysis
             </p>
           </div>
 
-          <div className="brutal-surface p-6 text-center bg-gray-50 dark:bg-gray-800">
-            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="font-bold mb-2 uppercase">Forward Analysis</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="brutal-surface p-4 sm:p-6 text-center bg-gray-50 dark:bg-gray-800">
+            <Calendar className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-sm sm:text-base font-bold mb-2 uppercase">Forward Analysis</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               Trends, strategic recommendations, and next month outlook
             </p>
           </div>

@@ -148,38 +148,38 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Welcome Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-8"
+        className="glass-card p-4 sm:p-6 lg:p-8"
       >
-        <h1 className="heading-2 mb-2">Welcome back! 👋</h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">Welcome back! 👋</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
           Here's what's happening with your HOA today. You've saved 45 hours this month with AI automation.
         </p>
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.name}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="glass-card magnetic-hover p-6"
+            className="glass-card magnetic-hover p-4 sm:p-6"
           >
             <div className="flex items-center justify-between mb-4">
-              <stat.icon className={`w-8 h-8 ${stat.color}`} />
+              <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${stat.color}`} />
               <TrendingUp className={`w-4 h-4 ${
                 stat.changeType === 'increase' ? 'text-green-400' : 'text-red-400'
               }`} />
             </div>
             <div>
-              <p className="text-3xl font-bold text-gradient mb-1">{stat.value}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{stat.name}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gradient mb-1">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2">{stat.name}</p>
               <p className={`text-xs ${
                 stat.changeType === 'increase' ? 'text-green-400' : 'text-red-400'
               }`}>
@@ -191,30 +191,30 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {/* Recent Activity */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="lg:col-span-2 glass-card p-6"
+          className="lg:col-span-2 glass-card p-4 sm:p-6"
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Recent Activity</h2>
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold">Recent Activity</h2>
             <button onClick={handleViewAll} className="btn-secondary text-sm">View All</button>
           </div>
           
           <div className="space-y-4">
             {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-center gap-4 p-4 rounded-xl glass-surface">
+              <div key={activity.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl glass-surface">
                 <div className={`p-2 rounded-xl glass-surface ${activity.color}`}>
                   <activity.icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium">{activity.title}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{activity.subtitle}</p>
+                  <p className="text-sm sm:text-base font-medium">{activity.title}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{activity.subtitle}</p>
                 </div>
-                <div className="text-xs text-gray-500">{activity.time}</div>
+                <div className="text-xs text-gray-500 text-right whitespace-nowrap">{activity.time}</div>
               </div>
             ))}
           </div>
@@ -225,34 +225,34 @@ export const Dashboard: React.FC = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
-          className="glass-card p-6"
+          className="glass-card p-4 sm:p-6"
         >
-          <h2 className="text-xl font-bold mb-6">Quick Actions</h2>
+          <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Quick Actions</h2>
           
           <div className="space-y-3">
-            <button onClick={handleCreateViolation} className="w-full btn-primary text-left flex items-center gap-3">
-              <AlertTriangle className="w-4 h-4" />
+            <button onClick={handleCreateViolation} className="w-full btn-primary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               Create Violation Letter
             </button>
             
-            <button onClick={handleComplaint} className="w-full btn-secondary text-left flex items-center gap-3">
-              <MessageCircle className="w-4 h-4" />
+            <button onClick={handleComplaint} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <MessageCircle className="w-4 h-4 flex-shrink-0" />
               Handle Complaint
             </button>
             
-            <button onClick={handleMeeting} className="w-full btn-secondary text-left flex items-center gap-3">
-              <Calendar className="w-4 h-4" />
+            <button onClick={handleMeeting} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <Calendar className="w-4 h-4 flex-shrink-0" />
               Upload Meeting Recording
             </button>
             
-            <button onClick={handleReport} className="w-full btn-secondary text-left flex items-center gap-3">
-              <FileText className="w-4 h-4" />
+            <button onClick={handleReport} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <FileText className="w-4 h-4 flex-shrink-0" />
               Generate Monthly Report
             </button>
           </div>
 
           {/* Usage Progress */}
-          <div className="mt-8 p-4 glass-surface rounded-xl">
+          <div className="mt-6 sm:mt-8 p-3 sm:p-4 glass-surface rounded-xl">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Users className="w-4 h-4" />
               Monthly Usage
@@ -292,27 +292,27 @@ export const Dashboard: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="glass-card p-6"
+        className="glass-card p-4 sm:p-6"
       >
-        <h2 className="text-xl font-bold mb-4">AI Insights</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="glass-surface p-4 rounded-xl">
-            <h3 className="font-semibold mb-2">Trend Alert</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">AI Insights</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="glass-surface p-3 sm:p-4 rounded-xl">
+            <h3 className="text-sm sm:text-base font-semibold mb-2">Trend Alert</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               Parking violations have increased 40% this month. Consider sending a community reminder.
             </p>
           </div>
           
-          <div className="glass-surface p-4 rounded-xl">
-            <h3 className="font-semibold mb-2">Efficiency Tip</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="glass-surface p-3 sm:p-4 rounded-xl">
+            <h3 className="text-sm sm:text-base font-semibold mb-2">Efficiency Tip</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               Your response time improved by 60%. Residents appreciate the quick AI-powered responses.
             </p>
           </div>
           
-          <div className="glass-surface p-4 rounded-xl">
-            <h3 className="font-semibold mb-2">Recommendation</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="glass-surface p-3 sm:p-4 rounded-xl">
+            <h3 className="text-sm sm:text-base font-semibold mb-2">Recommendation</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               Consider scheduling a community meeting about landscaping guidelines based on recent violations.
             </p>
           </div>

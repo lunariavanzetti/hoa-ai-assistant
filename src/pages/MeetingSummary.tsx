@@ -138,14 +138,14 @@ export const MeetingSummary: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="brutal-card p-8"
+        className="brutal-card p-4 sm:p-6 lg:p-8"
       >
-        <h1 className="heading-2 mb-2">AI MEETING MINUTES GENERATOR</h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">AI MEETING MINUTES GENERATOR</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
           Generate legally compliant, comprehensive meeting minutes from transcripts with expert parliamentary procedure.
         </p>
       </motion.div>

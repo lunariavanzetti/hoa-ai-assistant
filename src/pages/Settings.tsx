@@ -434,14 +434,14 @@ export const Settings: React.FC = () => {
   const userPlanTier = getCurrentUserPlan(user)
   const currentPlan = getPlanDetails(userPlanTier)
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="brutal-card p-8"
+        className="brutal-card p-4 sm:p-6 lg:p-8"
       >
-        <h1 className="heading-2 mb-2">SETTINGS</h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">SETTINGS</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
           Manage your account, HOA properties, and preferences.
         </p>
         <ManualUpgrade />

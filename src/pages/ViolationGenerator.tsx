@@ -127,25 +127,25 @@ export const ViolationGenerator: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-8"
+        className="glass-card p-4 sm:p-6 lg:p-8"
       >
-        <h1 className="heading-2 mb-2">AI Violation Letter Generator</h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">AI Violation Letter Generator</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
           Create professional violation notices in seconds with AI assistance.
         </p>
       </motion.div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
         {/* Form */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card p-6"
+          className="glass-card p-4 sm:p-6"
         >
           <h2 className="text-xl font-bold mb-6">Violation Details</h2>
           
@@ -206,7 +206,7 @@ export const ViolationGenerator: React.FC = () => {
               />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Manager Name</label>
                 <input
