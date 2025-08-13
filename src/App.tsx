@@ -5,8 +5,6 @@ import { AuthProvider } from '@/components/providers/AuthProvider'
 import { Layout } from '@/components/layout/Layout'
 import { Dashboard } from '@/pages/Dashboard'
 import { ViolationGenerator } from '@/pages/ViolationGenerator'
-import { ComplaintInbox } from '@/pages/ComplaintInbox'
-import { ComplaintDetail } from '@/pages/ComplaintDetail'
 import { ComplaintReply } from '@/pages/ComplaintReply'
 import { MeetingSummary } from '@/pages/MeetingSummary'
 import { Reports } from '@/pages/Reports'
@@ -52,8 +50,6 @@ function App() {
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="violations" element={<ViolationGenerator />} />
-                  <Route path="complaints" element={<ComplaintInbox />} />
-                  <Route path="complaints/:id" element={<ComplaintDetail />} />
                   <Route path="complaint-reply" element={<ComplaintReply />} />
                   <Route path="meetings" element={<MeetingSummary />} />
                   <Route path="reports" element={<Reports />} />
