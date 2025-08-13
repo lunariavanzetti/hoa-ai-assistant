@@ -574,18 +574,21 @@ export const Analytics: React.FC = () => {
                     value: `${productivityInsights.consistencyScore}%`,
                     description: 'How consistent your usage patterns are'
                   }
-                ].map((insight, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div className="p-2 bg-white dark:bg-gray-700 rounded-lg">
-                      <insight.icon className="w-5 h-5 text-blue-600" />
+                ].map((insight, index) => {
+                  const IconComponent = insight.icon
+                  return (
+                    <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="p-2 bg-white dark:bg-gray-700 rounded-lg">
+                        <IconComponent className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{insight.value}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{insight.label}</p>
+                        <p className="text-xs text-gray-500">{insight.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">{insight.value}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{insight.label}</p>
-                      <p className="text-xs text-gray-500">{insight.description}</p>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               {/* Recommendations */}
