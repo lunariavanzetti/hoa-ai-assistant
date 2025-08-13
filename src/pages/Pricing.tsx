@@ -44,8 +44,8 @@ interface PricingPlan {
 const getPriceId = (plan: string, cycle: 'monthly' | 'yearly') => {
   const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
   
-  // TEMPORARY: Use test prices for Pro and Agency during testing
-  const TEST_MODE = true // Set to false after testing
+  // PRODUCTION: Use real prices for all plans
+  const TEST_MODE = false // Disabled for production
   
   if (TEST_MODE && environment === 'production' && (plan === 'pro' || plan === 'agency')) {
     const testPriceKey = `VITE_PADDLE_PRODUCTION_TEST_${plan.toUpperCase()}_${cycle.toUpperCase()}_PRICE_ID`
