@@ -12,6 +12,7 @@ import {
   Settings,
   Building2,
   History as HistoryIcon,
+  BarChart3,
   X
 } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -36,6 +37,7 @@ const navigation: NavigationItem[] = [
   { name: 'Meetings', href: '/meetings', icon: Mic },
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'History', href: '/history', icon: HistoryIcon, proOnly: true },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3, proOnly: true },
   { name: 'Data Monitor', href: '/data-monitor', icon: Shield },
   { name: 'Onboarding', href: '/onboarding', icon: UserCheck },
   { name: 'Pricing', href: '/pricing', icon: DollarSign },
