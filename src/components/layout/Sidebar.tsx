@@ -11,6 +11,7 @@ import {
   DollarSign,
   Settings,
   Building2,
+  History as HistoryIcon,
   X
 } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -21,12 +22,20 @@ interface SidebarProps {
   onClose?: () => void
 }
 
-const navigation = [
+interface NavigationItem {
+  name: string
+  href: string
+  icon: any
+  proOnly?: boolean
+}
+
+const navigation: NavigationItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Violations', href: '/violations', icon: AlertTriangle },
   { name: 'Complaint Reply', href: '/complaint-reply', icon: MessageCircle },
   { name: 'Meetings', href: '/meetings', icon: Mic },
   { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'History', href: '/history', icon: HistoryIcon, proOnly: true },
   { name: 'Data Monitor', href: '/data-monitor', icon: Shield },
   { name: 'Onboarding', href: '/onboarding', icon: UserCheck },
   { name: 'Pricing', href: '/pricing', icon: DollarSign },
@@ -76,20 +85,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6">
         <ul className="space-y-2">
-          {navigation.map((item) => (
-            <li key={item.name}>
-              <NavLink
-                to={item.href}
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `nav-item flex items-center gap-3 ${isActive ? 'active' : ''}`
-                }
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">{item.name}</span>
-              </NavLink>
-            </li>
-          ))}
+          {navigation.map((item) => {
+            const isPro = userPlanTier !== 'free'
+            const isProOnlyItem = item.proOnly && !isPro
+            
+            return (
+              <li key={item.name}>
+                {isProOnlyItem ? (
+                  <div className="nav-item flex items-center justify-between gap-3 opacity-60 cursor-not-allowed">
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-5 h-5" />
+                      <span className="font-medium text-sm sm:text-base">{item.name}</span>
+                    </div>
+                    <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 px-2 py-1 rounded-md">
+                      Pro
+                    </span>
+                  </div>
+                ) : (
+                  <NavLink
+                    to={item.href}
+                    onClick={handleNavClick}
+                    className={({ isActive }) =>
+                      `nav-item flex items-center gap-3 ${isActive ? 'active' : ''}`
+                    }
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium text-sm sm:text-base">{item.name}</span>
+                  </NavLink>
+                )}
+              </li>
+            )
+          })}
         </ul>
       </nav>
 

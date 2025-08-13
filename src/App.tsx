@@ -17,6 +17,7 @@ import { TermsOfService } from '@/pages/TermsOfService'
 import { PrivacyPolicy } from '@/pages/PrivacyPolicy'
 import { RefundPolicy } from '@/pages/RefundPolicy'
 import { Templates } from '@/pages/Templates'
+import { History } from '@/pages/History'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
@@ -53,6 +54,7 @@ function App() {
                   <Route path="complaint-reply" element={<ComplaintReply />} />
                   <Route path="meetings" element={<MeetingSummary />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="history" element={<History />} />
                   <Route path="data-monitor" element={<DataMonitor />} />
                   <Route path="onboarding" element={<OnboardingDesigner />} />
                   <Route path="pricing" element={<Pricing />} />

@@ -86,7 +86,7 @@ export const Dashboard: React.FC = () => {
   }, [user])
 
   const handleViewAll = () => {
-    navigate('/violations')
+    navigate('/history')
   }
 
   const handleCreateViolation = () => {
