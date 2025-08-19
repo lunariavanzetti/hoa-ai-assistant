@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { User, Building2, Bell, CreditCard, Shield, Plus, ExternalLink, Download, Key, Smartphone, Edit3, Trash2 } from 'lucide-react'
+import { User, Building2, Bell, CreditCard, Shield, Plus, ExternalLink, Download, Key, Smartphone, Edit3, Trash2, Calendar, AlertTriangle, RefreshCw, X } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/components/ui/Toaster'
-import { paddleClient } from '@/lib/paddleClient'
+// import { paddleClient } from '@/lib/paddleClient' // Commented out since we use subscriptionService
 import { analytics, getPlanDetails, getCurrentUserPlan } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 import { ManualUpgrade } from '@/components/ui/ManualUpgrade'
 import { UsageDisplay } from '@/components/ui/UsageDisplay'
+import { subscriptionService, type BillingDetails } from '@/lib/subscriptionService'
 
 export const Settings: React.FC = () => {
   const { user, signOut } = useAuthStore()
@@ -25,6 +26,10 @@ export const Settings: React.FC = () => {
   const [hoaProperties, setHoaProperties] = useState<Array<{id: string, name: string, address: string}>>([])
   const [isEditingHOA, setIsEditingHOA] = useState<string | null>(null)
   const [hoaForm, setHoaForm] = useState({ name: '', address: '' })
+  const [billingDetails, setBillingDetails] = useState<BillingDetails | null>(null)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showSubscriptionHistory, setShowSubscriptionHistory] = useState(false)
+  const [cancellationReason, setCancellationReason] = useState('')
 
   // Load user data and HOAs on component mount
   useEffect(() => {
@@ -37,6 +42,11 @@ export const Settings: React.FC = () => {
       
       // Load HOA properties from database
       loadHOAProperties()
+      
+      // Load billing details if user has subscription
+      if (user.subscription_tier !== 'free' && user.paddle_customer_id) {
+        loadBillingDetails()
+      }
     }
   }, [user])
 
@@ -326,22 +336,78 @@ export const Settings: React.FC = () => {
     )
   }
 
-  const handleViewBillingHistory = async () => {
-    if (!user?.paddle_customer_id) {
-      // For users without billing info, redirect to pricing
-      success('Setup Billing', 'Subscribe to a plan first to view billing history.')
-      window.location.href = '/pricing'
-      return
-    }
+  const loadBillingDetails = async () => {
+    if (!user?.id) return
     
     try {
-      await paddleClient.openCustomerPortal(user.paddle_customer_id)
-      analytics.track('Billing History Viewed', {
+      const details = await subscriptionService.getBillingDetails(user.id)
+      setBillingDetails(details)
+    } catch (err) {
+      console.error('Failed to load billing details:', err)
+    }
+  }
+
+  const handleCancelSubscription = async () => {
+    if (!user?.id) return
+    
+    setIsLoading(true)
+    try {
+      const result = await subscriptionService.cancelSubscription(user.id, cancellationReason)
+      setShowCancelModal(false)
+      setCancellationReason('')
+      success('Subscription Canceled', `Your subscription will remain active until ${subscriptionService.formatDate(result.effectiveDate)}`)
+      
+      // Reload billing details
+      await loadBillingDetails()
+      
+      analytics.track('Subscription Canceled', {
         user_id: user.id,
-        customer_id: user.paddle_customer_id
+        plan: user.subscription_tier,
+        reason: cancellationReason
       })
     } catch (err) {
-      error('Portal Error', 'Failed to open billing portal. Please try again.')
+      error('Cancellation Failed', err instanceof Error ? err.message : 'Failed to cancel subscription')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleReactivateSubscription = async () => {
+    if (!user?.id) return
+    
+    setIsLoading(true)
+    try {
+      await subscriptionService.reactivateSubscription(user.id)
+      success('Subscription Reactivated', 'Your subscription has been reactivated successfully')
+      
+      // Reload billing details
+      await loadBillingDetails()
+      
+      analytics.track('Subscription Reactivated', {
+        user_id: user.id,
+        plan: user.subscription_tier
+      })
+    } catch (err) {
+      error('Reactivation Failed', err instanceof Error ? err.message : 'Failed to reactivate subscription')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleViewBillingHistory = async () => {
+    if (!billingDetails) {
+      await loadBillingDetails()
+    }
+    setShowSubscriptionHistory(true)
+  }
+
+  const handleUpdatePaymentMethod = async () => {
+    if (!billingDetails?.customerId) return
+    
+    try {
+      await subscriptionService.updatePaymentMethod(billingDetails.customerId)
+    } catch (err) {
+      error('Payment Method Update Failed', 'Unable to open payment method update')
     }
   }
 
@@ -680,6 +746,7 @@ export const Settings: React.FC = () => {
         </div>
         
         <div className="space-y-6">
+          {/* Current Plan */}
           <div className="brutal-surface p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -688,30 +755,95 @@ export const Settings: React.FC = () => {
                   {currentPlan.name === 'Free' ? '1 HOA, ' : ''}
                   {typeof currentPlan.limits.letters === 'number' ? `${currentPlan.limits.letters} letters/month` : 'Unlimited letters'}
                 </p>
+                {billingDetails?.nextChargeDate && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Next billing: {subscriptionService.formatDate(billingDetails.nextChargeDate)}
+                    {billingDetails.nextChargeAmount && (
+                      <span> • {subscriptionService.formatCurrency(billingDetails.nextChargeAmount)}</span>
+                    )}
+                  </p>
+                )}
               </div>
-              {currentPlan.name === 'Free' && (
-                <button 
-                  onClick={handleUpgrade}
-                  className="btn-primary flex items-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Upgrade
-                </button>
-              )}
+              <div className="flex gap-2">
+                {currentPlan.name === 'Free' ? (
+                  <button 
+                    onClick={handleUpgrade}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Upgrade
+                  </button>
+                ) : (
+                  <>
+                    {billingDetails?.currentSubscription?.cancelAtPeriodEnd ? (
+                      <button 
+                        onClick={handleReactivateSubscription}
+                        disabled={isLoading}
+                        className="btn-secondary flex items-center gap-2"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        Reactivate
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => setShowCancelModal(true)}
+                        className="btn-danger flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <X className="w-4 h-4" />
+                        Cancel
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
+            
+            {billingDetails?.currentSubscription?.cancelAtPeriodEnd && (
+              <div className="mb-4 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                  <span className="text-sm text-yellow-800 dark:text-yellow-200">
+                    Subscription canceled - Access until {subscriptionService.formatDate(billingDetails.currentSubscription.currentPeriodEnd)}
+                  </span>
+                </div>
+              </div>
+            )}
             
             <div className="space-y-2">
               <UsageDisplay feature="violation_letters" />
             </div>
           </div>
-          
-          <button 
-            onClick={handleViewBillingHistory}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <ExternalLink className="w-4 h-4" />
-            View Billing History
-          </button>
+
+          {/* Billing Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button 
+              onClick={handleViewBillingHistory}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              History
+            </button>
+            
+            {billingDetails?.customerId && (
+              <button 
+                onClick={handleUpdatePaymentMethod}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <CreditCard className="w-4 h-4" />
+                Payment
+              </button>
+            )}
+            
+            {currentPlan.name !== 'Free' && (
+              <button 
+                onClick={handleUpgrade}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Change Plan
+              </button>
+            )}
+          </div>
         </div>
       </motion.div>
 
@@ -792,6 +924,169 @@ export const Settings: React.FC = () => {
           </p>
         </div>
       </motion.div>
+
+      {/* Cancellation Modal */}
+      {showCancelModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => setShowCancelModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold mb-4">Cancel Subscription</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Are you sure you want to cancel your subscription? You'll retain access until the end of your current billing period.
+            </p>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Reason for cancellation (optional)
+              </label>
+              <textarea
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                rows={3}
+                placeholder="Help us improve by sharing your feedback..."
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="btn-secondary flex-1"
+                disabled={isLoading}
+              >
+                Keep Subscription
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                disabled={isLoading}
+                className="btn-danger flex-1 bg-red-600 text-white hover:bg-red-700"
+              >
+                {isLoading ? 'Canceling...' : 'Cancel Subscription'}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Subscription History Modal */}
+      {showSubscriptionHistory && billingDetails && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => setShowSubscriptionHistory(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold">Subscription History</h3>
+              <button
+                onClick={() => setShowSubscriptionHistory(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto max-h-[60vh] space-y-4">
+              {/* Current Subscription */}
+              {billingDetails.currentSubscription && (
+                <div className="p-4 border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-green-800 dark:text-green-200">Current Subscription</h4>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${subscriptionService.getStatusColor(billingDetails.currentSubscription.status)}`}>
+                      {billingDetails.currentSubscription.status}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Plan:</span>
+                      <div className="font-medium">{subscriptionService.getPlanName(billingDetails.currentSubscription.priceId)}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Amount:</span>
+                      <div className="font-medium">{subscriptionService.formatCurrency(billingDetails.currentSubscription.amount, billingDetails.currentSubscription.currency)}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Current Period:</span>
+                      <div className="font-medium">
+                        {subscriptionService.formatDate(billingDetails.currentSubscription.currentPeriodStart)} - {subscriptionService.formatDate(billingDetails.currentSubscription.currentPeriodEnd)}
+                      </div>
+                    </div>
+                    {billingDetails.currentSubscription.nextBillingDate && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">Next Billing:</span>
+                        <div className="font-medium">{subscriptionService.formatDate(billingDetails.currentSubscription.nextBillingDate)}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Subscription History */}
+              {billingDetails.subscriptionHistory.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3 text-gray-700 dark:text-gray-300">Previous Subscriptions</h4>
+                  <div className="space-y-3">
+                    {billingDetails.subscriptionHistory.map((subscription) => (
+                      <div key={subscription.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h5 className="font-medium">{subscriptionService.getPlanName(subscription.priceId)}</h5>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${subscriptionService.getStatusColor(subscription.status)}`}>
+                            {subscription.status}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                          <div>
+                            <span>Amount:</span>
+                            <span className="ml-1 font-medium">{subscriptionService.formatCurrency(subscription.amount, subscription.currency)}</span>
+                          </div>
+                          <div>
+                            <span>Period:</span>
+                            <span className="ml-1 font-medium">
+                              {subscriptionService.formatDate(subscription.currentPeriodStart)} - {subscriptionService.formatDate(subscription.currentPeriodEnd)}
+                            </span>
+                          </div>
+                          {subscription.canceledAt && (
+                            <div className="col-span-2">
+                              <span>Canceled:</span>
+                              <span className="ml-1 font-medium">{subscriptionService.formatDate(subscription.canceledAt)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {billingDetails.subscriptionHistory.length === 0 && !billingDetails.currentSubscription && (
+                <div className="text-center py-8 text-gray-500">
+                  <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No subscription history found</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   )
 }

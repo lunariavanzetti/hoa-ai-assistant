@@ -123,8 +123,31 @@ export const PrivacyPolicy: React.FC = () => {
               <h2 className="heading-2">6. Data Retention</h2>
               <p>
                 We retain your personal information only for as long as necessary to fulfill the purposes outlined in this 
-                Privacy Policy, unless a longer retention period is required or permitted by law. When we no longer need 
-                your personal information, we will securely delete or anonymize it.
+                Privacy Policy, unless a longer retention period is required or permitted by law.
+              </p>
+              
+              <p><strong>Active Subscriptions:</strong> We retain all your data while your subscription is active.</p>
+              
+              <p>
+                <strong>After Subscription Cancellation:</strong> When you cancel your subscription, we will retain your data 
+                for 90 days to allow for reactivation. During this period, your data remains accessible if you choose to 
+                reactivate your subscription.
+              </p>
+              
+              <p>
+                <strong>Data Deletion:</strong> After the 90-day retention period, or upon your explicit request for immediate 
+                deletion, we will permanently delete all your personal information and generated content from our systems. 
+                This deletion is irreversible.
+              </p>
+              
+              <p>
+                <strong>Legal Requirements:</strong> We may retain certain information longer if required by law, for accounting 
+                purposes, or to resolve disputes and enforce our agreements.
+              </p>
+              
+              <p>
+                <strong>Requesting Data Deletion:</strong> You can request immediate deletion of your data at any time by 
+                contacting us at privacy@kateriss.space. We will process deletion requests within 30 days.
               </p>
             </section>
 

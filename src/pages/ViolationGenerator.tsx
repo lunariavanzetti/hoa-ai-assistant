@@ -15,6 +15,7 @@ export const ViolationGenerator: React.FC = () => {
     residentName: '',
     residentAddress: '',
     violationType: '',
+    state: '',
     description: '',
     violationDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     managerName: 'HOA Management',
@@ -39,8 +40,18 @@ export const ViolationGenerator: React.FC = () => {
     'Other'
   ]
 
+  const usStates = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
+    'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky',
+    'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+    'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico',
+    'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+    'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+    'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+  ]
+
   const handleGenerate = async () => {
-    if (!formData.residentName || !formData.violationType || !formData.description) {
+    if (!formData.residentName || !formData.violationType || !formData.state || !formData.description) {
       showError('Missing Information', 'Please fill in all required fields')
       return
     }
@@ -112,7 +123,8 @@ export const ViolationGenerator: React.FC = () => {
         severityLevel: formData.severityLevel,
         photoAttached: formData.photos.length > 0,
         previousViolationsCount: 0, // This could come from database
-        ccrSection: 'Section 3.1 - Community Standards'
+        ccrSection: 'Section 3.1 - Community Standards',
+        state: formData.state
       }
 
       const letter = await openAIService.generateViolationLetter(violationData)
@@ -209,6 +221,24 @@ export const ViolationGenerator: React.FC = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium mb-2">State/Location *</label>
+              <select
+                value={formData.state}
+                onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+                className="input-liquid"
+              >
+                <option value="">Select state for legal compliance</option>
+                <option value="N/A">N/A - General</option>
+                {usStates.map(state => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                💡 Required for state-specific legal requirements and proper cure periods
+              </p>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-2">Violation Date *</label>
               <input
                 type="date"
@@ -226,6 +256,9 @@ export const ViolationGenerator: React.FC = () => {
                 className="input-liquid h-32 resize-none"
                 placeholder="Describe the violation in detail..."
               />
+              <p className="text-xs text-gray-500 mt-1">
+                ✅ AI will automatically add proper legal language and compliance requirements based on your selected state
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -275,7 +308,7 @@ export const ViolationGenerator: React.FC = () => {
 
             <button
               onClick={handleGenerate}
-              disabled={!formData.residentName || !formData.violationType || !formData.description || isGenerating}
+              disabled={!formData.residentName || !formData.violationType || !formData.state || !formData.description || isGenerating}
               className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? (

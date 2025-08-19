@@ -85,14 +85,15 @@
   3. Subtly positions HOA AI Assistant Kateriss as a helpful tool (don't be salesy)
   4. Includes a soft CTA like "I've seen similar tools help with this"
 
-  TONE: Helpful, professional, understanding
+  TONE: Helpful, professional, understanding, average american answer from teh citizen, where nobody have even least doubts you an ai. please write with mistakes like American does
   LENGTH: 2-3 paragraphs max
   AVOID: Direct promotion, sales language, obvious advertising
 
-  POST TO RESPOND TO:
-  [PASTE REDDIT POST HERE]
-
   Generate a helpful comment:
+
+  POST TO RESPOND TO:
+
+
 
   Better Approach for "HOA Horror Stories":
 

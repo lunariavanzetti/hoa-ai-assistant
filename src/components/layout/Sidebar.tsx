@@ -85,18 +85,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6">
+      <nav className="flex-1 px-4 py-4">
         <ul className="space-y-2">
           {navigation.map((item) => {
             const isPro = userPlanTier !== 'free'
             const isProOnlyItem = item.proOnly && !isPro
+            const ItemIcon = item.icon
             
             return (
               <li key={item.name}>
                 {isProOnlyItem ? (
                   <div className="nav-item flex items-center justify-between gap-3 opacity-60 cursor-not-allowed">
                     <div className="flex items-center gap-3">
-                      <item.icon className="w-5 h-5" />
+                      <ItemIcon className="w-5 h-5" />
                       <span className="font-medium text-sm sm:text-base">{item.name}</span>
                     </div>
                     <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 px-2 py-1 rounded-md">
@@ -111,7 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                       `nav-item flex items-center gap-3 ${isActive ? 'active' : ''}`
                     }
                   >
-                    <item.icon className="w-5 h-5" />
+                    <ItemIcon className="w-5 h-5" />
                     <span className="font-medium text-sm sm:text-base">{item.name}</span>
                   </NavLink>
                 )}
@@ -122,17 +123,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       </nav>
 
       {/* Plan status */}
-      <div className="p-4">
-        <div className="glass-card p-4 text-center">
+      <div className="p-4 mt-auto">
+        <div className="glass-card p-3 text-center">
           <h3 className="font-semibold text-sm mb-2">{currentPlan.name} Plan</h3>
           {userPlanTier === 'free' ? (
             <>
-              <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
+              <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                 Unlock unlimited AI letters and advanced features
               </p>
               <button 
                 onClick={() => window.location.href = '/pricing'}
-                className="btn-primary w-full text-sm py-2"
+                className="btn-primary w-full text-xs py-1.5"
               >
                 Upgrade Now
               </button>

@@ -181,40 +181,43 @@ export const Dashboard: React.FC = () => {
             </div>
           ))
         ) : (
-          getStatsData().map((stat, index) => (
-          <motion.div
-            key={stat.name}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="glass-card magnetic-hover p-4 sm:p-6"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${stat.color}`} />
-              {stat.changeType === 'upgrade' ? (
-                <Lock className="w-4 h-4 text-gray-400" />
-              ) : (
-                <TrendingUp className={`w-4 h-4 ${
-                  stat.changeType === 'increase' ? 'text-green-400' : 'text-gray-400'
-                }`} />
-              )}
-            </div>
-            <div>
-              <p className="text-2xl sm:text-3xl font-bold text-gradient mb-1">
-                {isPro ? stat.value : '•••'}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2">{stat.name}</p>
-              <p className={`text-xs ${
-                stat.changeType === 'upgrade' 
-                  ? 'text-amber-600 cursor-pointer hover:text-amber-500' 
-                  : 'text-gray-400'
-              }`}
-              onClick={stat.changeType === 'upgrade' ? handleUpgrade : undefined}>
-                {stat.change}
-              </p>
-            </div>
-          </motion.div>
-          ))
+          getStatsData().map((stat, index) => {
+            const StatIcon = stat.icon
+            return (
+              <motion.div
+                key={stat.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="glass-card magnetic-hover p-4 sm:p-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <StatIcon className={`w-6 h-6 sm:w-8 sm:h-8 ${stat.color}`} />
+                  {stat.changeType === 'upgrade' ? (
+                    <Lock className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <TrendingUp className={`w-4 h-4 ${
+                      stat.changeType === 'increase' ? 'text-green-400' : 'text-gray-400'
+                    }`} />
+                  )}
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-bold text-gradient mb-1">
+                    {isPro ? stat.value : '•••'}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2">{stat.name}</p>
+                  <p className={`text-xs ${
+                    stat.changeType === 'upgrade' 
+                      ? 'text-amber-600 cursor-pointer hover:text-amber-500' 
+                      : 'text-gray-400'
+                  }`}
+                  onClick={stat.changeType === 'upgrade' ? handleUpgrade : undefined}>
+                    {stat.change}
+                  </p>
+                </div>
+              </motion.div>
+            )
+          })
         )}
       </div>
 

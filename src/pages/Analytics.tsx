@@ -38,10 +38,10 @@ import {
 } from '@/lib/analyticsService'
 
 const FEATURE_ICONS = {
-  violation_letter: AlertTriangle,
-  complaint_response: MessageCircle,
+  violation_letters: AlertTriangle,
+  complaint_responses: MessageCircle,
   meeting_minutes: Users,
-  monthly_report: FileText
+  monthly_reports: FileText
 }
 
 export const Analytics: React.FC = () => {
@@ -189,19 +189,22 @@ export const Analytics: React.FC = () => {
               { icon: Trophy, title: 'Performance Metrics', desc: 'Compare your efficiency month-over-month' },
               { icon: Lightbulb, title: 'Smart Recommendations', desc: 'Get personalized suggestions for improvement' },
               { icon: Activity, title: 'Real-time Dashboards', desc: 'Interactive charts and visualizations' }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + index * 0.1 }}
-                className="bg-white/80 dark:bg-black/40 p-6 rounded-xl border border-purple-200 dark:border-purple-700"
-              >
-                <feature.icon className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-3" />
-                <h3 className="font-semibold text-sm mb-2">{feature.title}</h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">{feature.desc}</p>
-              </motion.div>
-            ))}
+            ].map((feature, index) => {
+              const FeatureIcon = feature.icon
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + index * 0.1 }}
+                  className="bg-white/80 dark:bg-black/40 p-6 rounded-xl border border-purple-200 dark:border-purple-700"
+                >
+                  <FeatureIcon className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-3" />
+                  <h3 className="font-semibold text-sm mb-2">{feature.title}</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">{feature.desc}</p>
+                </motion.div>
+              )
+            })}
           </div>
           
           <button 
@@ -463,7 +466,7 @@ export const Analytics: React.FC = () => {
               
               <div className="space-y-4">
                 {popularFeatures.map((feature) => {
-                  const Icon = FEATURE_ICONS[feature.feature as keyof typeof FEATURE_ICONS]
+                  const Icon = FEATURE_ICONS[feature.feature as keyof typeof FEATURE_ICONS] || FileText
                   const growth = formatGrowth(feature.growth)
                   const GrowthIcon = growth.icon
                   
@@ -515,7 +518,7 @@ export const Analytics: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {timeSavedMetrics && Object.entries(timeSavedMetrics.breakdown).map(([type, data]) => {
                 const feature = popularFeatures.find(f => f.feature === type)
-                const Icon = FEATURE_ICONS[type as keyof typeof FEATURE_ICONS]
+                const Icon = FEATURE_ICONS[type as keyof typeof FEATURE_ICONS] || FileText
                 
                 return (
                   <div key={type} className="text-center">

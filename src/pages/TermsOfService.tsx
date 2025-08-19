@@ -64,12 +64,32 @@ export const TermsOfService: React.FC = () => {
                 <li>Subscription fees are billed monthly or annually in advance</li>
                 <li>All fees are non-refundable except as stated in our Refund Policy</li>
                 <li>We reserve the right to change our pricing with 30 days notice</li>
-                <li>Your subscription will automatically renew unless cancelled</li>
+                <li>Your subscription will automatically renew unless cancelled before the renewal date</li>
+                <li>Payment processing is handled securely through Paddle, our trusted payment processor</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="heading-2">5. Acceptable Use</h2>
+              <h2 className="heading-2">5. Subscription Cancellation</h2>
+              <p>
+                You have the right to cancel your subscription at any time through your account settings or by contacting our support team. Upon cancellation:
+              </p>
+              <ul>
+                <li>Your subscription will remain active until the end of your current billing period</li>
+                <li>You will retain access to all paid features until the end of the billing period</li>
+                <li>No partial refunds will be provided for unused portions of your billing period</li>
+                <li>Your account will automatically revert to the free plan after the billing period ends</li>
+                <li>You can reactivate your subscription at any time before the billing period ends</li>
+                <li>All your data will be preserved for 90 days after subscription cancellation</li>
+              </ul>
+              <p>
+                <strong>Immediate Cancellation:</strong> In cases of policy violations or terms of service breaches, 
+                we reserve the right to immediately terminate your subscription without refund.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="heading-2">6. Acceptable Use</h2>
               <p>You agree not to use the Service to:</p>
               <ul>
                 <li>Upload, post, or transmit any content that is illegal, harmful, or offensive</li>
@@ -82,7 +102,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">6. Privacy and Data Protection</h2>
+              <h2 className="heading-2">7. Privacy and Data Protection</h2>
               <p>
                 Your privacy is important to us. Our collection and use of personal information is governed by our Privacy Policy, 
                 which is incorporated into these Terms by reference. By using our Service, you consent to the collection, 
@@ -91,7 +111,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">7. Intellectual Property</h2>
+              <h2 className="heading-2">8. Intellectual Property</h2>
               <p>
                 The Service and its original content, features, and functionality are owned by HOA AI Assistant Kateriss and are protected by 
                 international copyright, trademark, patent, trade secret, and other intellectual property laws.
@@ -99,7 +119,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">8. Termination</h2>
+              <h2 className="heading-2">9. Termination</h2>
               <p>
                 We may terminate or suspend your account and access to the Service immediately, without prior notice, 
                 for conduct that we believe violates these Terms or is harmful to other users, us, or third parties, 
@@ -108,7 +128,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">9. Disclaimers</h2>
+              <h2 className="heading-2">10. Disclaimers</h2>
               <p>
                 THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, 
                 INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
@@ -117,7 +137,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">10. Limitation of Liability</h2>
+              <h2 className="heading-2">11. Limitation of Liability</h2>
               <p>
                 IN NO EVENT SHALL HOA AI ASSISTANT KATERISS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, 
                 INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM 
@@ -126,16 +146,31 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">11. Refund Policy</h2>
+              <h2 className="heading-2">12. Refund Policy</h2>
               <p>
-                We offer a 30-day money-back guarantee for new subscribers. If you are not satisfied with our service within 
-                the first 30 days of your subscription, you may request a full refund. Refunds are not available for renewals 
-                or after the initial 30-day period. To request a refund, please contact our support team.
+                <strong>30-Day Money-Back Guarantee:</strong> We offer a 30-day money-back guarantee for new subscribers. 
+                If you are not satisfied with our service within the first 30 days of your initial subscription, 
+                you may request a full refund.
+              </p>
+              <p>
+                <strong>Refund Limitations:</strong>
+              </p>
+              <ul>
+                <li>Refunds are only available for the initial 30 days of your first subscription period</li>
+                <li>Refunds are not available for subscription renewals or after the initial 30-day period</li>
+                <li>Subscription cancellations after 30 days do not qualify for refunds</li>
+                <li>Partial refunds are not provided for unused portions of billing periods</li>
+                <li>Refunds for violations of our terms of service are at our sole discretion</li>
+              </ul>
+              <p>
+                <strong>Requesting a Refund:</strong> To request a refund within the eligible period, 
+                please contact our support team at support@kateriss.space with your account details and reason for the refund request.
+                Refunds will be processed within 5-10 business days to your original payment method.
               </p>
             </section>
 
             <section>
-              <h2 className="heading-2">12. Governing Law</h2>
+              <h2 className="heading-2">13. Governing Law</h2>
               <p>
                 These Terms shall be interpreted and governed by the laws of the State of Delaware, United States, 
                 without regard to its conflict of law provisions.
@@ -143,7 +178,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">13. Changes to Terms</h2>
+              <h2 className="heading-2">14. Changes to Terms</h2>
               <p>
                 We reserve the right to modify these Terms at any time. We will notify users of any material changes 
                 via email or through our Service. Your continued use of the Service after such modifications constitutes 
@@ -152,7 +187,7 @@ export const TermsOfService: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="heading-2">14. Contact Information</h2>
+              <h2 className="heading-2">15. Contact Information</h2>
               <p>
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
