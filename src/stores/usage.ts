@@ -4,13 +4,31 @@ import { persist } from 'zustand/middleware'
 // Usage limits by plan tier
 export const PLAN_LIMITS = {
   free: {
+    videos: 2,
     violation_letters: 5,
     complaint_responses: 10,
     meeting_summaries: 2,
     reports: 1,
     hoas: 1
   },
+  basic: {
+    videos: 20,
+    violation_letters: 50,
+    complaint_responses: 200,
+    meeting_summaries: 10,
+    reports: 5,
+    hoas: 3
+  },
+  premium: {
+    videos: 999999,
+    violation_letters: 999999,
+    complaint_responses: 999999,
+    meeting_summaries: 999999,
+    reports: 999999,
+    hoas: 999999
+  },
   pro: {
+    videos: 50,
     violation_letters: 50,
     complaint_responses: 200,
     meeting_summaries: 10,
@@ -18,6 +36,7 @@ export const PLAN_LIMITS = {
     hoas: 10
   },
   agency: {
+    videos: 999999,
     violation_letters: 999999,
     complaint_responses: 999999,
     meeting_summaries: 999999,
@@ -25,6 +44,7 @@ export const PLAN_LIMITS = {
     hoas: 999999
   },
   enterprise: {
+    videos: 999999,
     violation_letters: 999999,
     complaint_responses: 999999,
     meeting_summaries: 999999,
@@ -45,6 +65,7 @@ const getMonthKey = () => {
 interface UsageState {
   // Current month usage
   usage: {
+    videos: number
     violation_letters: number
     complaint_responses: number
     meeting_summaries: number
@@ -67,6 +88,7 @@ export const useUsageStore = create<UsageState>()(
   persist(
     (set, get) => ({
       usage: {
+        videos: 0,
         violation_letters: 0,
         complaint_responses: 0,
         meeting_summaries: 0,
@@ -82,6 +104,7 @@ export const useUsageStore = create<UsageState>()(
         if (state.monthKey !== currentMonthKey) {
           set({
             usage: {
+              videos: 0,
               violation_letters: 0,
               complaint_responses: 0,
               meeting_summaries: 0,

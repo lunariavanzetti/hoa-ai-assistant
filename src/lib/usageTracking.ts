@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 export interface UserActivity {
   id: string
   user_id: string
-  activity_type: 'violation_letter' | 'complaint_response' | 'meeting_minutes' | 'monthly_report'
+  activity_type: 'video_generated' | 'video_downloaded' | 'prompt_enhanced' | 'video_watched'
   title: string
   content: string
   metadata?: Record<string, any>
@@ -12,10 +12,11 @@ export interface UserActivity {
 }
 
 export interface UsageStats {
-  violation_letters: number
-  complaint_responses: number
-  meeting_minutes: number
-  monthly_reports: number
+  videos_this_month: number
+  total_watch_time: number
+  video_downloads: number
+  ai_enhancements: number
+  credits_remaining: number
   total_activities: number
   current_month_activities: number
 }
@@ -78,34 +79,42 @@ class UsageTrackingService {
       const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
 
       const stats: UsageStats = {
-        violation_letters: 0,
-        complaint_responses: 0,
-        meeting_minutes: 0,
-        monthly_reports: 0,
+        videos_this_month: 0,
+        total_watch_time: 0,
+        video_downloads: 0,
+        ai_enhancements: 0,
+        credits_remaining: 100, // Default credits
         total_activities: data.length,
         current_month_activities: 0
       }
 
       data.forEach(activity => {
+        const activityDate = new Date(activity.created_at)
+        const isCurrentMonth = activityDate >= startOfMonth
+
         // Count by type
         switch (activity.activity_type) {
-          case 'violation_letter':
-            stats.violation_letters++
+          case 'video_generated':
+            if (isCurrentMonth) {
+              stats.videos_this_month++
+            }
             break
-          case 'complaint_response':
-            stats.complaint_responses++
+          case 'video_downloaded':
+            stats.video_downloads++
             break
-          case 'meeting_minutes':
-            stats.meeting_minutes++
+          case 'prompt_enhanced':
+            stats.ai_enhancements++
             break
-          case 'monthly_report':
-            stats.monthly_reports++
+          case 'video_watched':
+            // Add watch time from metadata if available
+            if (activity.metadata?.watchTime) {
+              stats.total_watch_time += activity.metadata.watchTime
+            }
             break
         }
 
         // Count current month activities
-        const activityDate = new Date(activity.created_at)
-        if (activityDate >= startOfMonth) {
+        if (isCurrentMonth) {
           stats.current_month_activities++
         }
       })
@@ -184,10 +193,11 @@ class UsageTrackingService {
 
   private getEmptyStats(): UsageStats {
     return {
-      violation_letters: 0,
-      complaint_responses: 0,
-      meeting_minutes: 0,
-      monthly_reports: 0,
+      videos_this_month: 0,
+      total_watch_time: 0,
+      video_downloads: 0,
+      ai_enhancements: 0,
+      credits_remaining: 100,
       total_activities: 0,
       current_month_activities: 0
     }

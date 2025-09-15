@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { 
-  AlertTriangle, 
-  MessageCircle, 
-  FileText, 
+import {
+  Video,
+  Play,
+  Download,
   TrendingUp,
-  Clock,
   Users,
-  Calendar,
+  Sparkles,
   Lock
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
@@ -89,20 +88,20 @@ export const Dashboard: React.FC = () => {
     navigate('/history')
   }
 
-  const handleCreateViolation = () => {
-    navigate('/violations')
+  const handleCreateVideo = () => {
+    navigate('/generate')
   }
 
-  const handleComplaint = () => {
-    navigate('/complaint-reply')
+  const handleViewTemplates = () => {
+    navigate('/templates')
   }
 
-  const handleMeeting = () => {
-    navigate('/meetings')
+  const handleVideoHistory = () => {
+    navigate('/videos')
   }
 
-  const handleReport = () => {
-    navigate('/reports')
+  const handleAnalytics = () => {
+    navigate('/analytics')
   }
 
   const handleUpgrade = () => {
@@ -115,36 +114,36 @@ export const Dashboard: React.FC = () => {
     
     return [
       {
-        name: 'AI Letters Generated',
-        value: usageStats.violation_letters.toString(),
-        change: isPro ? `${usageStats.violation_letters} total created` : 'Upgrade to track usage',
+        name: 'Videos Generated',
+        value: usageStats.videos_this_month?.toString() || '0',
+        change: isPro ? `${usageStats.videos_this_month || 0} this month` : 'Upgrade to track usage',
         changeType: isPro ? 'neutral' : 'upgrade',
-        icon: AlertTriangle,
-        color: 'text-red-400'
+        icon: Video,
+        color: 'text-purple-400'
       },
       {
-        name: 'Complaint Responses',
-        value: usageStats.complaint_responses.toString(),
-        change: isPro ? `${usageStats.complaint_responses} total created` : 'Upgrade to track usage',
+        name: 'Total Watch Time',
+        value: `${Math.round((usageStats.total_watch_time || 0) / 60)}m`,
+        change: isPro ? 'Total across all videos' : 'Premium feature',
         changeType: isPro ? 'neutral' : 'upgrade',
-        icon: MessageCircle,
+        icon: Play,
         color: 'text-blue-400'
       },
       {
-        name: 'Meeting Minutes',
-        value: usageStats.meeting_minutes.toString(),
-        change: isPro ? `${usageStats.meeting_minutes} total created` : 'Upgrade to track usage',
+        name: 'Video Downloads',
+        value: usageStats.video_downloads?.toString() || '0',
+        change: isPro ? `${usageStats.video_downloads || 0} total downloads` : 'Premium feature',
         changeType: isPro ? 'neutral' : 'upgrade',
-        icon: FileText,
+        icon: Download,
         color: 'text-green-400'
       },
       {
-        name: 'Monthly Reports',
-        value: usageStats.monthly_reports.toString(),
-        change: isPro ? `${usageStats.monthly_reports} total created` : 'Upgrade to track usage',
+        name: 'AI Enhancements',
+        value: usageStats.ai_enhancements?.toString() || '0',
+        change: isPro ? 'Prompts enhanced with AI' : 'Premium feature',
         changeType: isPro ? 'neutral' : 'upgrade',
-        icon: Clock,
-        color: 'text-purple-400'
+        icon: Sparkles,
+        color: 'text-yellow-400'
       }
     ]
   }
@@ -157,9 +156,9 @@ export const Dashboard: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="glass-card p-4 sm:p-6 lg:p-8"
       >
-        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">Welcome back! 👋</h1>
+        <h1 className="heading-2 text-xl sm:text-2xl lg:text-3xl mb-2">Welcome back! 🎬</h1>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          Welcome to your AI-powered HOA management dashboard. Start automating your community management tasks.
+          Welcome to your AI-powered video creation dashboard. Transform your ideas into stunning videos in minutes.
         </p>
       </motion.div>
 
@@ -253,13 +252,13 @@ export const Dashboard: React.FC = () => {
               </div>
             ) : recentActivity.length > 0 ? (
               recentActivity.map((activity) => {
-                const activityIcon = activity.activity_type === 'violation_letter' ? AlertTriangle :
-                                   activity.activity_type === 'complaint_response' ? MessageCircle :
-                                   activity.activity_type === 'meeting_minutes' ? Calendar : FileText
-                
-                const activityColor = activity.activity_type === 'violation_letter' ? 'text-red-400' :
-                                    activity.activity_type === 'complaint_response' ? 'text-blue-400' :
-                                    activity.activity_type === 'meeting_minutes' ? 'text-green-400' : 'text-purple-400'
+                const activityIcon = activity.activity_type === 'video_generated' ? Video :
+                                   activity.activity_type === 'video_downloaded' ? Download :
+                                   activity.activity_type === 'prompt_enhanced' ? Sparkles : Play
+
+                const activityColor = activity.activity_type === 'video_generated' ? 'text-purple-400' :
+                                    activity.activity_type === 'video_downloaded' ? 'text-green-400' :
+                                    activity.activity_type === 'prompt_enhanced' ? 'text-yellow-400' : 'text-blue-400'
                 
                 return (
                   <div key={activity.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl glass-surface">
@@ -280,9 +279,9 @@ export const Dashboard: React.FC = () => {
               })
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="text-sm">No recent activity yet</p>
-                <p className="text-xs mt-1">Start by creating your first AI letter or complaint response</p>
+                <Video className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-sm">No videos created yet</p>
+                <p className="text-xs mt-1">Start by generating your first AI video</p>
               </div>
             )}
           </div>
@@ -298,24 +297,24 @@ export const Dashboard: React.FC = () => {
           <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Quick Actions</h2>
           
           <div className="space-y-3">
-            <button onClick={handleCreateViolation} className="w-full btn-primary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              Create Violation Letter
+            <button onClick={handleCreateVideo} className="w-full btn-primary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <Video className="w-4 h-4 flex-shrink-0" />
+              Generate AI Video
             </button>
-            
-            <button onClick={handleComplaint} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
-              <MessageCircle className="w-4 h-4 flex-shrink-0" />
-              Handle Complaint
+
+            <button onClick={handleViewTemplates} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <Sparkles className="w-4 h-4 flex-shrink-0" />
+              Browse Templates
             </button>
-            
-            <button onClick={handleMeeting} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
-              <Calendar className="w-4 h-4 flex-shrink-0" />
-              Upload Meeting Recording
+
+            <button onClick={handleVideoHistory} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <Play className="w-4 h-4 flex-shrink-0" />
+              My Videos
             </button>
-            
-            <button onClick={handleReport} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
-              <FileText className="w-4 h-4 flex-shrink-0" />
-              Generate Monthly Report
+
+            <button onClick={handleAnalytics} className="w-full btn-secondary text-left flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+              <TrendingUp className="w-4 h-4 flex-shrink-0" />
+              View Analytics
             </button>
           </div>
 
@@ -329,21 +328,21 @@ export const Dashboard: React.FC = () => {
             <div className="space-y-3">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>AI Letters</span>
-                  <span>0/∞</span>
+                  <span>Videos This Month</span>
+                  <span>{usageStats?.videos_this_month || 0}/∞</span>
                 </div>
                 <div className="progress-liquid">
-                  <div className="progress-fill" style={{ width: '0%' }}></div>
+                  <div className="progress-fill" style={{ width: `${Math.min((usageStats?.videos_this_month || 0) * 10, 100)}%` }}></div>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Complaint Responses</span>
-                  <span>0/∞</span>
+                  <span>Video Credits</span>
+                  <span>{usageStats?.credits_remaining || 0}</span>
                 </div>
                 <div className="progress-liquid">
-                  <div className="progress-fill" style={{ width: '0%' }}></div>
+                  <div className="progress-fill" style={{ width: `${Math.min((usageStats?.credits_remaining || 0) * 5, 100)}%` }}></div>
                 </div>
               </div>
             </div>
@@ -365,23 +364,23 @@ export const Dashboard: React.FC = () => {
         <h2 className="text-lg sm:text-xl font-bold mb-4">AI Insights</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <div className="glass-surface p-3 sm:p-4 rounded-xl">
-            <h3 className="text-sm sm:text-base font-semibold mb-2">Trend Alert</h3>
+            <h3 className="text-sm sm:text-base font-semibold mb-2">🎯 Popular Style</h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-              Parking violations have increased 40% this month. Consider sending a community reminder.
+              Professional style videos are trending 40% higher. Try this style for business content.
             </p>
           </div>
-          
+
           <div className="glass-surface p-3 sm:p-4 rounded-xl">
-            <h3 className="text-sm sm:text-base font-semibold mb-2">Efficiency Tip</h3>
+            <h3 className="text-sm sm:text-base font-semibold mb-2">⚡ Generation Tip</h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-              Your response time improved by 60%. Residents appreciate the quick AI-powered responses.
+              Your videos generate 60% faster with detailed prompts. Be specific for best results.
             </p>
           </div>
-          
+
           <div className="glass-surface p-3 sm:p-4 rounded-xl">
-            <h3 className="text-sm sm:text-base font-semibold mb-2">Recommendation</h3>
+            <h3 className="text-sm sm:text-base font-semibold mb-2">💡 Recommendation</h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-              Consider scheduling a community meeting about landscaping guidelines based on recent violations.
+              Try the new 4K quality option for premium, professional-grade video content.
             </p>
           </div>
         </div>

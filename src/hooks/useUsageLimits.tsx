@@ -20,12 +20,16 @@ interface UseUsageLimitsReturn {
 }
 
 const FEATURE_CONFIG = {
+  videos: {
+    title: "Generate More Videos",
+    description: "Create unlimited professional AI videos with 4K quality and premium templates."
+  },
   violation_letters: {
     title: "Generate More Violation Letters",
     description: "Create unlimited professional violation letters with advanced AI templates and customization options."
   },
   complaint_responses: {
-    title: "Unlimited Complaint Responses", 
+    title: "Unlimited Complaint Responses",
     description: "Handle all resident complaints with AI-powered responses and professional templates."
   },
   meeting_summaries: {

@@ -1,18 +1,12 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  AlertTriangle, 
-  MessageCircle, 
-  Mic, 
-  FileText, 
-  Shield,
-  UserCheck,
+import {
+  LayoutDashboard,
+  Video,
+  Play,
+  Sparkles,
   DollarSign,
   Settings,
-  Building2,
-  History as HistoryIcon,
-  BarChart3,
   X
 } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -32,14 +26,9 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Violations', href: '/violations', icon: AlertTriangle },
-  { name: 'Complaint Reply', href: '/complaint-reply', icon: MessageCircle },
-  { name: 'Meetings', href: '/meetings', icon: Mic },
-  { name: 'Reports', href: '/reports', icon: FileText },
-  { name: 'History', href: '/history', icon: HistoryIcon, proOnly: true },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3, proOnly: true },
-  { name: 'Data Monitor', href: '/data-monitor', icon: Shield },
-  { name: 'Onboarding', href: '/onboarding', icon: UserCheck },
+  { name: 'Generate Video', href: '/generate', icon: Video },
+  { name: 'Templates', href: '/templates', icon: Sparkles },
+  { name: 'My Videos', href: '/videos', icon: Play },
   { name: 'Pricing', href: '/pricing', icon: DollarSign },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
@@ -64,12 +53,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       <div className="p-4 sm:p-6 border-b border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <Video className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-gradient">Kateriss</h1>
-              <p className="text-xs text-gray-500">HOA AI Assistant</p>
+              <p className="text-xs text-gray-500">AI Video Generator</p>
             </div>
           </div>
           {/* Mobile close button */}

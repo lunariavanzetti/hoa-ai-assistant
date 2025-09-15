@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search videos, templates..."
               className="input-liquid pl-10 py-2 text-sm w-full"
             />
           </div>

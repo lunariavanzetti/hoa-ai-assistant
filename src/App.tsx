@@ -4,10 +4,10 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import { Layout } from '@/components/layout/Layout'
 import { Dashboard } from '@/pages/Dashboard'
-import { ViolationGenerator } from '@/pages/ViolationGenerator'
-import { ComplaintReply } from '@/pages/ComplaintReply'
-import { MeetingSummary } from '@/pages/MeetingSummary'
-import { Reports } from '@/pages/Reports'
+import { VideoGenerator } from '@/pages/VideoGenerator'
+import { VideoTemplates } from '@/pages/VideoTemplates'
+import { VideoHistory } from '@/pages/VideoHistory'
+// import { Analytics as VideoAnalytics } from '@/pages/Analytics'
 import { DataMonitor } from '@/pages/DataMonitor'
 import { OnboardingDesigner } from '@/pages/OnboardingDesigner'
 import { Pricing } from '@/pages/Pricing'
@@ -18,7 +18,7 @@ import { PrivacyPolicy } from '@/pages/PrivacyPolicy'
 import { RefundPolicy } from '@/pages/RefundPolicy'
 import { Templates } from '@/pages/Templates'
 import { History } from '@/pages/History'
-import { Analytics as AnalyticsPage } from '@/pages/Analytics'
+// import { Analytics as AnalyticsPage } from '@/pages/Analytics'
 import { Landing } from '@/pages/Landing'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
@@ -51,12 +51,11 @@ function App() {
               ) : (
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Dashboard />} />
-                  <Route path="violations" element={<ViolationGenerator />} />
-                  <Route path="complaint-reply" element={<ComplaintReply />} />
-                  <Route path="meetings" element={<MeetingSummary />} />
-                  <Route path="reports" element={<Reports />} />
+                  <Route path="generate" element={<VideoGenerator />} />
+                  <Route path="templates" element={<VideoTemplates />} />
+                  <Route path="videos" element={<VideoHistory />} />
+                  <Route path="analytics" element={<div>Analytics Coming Soon</div>} />
                   <Route path="history" element={<History />} />
-                  <Route path="analytics" element={<AnalyticsPage />} />
                   <Route path="data-monitor" element={<DataMonitor />} />
                   <Route path="onboarding" element={<OnboardingDesigner />} />
                   <Route path="pricing" element={<Pricing />} />
