@@ -1,26 +1,25 @@
 import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Zap, Shield, Clock, Star, Check } from 'lucide-react'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { ArrowRight, Play, Video } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { paddleClient } from '@/lib/paddleClient'
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate()
   const { signInWithProvider } = useAuthStore()
 
-  // Initialize Paddle.js for Retain payment recovery
+  // Initialize Paddle.js
   useEffect(() => {
     const initializePaddle = async () => {
       try {
         await paddleClient.initialize()
-        console.log('✅ Paddle.js initialized on homepage for Retain')
+        console.log('✅ Paddle.js initialized')
       } catch (error) {
-        console.error('❌ Failed to initialize Paddle.js on homepage:', error)
+        console.error('❌ Failed to initialize Paddle.js:', error)
       }
     }
-    
+
     initializePaddle()
   }, [])
 
@@ -28,358 +27,192 @@ export const Landing: React.FC = () => {
     navigate('/auth')
   }
 
-  const handleSignIn = async (provider: 'google' | 'apple') => {
+  const handleSignIn = async () => {
     try {
-      await signInWithProvider(provider)
+      await signInWithProvider('google')
     } catch (error) {
       console.error('Sign in error:', error)
     }
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Particle Background */}
-      <div className="particle-bg">
-        {[...Array(50)].map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${8 + Math.random() * 4}s`
-            }}
-          />
-        ))}
+    <div className="min-h-screen relative overflow-hidden bg-black">
+      {/* Background Video Container */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover opacity-40"
+          poster="/video-poster.jpg"
+        >
+          <source src="/background-video.mp4" type="video/mp4" />
+          {/* Fallback gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black"></div>
+        </video>
+
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/60"></div>
+
+        {/* Animated particles overlay */}
+        <div className="absolute inset-0">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-purple-400 rounded-full opacity-70 animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${3 + Math.random() * 4}s`
+              }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="relative z-10 nav-liquid">
-        <div className="flex items-center justify-between">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Simple Header */}
+        <header className="p-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between max-w-7xl mx-auto"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">K</span>
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                <Video className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-white">Kateriss</span>
             </div>
-            <span className="text-xl font-bold text-gradient">Kateriss</span>
-          </motion.div>
-          
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <button 
-              onClick={handleGetStarted}
-              className="btn-secondary"
+
+            {/* Simple Sign In */}
+            <button
+              onClick={handleSignIn}
+              className="px-6 py-2 text-white/80 hover:text-white transition-colors"
             >
-              Sign In
+              Sign in
             </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative z-10 px-6 py-20">
-        <div className="max-w-6xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="heading-display mb-8">
-              HOA Management
-              <br />
-              <span className="text-gradient">Powered by AI</span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Save 10+ hours per week with AI-powered violation letters, complaint responses, 
-              meeting summaries, and monthly reports. The future of HOA management is here.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <motion.button
-                onClick={handleGetStarted}
-                className="btn-primary text-lg px-8 py-4"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Start Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </motion.button>
-              
-              <motion.button
-                onClick={() => handleSignIn('google')}
-                className="btn-secondary text-lg px-8 py-4"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Continue with Google
-              </motion.button>
-            </div>
           </motion.div>
+        </header>
 
-          {/* Feature Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="grid md:grid-cols-3 gap-8 mb-20"
-          >
-            <div className="glass-card magnetic-hover p-8">
-              <Zap className="w-12 h-12 text-yellow-400 mb-4 mx-auto" />
-              <h3 className="text-xl font-bold mb-3">AI Violation Letters</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Generate professional violation notices in seconds with AI that understands HOA regulations.
-              </p>
-            </div>
-
-            <div className="glass-card magnetic-hover p-8">
-              <Shield className="w-12 h-12 text-green-400 mb-4 mx-auto" />
-              <h3 className="text-xl font-bold mb-3">Smart Complaint Handling</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                AI-powered responses to resident complaints that maintain professionalism and community harmony.
-              </p>
-            </div>
-
-            <div className="glass-card magnetic-hover p-8">
-              <Clock className="w-12 h-12 text-blue-400 mb-4 mx-auto" />
-              <h3 className="text-xl font-bold mb-3">Automated Reports</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Monthly performance reports generated automatically from your HOA's activity data.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="relative z-10 px-6 py-20">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-center mb-16"
-          >
-            <h2 className="heading-2 mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Choose the plan that fits your HOA management needs
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Free Plan */}
-            <div className="glass-card p-8">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-2">Free</h3>
-                <div className="text-4xl font-bold text-gradient mb-4">$0</div>
-                <p className="text-gray-600 dark:text-gray-300">Perfect for small HOAs</p>
-              </div>
-              
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>1 HOA Property</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>10 AI Letters/month</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Basic complaint handling</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Monthly reports</span>
-                </li>
-              </ul>
-              
-              <button 
-                onClick={handleGetStarted}
-                className="btn-secondary w-full"
-              >
-                Get Started
-              </button>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="glass-card p-8 relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  Most Popular
+        {/* Hero Section - Centered */}
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Main Headline */}
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                Create videos with
+                <br />
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  AI magic
                 </span>
-              </div>
-              
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-2">Pro</h3>
-                <div className="text-4xl font-bold text-gradient mb-4">$49</div>
-                <p className="text-gray-600 dark:text-gray-300">For growing communities</p>
-              </div>
-              
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>3 HOA Properties</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>100 AI Letters/month</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Priority AI responses</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Meeting transcriptions</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Advanced analytics</span>
-                </li>
-              </ul>
-              
-              <button 
-                onClick={handleGetStarted}
-                className="btn-primary w-full"
-              >
-                Start Pro Trial
-              </button>
-            </div>
+              </h1>
 
-            {/* Agency Plan */}
-            <div className="glass-card p-8">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-2">Agency</h3>
-                <div className="text-4xl font-bold text-gradient mb-4">$149</div>
-                <p className="text-gray-600 dark:text-gray-300">For management companies</p>
+              {/* Simple Description */}
+              <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Turn your ideas into stunning videos in minutes. No experience needed.
+              </p>
+
+              {/* Two Simple Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <motion.button
+                  onClick={handleGetStarted}
+                  className="px-8 py-4 bg-white text-black text-lg font-semibold rounded-full hover:bg-white/90 transition-all duration-200 flex items-center gap-2 min-w-[200px] justify-center"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Start creating
+                  <ArrowRight className="w-5 h-5" />
+                </motion.button>
+
+                <motion.button
+                  onClick={() => {
+                    // Scroll to demo section or play demo video
+                    document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="px-8 py-4 border border-white/30 text-white text-lg font-semibold rounded-full hover:bg-white/10 transition-all duration-200 flex items-center gap-2 min-w-[200px] justify-center backdrop-blur-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Play className="w-5 h-5" />
+                  Watch demo
+                </motion.button>
               </div>
-              
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>10+ HOA Properties</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Unlimited AI usage</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Team collaboration</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>White-label options</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-400" />
-                  <span>Priority support</span>
-                </li>
-              </ul>
-              
-              <a 
-                href="mailto:support@kateriss.space?subject=Enterprise%20Sales%20Inquiry"
-                className="btn-secondary w-full inline-block text-center"
+
+              {/* Simple Stats */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 text-white/60"
               >
-                Contact Sales
-              </a>
-            </div>
+                <p className="text-sm">
+                  Join 10,000+ creators making videos with AI
+                </p>
+              </motion.div>
+            </motion.div>
           </div>
-        </div>
-      </section>
+        </main>
 
-      {/* Social Proof */}
-      <section className="relative z-10 px-6 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-          >
-            <div className="flex items-center justify-center gap-2 mb-8">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
-              ))}
-              <span className="ml-2 text-lg font-semibold">4.9/5 from 500+ HOA managers</span>
-            </div>
-            
-            <blockquote className="text-xl italic text-gray-600 dark:text-gray-300 mb-8">
-              "Kateriss has transformed how we manage our community. What used to take hours now takes minutes. 
-              The AI-generated letters are professional and compliant, saving us countless hours every week."
-            </blockquote>
-            
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-              <div className="text-left">
-                <div className="font-semibold">Sarah Johnson</div>
-                <div className="text-gray-600 dark:text-gray-400">HOA Manager, Sunset Ridge Community</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">K</span>
+        {/* Demo Section */}
+        <section id="demo" className="pb-20">
+          <div className="max-w-6xl mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              {/* Demo Video Placeholder */}
+              <div className="relative rounded-3xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 max-w-4xl mx-auto">
+                <div className="aspect-video flex items-center justify-center">
+                  <div className="text-center">
+                    <Play className="w-16 h-16 text-white/60 mx-auto mb-4" />
+                    <p className="text-white/80">
+                      Watch how AI creates your video
+                    </p>
+                  </div>
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Kateriss
-                </span>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-md">
-                AI-powered HOA management platform helping communities save time and improve efficiency through intelligent automation.
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                © 2025 Kateriss. All rights reserved.
-              </p>
-            </div>
 
-            {/* Product */}
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link></li>
-                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link></li>
-                <li><Link to="/templates" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Free Templates</Link></li>
-                <li><Link to="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Demo</Link></li>
-                <li><a href="mailto:support@kateriss.space" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support</a></li>
-              </ul>
-            </div>
+              {/* Simple Feature List */}
+              <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">✨</span>
+                  </div>
+                  <h3 className="text-white font-semibold text-lg mb-2">Type your idea</h3>
+                  <p className="text-white/60 text-sm">Describe what you want in simple words</p>
+                </div>
 
-            {/* Legal */}
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li><Link to="/terms-of-service" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
-                <li><Link to="/privacy-policy" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
-                <li><Link to="/refund-policy" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Refund Policy</Link></li>
-              </ul>
-            </div>
-          </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🎬</span>
+                  </div>
+                  <h3 className="text-white font-semibold text-lg mb-2">AI creates</h3>
+                  <p className="text-white/60 text-sm">Watch as your video comes to life</p>
+                </div>
 
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Built for HOA managers who value efficiency and compliance.
-              </p>
-              <div className="mt-4 md:mt-0">
-                <ThemeToggle />
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🚀</span>
+                  </div>
+                  <h3 className="text-white font-semibold text-lg mb-2">Share anywhere</h3>
+                  <p className="text-white/60 text-sm">Download and share your masterpiece</p>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      </footer>
+        </section>
+      </div>
     </div>
   )
 }
