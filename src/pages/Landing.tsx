@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Play, Video } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
@@ -8,6 +8,14 @@ import { paddleClient } from '@/lib/paddleClient'
 export const Landing: React.FC = () => {
   const navigate = useNavigate()
   const { signInWithProvider } = useAuthStore()
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
+  const [videoError, setVideoError] = useState(false)
+
+  const videos = [
+    '/videos/1.mp4',
+    '/videos/2.mp4',
+    '/videos/3.mp4'
+  ]
 
   // Initialize Paddle.js
   useEffect(() => {
@@ -22,6 +30,32 @@ export const Landing: React.FC = () => {
 
     initializePaddle()
   }, [])
+
+  // Handle video cycling
+  const handleVideoEnded = () => {
+    setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videos.length)
+  }
+
+  const handleVideoError = () => {
+    console.warn(`Failed to load video: ${videos[currentVideoIndex]}`)
+    // Try next video instead of showing error immediately
+    const nextIndex = (currentVideoIndex + 1) % videos.length
+    if (nextIndex !== 0) {
+      // If we're not back to the first video, try the next one
+      setCurrentVideoIndex(nextIndex)
+    } else {
+      // If we've tried all videos, show fallback
+      setVideoError(true)
+    }
+  }
+
+  // Preload next video for smoother transitions
+  useEffect(() => {
+    const nextVideoIndex = (currentVideoIndex + 1) % videos.length
+    const nextVideo = document.createElement('video')
+    nextVideo.preload = 'metadata'
+    nextVideo.src = videos[nextVideoIndex]
+  }, [currentVideoIndex, videos])
 
   const handleGetStarted = () => {
     navigate('/auth')
@@ -39,21 +73,30 @@ export const Landing: React.FC = () => {
     <div className="min-h-screen relative overflow-hidden bg-black">
       {/* Background Video Container */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover opacity-40"
-          poster="/video-poster.jpg"
-        >
-          <source src="/background-video.mp4" type="video/mp4" />
-          {/* Fallback gradient background */}
+        {!videoError ? (
+          <video
+            key={currentVideoIndex} // Force re-render when video changes
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-cover opacity-60"
+            onEnded={handleVideoEnded}
+            onError={handleVideoError}
+            preload="metadata"
+            style={{
+              minWidth: '100%',
+              minHeight: '100%',
+            }}
+          >
+            <source src={videos[currentVideoIndex]} type="video/mp4" />
+          </video>
+        ) : (
+          // Fallback gradient background when videos fail to load
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black"></div>
-        </video>
+        )}
 
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/60"></div>
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
 
         {/* Animated particles overlay */}
         <div className="absolute inset-0">
