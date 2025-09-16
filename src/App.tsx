@@ -49,24 +49,29 @@ function App() {
                   <Route path="*" element={<Landing />} />
                 </>
               ) : (
-                <Route path="/" element={<Layout />}>
+                <>
+                  {/* Dashboard without sidebar layout */}
                   <Route index element={<Dashboard />} />
-                  <Route path="generate" element={<VideoGenerator />} />
-                  <Route path="templates" element={<VideoTemplates />} />
-                  <Route path="videos" element={<VideoHistory />} />
-                  <Route path="analytics" element={<div>Analytics Coming Soon</div>} />
-                  <Route path="history" element={<History />} />
-                  <Route path="data-monitor" element={<DataMonitor />} />
-                  <Route path="onboarding" element={<OnboardingDesigner />} />
-                  <Route path="pricing" element={<Pricing />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="paddle-test" element={<SimpleCheckout />} />
-                  <Route path="terms-of-service" element={<TermsOfService />} />
-                  <Route path="privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="refund-policy" element={<RefundPolicy />} />
-                  <Route path="templates" element={<Templates />} />
-                  <Route path="auth/callback" element={<AuthCallback />} />
-                </Route>
+
+                  {/* Other pages with sidebar layout */}
+                  <Route path="/" element={<Layout />}>
+                    <Route path="generate" element={<VideoGenerator />} />
+                    <Route path="templates" element={<VideoTemplates />} />
+                    <Route path="videos" element={<VideoHistory />} />
+                    <Route path="analytics" element={<div>Analytics Coming Soon</div>} />
+                    <Route path="history" element={<History />} />
+                    <Route path="data-monitor" element={<DataMonitor />} />
+                    <Route path="onboarding" element={<OnboardingDesigner />} />
+                    <Route path="pricing" element={<Pricing />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="paddle-test" element={<SimpleCheckout />} />
+                    <Route path="terms-of-service" element={<TermsOfService />} />
+                    <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="refund-policy" element={<RefundPolicy />} />
+                    <Route path="templates" element={<Templates />} />
+                    <Route path="auth/callback" element={<AuthCallback />} />
+                  </Route>
+                </>
               )}
             </Routes>
           </div>
