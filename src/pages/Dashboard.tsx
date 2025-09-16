@@ -4,9 +4,15 @@ import { useNavigate } from 'react-router-dom'
 import {
   Video,
   Play,
-  ArrowRight,
+  Plus,
   Sparkles,
-  Plus
+  Search,
+  Settings,
+  User,
+  HelpCircle,
+  Crown,
+  MoreHorizontal,
+  Clock
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import { paddleClient } from '@/lib/paddleClient'
@@ -15,7 +21,7 @@ import { getCurrentUserPlan } from '@/lib/analytics'
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user, signOut } = useAuthStore()
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -66,193 +72,336 @@ export const Dashboard: React.FC = () => {
     }
   }, [user])
 
-  const handleCreateVideo = () => {
+  const handleCreateProject = () => {
     navigate('/generate')
-  }
-
-  const handleViewVideos = () => {
-    navigate('/videos')
   }
 
   const handleViewTemplates = () => {
     navigate('/templates')
   }
 
+  const handleViewProjects = () => {
+    navigate('/videos')
+  }
+
   const handleUpgrade = () => {
     navigate('/pricing')
   }
 
+  const mockProjects = [
+    {
+      id: 1,
+      title: "Product Launch Video",
+      thumbnail: "/project1.jpg",
+      lastEdited: "2 hours ago",
+      duration: "45s"
+    },
+    {
+      id: 2,
+      title: "Brand Story",
+      thumbnail: "/project2.jpg",
+      lastEdited: "1 day ago",
+      duration: "1m 20s"
+    },
+    {
+      id: 3,
+      title: "Social Media Clip",
+      thumbnail: "/project3.jpg",
+      lastEdited: "3 days ago",
+      duration: "30s"
+    }
+  ]
+
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Subtle background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-black"></div>
-        {/* Subtle animated particles */}
-        {[...Array(10)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-purple-400/30 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Main Content - Centered */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-6">
-        <div className="w-full max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            {/* Welcome Header */}
-            <div className="mb-12">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                What will you
-                <br />
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  create today?
+    <div className="min-h-screen bg-white dark:bg-gray-50">
+      {/* Top Navigation */}
+      <header className="border-b border-gray-200 dark:border-gray-300 bg-white/80 dark:bg-gray-50/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Logo & Navigation */}
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center">
+                  <Video className="w-5 h-5 text-white" />
+                </div>
+                <span
+                  className="text-xl font-medium text-gray-900"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  Kateriss
                 </span>
-              </h1>
-              <p className="text-xl text-white/60 max-w-2xl mx-auto">
-                Turn your imagination into reality with AI-powered video creation
-              </p>
+              </div>
+
+              <nav className="hidden md:flex items-center gap-6">
+                <button
+                  className="text-sm font-medium text-blue-600"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  Projects
+                </button>
+                <button
+                  onClick={handleViewTemplates}
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  Templates
+                </button>
+                <button
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  Help
+                </button>
+              </nav>
             </div>
 
-            {/* Main Action */}
-            <motion.div
-              className="mb-16"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <button
-                onClick={handleCreateVideo}
-                className="group relative overflow-hidden bg-white text-black px-12 py-6 rounded-3xl text-xl font-semibold transition-all duration-300 hover:bg-white/90 flex items-center gap-4 mx-auto"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-black/10 rounded-2xl flex items-center justify-center">
-                    <Plus className="w-6 h-6" />
-                  </div>
-                  <span>Create new video</span>
-                  <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
-                </div>
+            {/* Right: Credits, Search & User Menu */}
+            <div className="flex items-center gap-4">
+              {/* Credits Counter */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-200 rounded-full">
+                <Crown className="w-4 h-4 text-amber-600" />
+                <span
+                  className="text-sm font-medium text-gray-700"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  {isPro ? `${usageStats?.credits_remaining || 0} credits` : 'Free Plan'}
+                </span>
+              </div>
+
+              {/* Search */}
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-200 rounded-lg transition-colors">
+                <Search className="w-5 h-5 text-gray-600" />
               </button>
-            </motion.div>
 
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-              {/* Templates */}
-              <motion.button
-                onClick={handleViewTemplates}
-                className="group p-8 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 text-left"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-purple-400" />
+              {/* User Menu */}
+              <div className="flex items-center gap-2">
+                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-200 rounded-lg transition-colors">
+                  <Settings className="w-5 h-5 text-gray-600" />
+                </button>
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">Templates</h3>
-                <p className="text-white/60 text-sm">Start with ready-made templates</p>
-                <ArrowRight className="w-5 h-5 text-white/40 mt-4 group-hover:text-white/80 transition-colors" />
-              </motion.button>
-
-              {/* My Videos */}
-              <motion.button
-                onClick={handleViewVideos}
-                className="group p-8 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 text-left"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-4">
-                  <Play className="w-6 h-6 text-blue-400" />
-                </div>
-                <h3 className="text-white font-semibold text-lg mb-2">My Videos</h3>
-                <p className="text-white/60 text-sm">View your created videos</p>
-                <ArrowRight className="w-5 h-5 text-white/40 mt-4 group-hover:text-white/80 transition-colors" />
-              </motion.button>
-
-              {/* Upgrade */}
-              <motion.button
-                onClick={handleUpgrade}
-                className="group p-8 rounded-3xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-300 text-left"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="w-12 h-12 bg-yellow-500/20 rounded-2xl flex items-center justify-center mb-4">
-                  <span className="text-2xl">⭐</span>
-                </div>
-                <h3 className="text-white font-semibold text-lg mb-2">Upgrade</h3>
-                <p className="text-white/60 text-sm">Unlock unlimited videos</p>
-                <ArrowRight className="w-5 h-5 text-white/40 mt-4 group-hover:text-white/80 transition-colors" />
-              </motion.button>
+              </div>
             </div>
+          </div>
+        </div>
+      </header>
 
-            {/* Simple Stats */}
-            {!loading && usageStats && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-white mb-2">
-                      {isPro ? usageStats.videos_this_month || 0 : '•••'}
-                    </div>
-                    <p className="text-white/60 text-sm">Videos this month</p>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-white mb-2">
-                      {isPro ? `${Math.round((usageStats.total_watch_time || 0) / 60)}m` : '•••'}
-                    </div>
-                    <p className="text-white/60 text-sm">Watch time</p>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-white mb-2">
-                      {isPro ? usageStats.video_downloads || 0 : '•••'}
-                    </div>
-                    <p className="text-white/60 text-sm">Downloads</p>
-                  </div>
-                </div>
-
-                {!isPro && (
-                  <div className="mt-6 text-center">
-                    <p className="text-white/60 text-sm mb-4">
-                      Upgrade to track your video creation journey
-                    </p>
-                    <button
-                      onClick={handleUpgrade}
-                      className="px-6 py-2 bg-white/10 text-white rounded-full text-sm hover:bg-white/20 transition-colors"
-                    >
-                      Unlock Analytics
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* Recent Activity Hint */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="mt-12 text-center"
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Hero Section */}
+        <div className="mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
+            <h1
+              className="text-3xl md:text-4xl font-normal text-gray-900 mb-4"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
             >
-              <p className="text-white/40 text-sm">
-                Your videos will appear here once you start creating
-              </p>
-            </motion.div>
+              What will you create today?
+            </h1>
+            <p
+              className="text-lg text-gray-600 max-w-2xl mx-auto"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Start a new video project or continue working on your existing ones
+            </p>
+          </motion.div>
+
+          {/* New Project CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex justify-center mb-8"
+          >
+            <button
+              onClick={handleCreateProject}
+              className="flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <Plus className="w-5 h-5" />
+              <span
+                className="text-lg font-medium"
+                style={{ fontFamily: 'Google Sans, sans-serif' }}
+              >
+                New project
+              </span>
+            </button>
+          </motion.div>
+
+          {/* Quick Start Options */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center justify-center gap-4 text-sm text-gray-600"
+          >
+            <button
+              onClick={handleCreateProject}
+              className="hover:text-blue-600 transition-colors"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Start from prompt
+            </button>
+            <span>•</span>
+            <button
+              onClick={handleViewTemplates}
+              className="hover:text-blue-600 transition-colors"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Use template
+            </button>
+            <span>•</span>
+            <button
+              className="hover:text-blue-600 transition-colors"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Browse examples
+            </button>
           </motion.div>
         </div>
-      </div>
+
+        {/* Recent Projects */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-12"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2
+              className="text-xl font-medium text-gray-900"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Recent projects
+            </h2>
+            <button
+              onClick={handleViewProjects}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              View all
+            </button>
+          </div>
+
+          {mockProjects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="group relative bg-white dark:bg-gray-50 border border-gray-200 dark:border-gray-300 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer"
+                >
+                  {/* Thumbnail */}
+                  <div className="aspect-video bg-gray-100 dark:bg-gray-200 flex items-center justify-center">
+                    <Play className="w-8 h-8 text-gray-400" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3
+                        className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors"
+                        style={{ fontFamily: 'Google Sans, sans-serif' }}
+                      >
+                        {project.title}
+                      </h3>
+                      <button className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-200 rounded transition-all">
+                        <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span style={{ fontFamily: 'Google Sans, sans-serif' }}>
+                          {project.lastEdited}
+                        </span>
+                      </div>
+                      <span style={{ fontFamily: 'Google Sans, sans-serif' }}>
+                        {project.duration}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 dark:bg-gray-100 rounded-xl">
+              <Video className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3
+                className="text-lg font-medium text-gray-900 mb-2"
+                style={{ fontFamily: 'Google Sans, sans-serif' }}
+              >
+                No projects yet
+              </h3>
+              <p
+                className="text-gray-600 mb-6"
+                style={{ fontFamily: 'Google Sans, sans-serif' }}
+              >
+                Create your first AI video to get started
+              </p>
+              <button
+                onClick={handleCreateProject}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                style={{ fontFamily: 'Google Sans, sans-serif' }}
+              >
+                Create project
+              </button>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Templates Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2
+              className="text-xl font-medium text-gray-900"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Templates
+            </h2>
+            <button
+              onClick={handleViewTemplates}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            >
+              Browse all
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {['Product Demo', 'Social Media', 'Brand Story', 'Tutorial'].map((template, index) => (
+              <button
+                key={template}
+                onClick={handleViewTemplates}
+                className="group bg-white dark:bg-gray-50 border border-gray-200 dark:border-gray-300 rounded-xl p-6 hover:shadow-lg transition-all duration-200 text-left"
+              >
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-200 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-300 transition-colors">
+                  <Sparkles className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3
+                  className="font-medium text-gray-900 mb-2"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  {template}
+                </h3>
+                <p
+                  className="text-sm text-gray-600"
+                  style={{ fontFamily: 'Google Sans, sans-serif' }}
+                >
+                  Professional template ready to customize
+                </p>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      </main>
     </div>
   )
 }
