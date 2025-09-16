@@ -12,9 +12,9 @@ export const Landing: React.FC = () => {
   const [videoError, setVideoError] = useState(false)
 
   const videos = [
-    '/videos/1.mp4',
-    '/videos/2.mp4',
-    '/videos/3.mp4'
+    '/videos/1.mov',
+    '/videos/2.mov',
+    '/videos/3.mov'
   ]
 
   // Initialize Paddle.js
@@ -88,6 +88,7 @@ export const Landing: React.FC = () => {
               minHeight: '100%',
             }}
           >
+            <source src={videos[currentVideoIndex]} type="video/quicktime" />
             <source src={videos[currentVideoIndex]} type="video/mp4" />
           </video>
         ) : (
