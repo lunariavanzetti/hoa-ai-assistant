@@ -1,482 +1,408 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Sparkles, Video, Download, Eye } from 'lucide-react'
-import { geminiVideoService, type VideoProject, type PromptEnhancementResult } from '@/lib/geminiClient'
-import { useToast } from '@/components/ui/Toaster'
-import { useUsageLimits } from '@/hooks/useUsageLimits'
-import { UsageDisplay } from '@/components/ui/UsageDisplay'
-import { usageTrackingService } from '@/lib/usageTracking'
+import { useNavigate } from 'react-router-dom'
+import {
+  ArrowLeft,
+  Play,
+  Pause,
+  Maximize,
+  Settings,
+  RotateCcw,
+  RotateCw,
+  Crown,
+  User,
+  Search,
+  Plus,
+  Wand2,
+  Upload,
+  Image,
+  Video,
+  Save,
+  Share,
+  Download,
+  Layers,
+  Clock,
+  Camera,
+  Palette,
+  Sliders
+} from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 
 export const VideoGenerator: React.FC = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    prompt: '',
-    style: 'professional',
-    quality: 'hd' as 'hd' | '4k',
-    duration: 'auto' as 'short' | 'medium' | 'long' | 'auto',
-    template: 'modern'
-  })
-
-  const [isEnhancing, setIsEnhancing] = useState(false)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [enhancementResult, setEnhancementResult] = useState<PromptEnhancementResult | null>(null)
-  const [generatedVideo, setGeneratedVideo] = useState<VideoProject | null>(null)
-  const [error, setError] = useState('')
-  const [generationStep, setGenerationStep] = useState<'idle' | 'enhancing' | 'scripting' | 'generating' | 'completed'>('idle')
-
-  const { success, error: showError } = useToast()
-  const { checkUsageLimit, UpgradeModalComponent } = useUsageLimits()
+  const navigate = useNavigate()
   const { user } = useAuthStore()
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [prompt, setPrompt] = useState('')
+  const [duration, setDuration] = useState(10)
+  const [cameraAngle, setCameraAngle] = useState('medium-shot')
+  const [style, setStyle] = useState('cinematic')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [totalTime] = useState(45)
 
-  const videoStyles = [
-    { value: 'professional', label: 'Professional', description: 'Clean, business-oriented style' },
-    { value: 'creative', label: 'Creative', description: 'Artistic and dynamic visuals' },
-    { value: 'minimal', label: 'Minimal', description: 'Simple, elegant design' },
-    { value: 'energetic', label: 'Energetic', description: 'High-energy with dynamic transitions' },
-    { value: 'educational', label: 'Educational', description: 'Clear, instructional format' }
+  const mockScenes = [
+    {
+      id: 1,
+      title: "Opening Scene",
+      thumbnail: "/scene1.jpg",
+      duration: "5s",
+      status: "completed"
+    },
+    {
+      id: 2,
+      title: "Product Showcase",
+      thumbnail: "/scene2.jpg",
+      duration: "15s",
+      status: "completed"
+    },
+    {
+      id: 3,
+      title: "Call to Action",
+      thumbnail: "/scene3.jpg",
+      duration: "10s",
+      status: "processing"
+    }
   ]
 
-  const templates = [
-    { value: 'modern', label: 'Modern Slideshow', description: 'Clean transitions, professional look' },
-    { value: 'dynamic', label: 'Dynamic Intro', description: 'High-energy with animations' },
-    { value: 'tutorial', label: 'Tutorial Format', description: 'Educational content structure' },
-    { value: 'social', label: 'Social Media', description: 'Optimized for social platforms' },
-    { value: 'presentation', label: 'Presentation', description: 'Corporate presentation style' }
+  const mockAssets = [
+    { id: 1, name: "Logo", type: "image", thumbnail: "/logo.png" },
+    { id: 2, name: "Product", type: "image", thumbnail: "/product.jpg" },
+    { id: 3, name: "Background", type: "video", thumbnail: "/bg.mp4" },
+    { id: 4, name: "Character", type: "image", thumbnail: "/char.png" }
   ]
 
-  const durationOptions = [
-    { value: 'auto', label: 'Auto', description: 'AI determines optimal length' },
-    { value: 'short', label: '15-30s', description: 'Perfect for social media' },
-    { value: 'medium', label: '30-60s', description: 'Standard promotional video' },
-    { value: 'long', label: '60-120s', description: 'Detailed explanation video' }
-  ]
-
-  const handleEnhancePrompt = async () => {
-    if (!formData.prompt.trim()) {
-      showError('Missing Prompt', 'Please enter a video description or topic')
-      return
-    }
-
-    setIsEnhancing(true)
-    setError('')
-    setGenerationStep('enhancing')
-
-    try {
-      const result = await geminiVideoService.enhancePrompt(formData.prompt)
-      setEnhancementResult(result)
-      success('Prompt Enhanced!', 'AI has enhanced your prompt with creative suggestions')
-    } catch (error) {
-      console.error('Error enhancing prompt:', error)
-      setError(error instanceof Error ? error.message : 'Failed to enhance prompt')
-      showError('Enhancement Failed', 'Could not enhance your prompt. Please try again.')
-    } finally {
-      setIsEnhancing(false)
-      setGenerationStep('idle')
-    }
+  const handleGenerate = () => {
+    setIsGenerating(true)
+    setTimeout(() => setIsGenerating(false), 3000)
   }
 
-  const handleGenerateVideo = async () => {
-    if (!formData.title || !formData.prompt) {
-      showError('Missing Information', 'Please provide both a title and description')
-      return
-    }
-
-    // Check usage limits before proceeding
-    checkUsageLimit('videos', async () => {
-      setIsGenerating(true)
-      setError('')
-      setGenerationStep('scripting')
-
-      try {
-        // Step 1: Enhance prompt if not already enhanced
-        let finalPrompt = formData.prompt
-        if (enhancementResult) {
-          finalPrompt = enhancementResult.enhancedPrompt
-        } else {
-          const enhancement = await geminiVideoService.enhancePrompt(formData.prompt)
-          finalPrompt = enhancement.enhancedPrompt
-        }
-
-        // Step 2: Generate script
-        setGenerationStep('scripting')
-        const script = await geminiVideoService.generateScript(finalPrompt)
-
-        // Step 3: Generate video
-        setGenerationStep('generating')
-        const videoProject: Omit<VideoProject, 'id' | 'createdAt'> = {
-          title: formData.title,
-          originalPrompt: formData.prompt,
-          enhancedPrompt: finalPrompt,
-          videoScript: script,
-          status: 'processing',
-          quality: formData.quality
-        }
-
-        const result = await geminiVideoService.generateVideo(videoProject)
-
-        if (result.success && result.videoProject) {
-          setGeneratedVideo(result.videoProject)
-          setGenerationStep('completed')
-
-          // Track usage
-          if (user?.id) {
-            await usageTrackingService.trackActivity(
-              user.id,
-              'video_generated',
-              formData.title,
-              `Generated video: ${formData.title}`,
-              {
-                quality: formData.quality,
-                template: formData.template,
-                duration: result.videoProject.duration || 0
-              }
-            )
-          }
-
-          success('Video Generated!', 'Your AI video has been created successfully')
-        } else {
-          throw new Error(result.error || 'Video generation failed')
-        }
-
-      } catch (error) {
-        console.error('Error generating video:', error)
-        setError(error instanceof Error ? error.message : 'Failed to generate video')
-        showError('Generation Failed', 'Could not generate your video. Please try again.')
-        setGenerationStep('idle')
-      } finally {
-        setIsGenerating(false)
-      }
-    })
-  }
-
-  const getStepProgress = () => {
-    switch (generationStep) {
-      case 'enhancing': return 20
-      case 'scripting': return 40
-      case 'generating': return 80
-      case 'completed': return 100
-      default: return 0
-    }
-  }
-
-  const getStepText = () => {
-    switch (generationStep) {
-      case 'enhancing': return 'Enhancing your prompt with AI...'
-      case 'scripting': return 'Creating video script...'
-      case 'generating': return 'Generating video with VEO 3 FAST...'
-      case 'completed': return 'Video generation completed!'
-      default: return ''
-    }
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-6 lg:p-8"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-xl glass-surface">
-            <Video className="w-6 h-6 text-purple-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">AI Video Generator</h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Transform your ideas into professional videos with AI
-            </p>
+    <div className="h-screen flex flex-col bg-gray-900 text-white">
+      {/* Top Navigation Bar */}
+      <header className="flex items-center justify-between h-14 px-6 bg-gray-800 border-b border-gray-700">
+        {/* Left: Project Navigation */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              defaultValue="Product Launch Video"
+              className="bg-transparent text-lg font-medium border-none outline-none focus:bg-gray-700 px-2 py-1 rounded"
+              style={{ fontFamily: 'Google Sans, sans-serif' }}
+            />
+            <span className="text-sm text-gray-400">• Saved 2 mins ago</span>
           </div>
         </div>
 
-        <UsageDisplay feature="videos" />
-      </motion.div>
+        {/* Center: Controls */}
+        <div className="flex items-center gap-3">
+          <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+            <RotateCcw className="w-4 h-4" />
+          </button>
+          <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+            <RotateCw className="w-4 h-4" />
+          </button>
+          <div className="text-sm text-gray-400">
+            <Save className="w-4 h-4 inline mr-1" />
+            Auto-saved
+          </div>
+        </div>
 
-      {/* Video Generation Form */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card p-6"
-      >
-        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-400" />
-          Create Your Video
-        </h2>
-
-        <div className="space-y-6">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Video Title *
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Enter a catchy title for your video..."
-              className="w-full p-3 rounded-xl glass-surface border border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all"
-            />
+        {/* Right: Credits & Actions */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-900/50 text-green-300 rounded-full border border-green-700">
+            <Crown className="w-4 h-4" />
+            <span className="text-sm font-medium" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+              85/100
+            </span>
           </div>
 
-          {/* Main Prompt */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Video Description *
-            </label>
-            <textarea
-              value={formData.prompt}
-              onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
-              placeholder="Describe your video idea in detail. Be creative and specific about what you want to show..."
-              rows={4}
-              className="w-full p-3 rounded-xl glass-surface border border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all resize-none"
-            />
+          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+            <Share className="w-4 h-4 inline mr-2" />
+            Export
+          </button>
 
-            <div className="flex justify-between items-center mt-2">
-              <p className="text-xs text-gray-500">
-                Be specific about visuals, mood, and style for best results
-              </p>
-              <button
-                onClick={handleEnhancePrompt}
-                disabled={isEnhancing || !formData.prompt.trim()}
-                className="btn-secondary text-xs py-1 px-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-              >
-                {isEnhancing ? (
-                  <>
-                    <div className="w-3 h-3 animate-spin rounded-full border-2 border-purple-400 border-t-transparent"></div>
-                    Enhancing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-3 h-3" />
-                    Enhance with AI
-                  </>
-                )}
+          <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
+            <Settings className="w-4 h-4" />
+          </button>
+
+          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+            <User className="w-4 h-4" />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Workspace */}
+      <div className="flex-1 flex">
+        {/* Left Sidebar - Assets & Ingredients */}
+        <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col">
+          <div className="p-4 border-b border-gray-700">
+            <h3 className="font-medium mb-4" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+              Assets & Ingredients
+            </h3>
+
+            <div className="flex gap-2 mb-4">
+              <button className="flex-1 text-sm py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                Uploaded
+              </button>
+              <button className="flex-1 text-sm py-2 px-3 hover:bg-gray-700 rounded-lg transition-colors">
+                Generated
+              </button>
+              <button className="flex-1 text-sm py-2 px-3 hover:bg-gray-700 rounded-lg transition-colors">
+                Favorites
               </button>
             </div>
+
+            <button className="w-full p-3 border-2 border-dashed border-gray-600 hover:border-gray-500 rounded-lg transition-colors text-center">
+              <Upload className="w-6 h-6 mx-auto mb-2" />
+              <span className="text-sm text-gray-300">Upload assets</span>
+            </button>
           </div>
 
-          {/* Enhanced Prompt Display */}
-          {enhancementResult && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="glass-surface p-4 rounded-xl border border-green-200 dark:border-green-800"
-            >
-              <h3 className="font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                AI Enhanced Prompt
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                {enhancementResult.enhancedPrompt}
-              </p>
-              {enhancementResult.suggestions.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Creative Suggestions:</h4>
-                  <ul className="text-xs space-y-1">
-                    {enhancementResult.suggestions.map((suggestion, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-green-400">•</span>
-                        <span className="text-gray-600 dark:text-gray-300">{suggestion}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Options Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Style Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Video Style</label>
-              <select
-                value={formData.style}
-                onChange={(e) => setFormData({ ...formData, style: e.target.value })}
-                className="w-full p-3 rounded-xl glass-surface border border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
-              >
-                {videoStyles.map((style) => (
-                  <option key={style.value} value={style.value}>
-                    {style.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                {videoStyles.find(s => s.value === formData.style)?.description}
-              </p>
-            </div>
-
-            {/* Quality Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Video Quality</label>
-              <select
-                value={formData.quality}
-                onChange={(e) => setFormData({ ...formData, quality: e.target.value as 'hd' | '4k' })}
-                className="w-full p-3 rounded-xl glass-surface border border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
-              >
-                <option value="hd">HD (1080p) - Standard</option>
-                <option value="4k">4K (2160p) - Premium Only</option>
-              </select>
-            </div>
-
-            {/* Duration Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Duration</label>
-              <select
-                value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: e.target.value as any })}
-                className="w-full p-3 rounded-xl glass-surface border border-white/10 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
-              >
-                {durationOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Template Selection */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Video Template</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {templates.map((template) => (
-                <motion.button
-                  key={template.value}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setFormData({ ...formData, template: template.value })}
-                  className={`p-3 rounded-xl text-left transition-all ${
-                    formData.template === template.value
-                      ? 'glass-surface border-2 border-purple-400 bg-purple-400/10'
-                      : 'glass-surface border border-white/10 hover:border-purple-400/50'
-                  }`}
+          <div className="flex-1 p-4 overflow-y-auto">
+            <div className="grid grid-cols-2 gap-3">
+              {mockAssets.map((asset) => (
+                <div
+                  key={asset.id}
+                  className="bg-gray-700 rounded-lg p-3 hover:bg-gray-600 transition-colors cursor-pointer"
                 >
-                  <h4 className="font-medium text-sm">{template.label}</h4>
-                  <p className="text-xs text-gray-500 mt-1">{template.description}</p>
-                </motion.button>
+                  <div className="aspect-square bg-gray-600 rounded-lg mb-2 flex items-center justify-center">
+                    {asset.type === 'image' ? (
+                      <Image className="w-6 h-6 text-gray-400" />
+                    ) : (
+                      <Video className="w-6 h-6 text-gray-400" />
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-300 truncate">{asset.name}</p>
+                </div>
               ))}
             </div>
           </div>
-
-          {/* Generation Progress */}
-          {(isGenerating || generationStep !== 'idle') && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="glass-surface p-4 rounded-xl"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-6 h-6 animate-spin rounded-full border-2 border-purple-400 border-t-transparent"></div>
-                <span className="font-medium">{getStepText()}</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${getStepProgress()}%` }}
-                  className="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full"
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Generate Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleGenerateVideo}
-            disabled={isGenerating || !formData.title || !formData.prompt}
-            className="w-full btn-primary py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-          >
-            {isGenerating ? (
-              <>
-                <div className="w-5 h-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                Generating Video...
-              </>
-            ) : (
-              <>
-                <Play className="w-5 h-5" />
-                Generate AI Video
-              </>
-            )}
-          </motion.button>
-
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
-            </div>
-          )}
         </div>
-      </motion.div>
 
-      {/* Generated Video Display */}
-      {generatedVideo && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-6"
-        >
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Video className="w-5 h-5 text-green-400" />
-            Your Generated Video
-          </h2>
-
-          <div className="space-y-4">
-            <div className="aspect-video bg-black rounded-xl overflow-hidden relative group">
-              {generatedVideo.thumbnailUrl ? (
-                <img
-                  src={generatedVideo.thumbnailUrl}
-                  alt="Video thumbnail"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white">
-                  <div className="text-center">
-                    <Video className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-semibold">{generatedVideo.title}</p>
-                    <p className="text-sm opacity-75">Video ready for preview</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <button className="btn-primary py-2 px-4 flex items-center gap-2">
-                  <Play className="w-4 h-4" />
-                  Play Video
+        {/* Center - Canvas & Controls */}
+        <div className="flex-1 flex flex-col">
+          {/* Video Canvas */}
+          <div className="flex-1 flex items-center justify-center bg-black relative">
+            <div className="relative w-full max-w-4xl aspect-video bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
+              {/* Video Preview */}
+              <div className="w-full h-full bg-gradient-to-br from-purple-900 via-blue-900 to-black flex items-center justify-center">
+                <button
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="w-16 h-16 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-8 h-8 text-white" />
+                  ) : (
+                    <Play className="w-8 h-8 text-white ml-1" />
+                  )}
                 </button>
               </div>
+
+              {/* Video Controls Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5" />
+                    )}
+                  </button>
+
+                  <div className="flex-1 flex items-center gap-3">
+                    <span className="text-sm">{formatTime(currentTime)}</span>
+                    <div className="flex-1 bg-gray-600 rounded-full h-1">
+                      <div
+                        className="bg-blue-500 h-1 rounded-full transition-all"
+                        style={{ width: `${(currentTime / totalTime) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm">{formatTime(totalTime)}</span>
+                  </div>
+
+                  <button className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                    <Maximize className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar - Prompt & Settings */}
+        <div className="w-96 bg-gray-800 border-l border-gray-700 flex flex-col">
+          <div className="p-4 border-b border-gray-700">
+            <h3 className="font-medium mb-4" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+              Scene Generation
+            </h3>
+
+            {/* Prompt Input */}
+            <div className="mb-4">
+              <label className="block text-sm text-gray-300 mb-2">Describe your scene</label>
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="A neon-lit city street with rain at night, cinematic lighting, professional videography..."
+                className="w-full h-24 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-blue-500"
+                style={{ fontFamily: 'Google Sans, sans-serif' }}
+              />
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
-                {generatedVideo.quality?.toUpperCase()} Quality
-              </span>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                {generatedVideo.duration || 45}s duration
-              </span>
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                {generatedVideo.status}
-              </span>
+            {/* Quick Controls */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Duration</label>
+                <select
+                  value={duration}
+                  onChange={(e) => setDuration(Number(e.target.value))}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                >
+                  <option value={5}>5 seconds</option>
+                  <option value={10}>10 seconds</option>
+                  <option value={15}>15 seconds</option>
+                  <option value={30}>30 seconds</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Camera</label>
+                <select
+                  value={cameraAngle}
+                  onChange={(e) => setCameraAngle(e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                >
+                  <option value="close-up">Close-up</option>
+                  <option value="medium-shot">Medium shot</option>
+                  <option value="wide-shot">Wide shot</option>
+                  <option value="drone">Drone view</option>
+                </select>
+              </div>
             </div>
 
-            <div className="flex gap-3">
-              <button className="btn-primary flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                Download Video
+            <div className="mb-4">
+              <label className="block text-xs text-gray-400 mb-1">Style Preset</label>
+              <select
+                value={style}
+                onChange={(e) => setStyle(e.target.value)}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="cinematic">Cinematic</option>
+                <option value="animation">Animation</option>
+                <option value="surreal">Surreal</option>
+                <option value="documentary">Documentary</option>
+              </select>
+            </div>
+
+            {/* Generate Button */}
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating || !prompt.trim()}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="w-4 h-4" />
+                  Generate Scene
+                </>
+              )}
+            </button>
+
+            {isGenerating && (
+              <div className="mt-3 text-center">
+                <div className="text-sm text-gray-300 mb-2">Generating your scene...</div>
+                <div className="text-xs text-gray-400">~45 seconds remaining</div>
+              </div>
+            )}
+          </div>
+
+          {/* Advanced Controls */}
+          <div className="p-4 border-b border-gray-700">
+            <h4 className="font-medium mb-3 text-sm" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+              Advanced Controls
+            </h4>
+
+            <div className="space-y-3">
+              <button className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-3">
+                <Camera className="w-4 h-4 text-gray-400" />
+                <div>
+                  <div className="text-sm font-medium">Camera Motion</div>
+                  <div className="text-xs text-gray-400">Pan, zoom, dolly effects</div>
+                </div>
               </button>
-              <button className="btn-secondary flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                Preview
+
+              <button className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-3">
+                <Palette className="w-4 h-4 text-gray-400" />
+                <div>
+                  <div className="text-sm font-medium">Color Grading</div>
+                  <div className="text-xs text-gray-400">Cinematic color presets</div>
+                </div>
+              </button>
+
+              <button className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-3">
+                <Sliders className="w-4 h-4 text-gray-400" />
+                <div>
+                  <div className="text-sm font-medium">Fine Tuning</div>
+                  <div className="text-xs text-gray-400">Lighting, composition</div>
+                </div>
               </button>
             </div>
           </div>
-        </motion.div>
-      )}
+        </div>
+      </div>
 
-      <UpgradeModalComponent />
+      {/* Bottom Timeline */}
+      <div className="h-32 bg-gray-800 border-t border-gray-700 flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <h3 className="font-medium" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+            Timeline
+          </h3>
+
+          <button className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm">
+            <Plus className="w-4 h-4" />
+            Add Scene
+          </button>
+        </div>
+
+        <div className="flex-1 flex items-center gap-3 px-4 overflow-x-auto">
+          {mockScenes.map((scene) => (
+            <div
+              key={scene.id}
+              className="flex-shrink-0 bg-gray-700 hover:bg-gray-600 rounded-lg p-3 cursor-pointer transition-colors border-2 border-transparent hover:border-blue-500"
+            >
+              <div className="w-20 h-12 bg-gray-600 rounded-lg mb-2 flex items-center justify-center relative">
+                <Play className="w-4 h-4 text-gray-400" />
+                {scene.status === 'processing' && (
+                  <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <div className="text-xs text-gray-300 text-center">{scene.duration}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
