@@ -14,7 +14,10 @@ import {
   Zap,
   Moon,
   Sun,
-  Monitor
+  Monitor,
+  Menu,
+  History,
+  BarChart3
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/components/ui/Toaster'
@@ -34,6 +37,7 @@ export const Settings: React.FC = () => {
     emailNotifications: true,
     pushNotifications: false
   })
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   const handleLogout = async () => {
     try {
@@ -201,6 +205,14 @@ export const Settings: React.FC = () => {
         <header className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Hamburger Menu */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 text-white/70 hover:text-white transition-colors"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+
               <button
                 onClick={() => navigate('/')}
                 className="p-2 text-white/70 hover:text-white transition-colors"
@@ -235,6 +247,54 @@ export const Settings: React.FC = () => {
             </div>
           </div>
         </header>
+
+        {/* Mobile Menu Dropdown */}
+        {showMobileMenu && (
+          <div className="absolute top-20 left-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 z-50">
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  navigate('/templates')
+                  setShowMobileMenu(false)
+                }}
+                className="flex items-center gap-3 text-white hover:text-white/80 transition-colors"
+              >
+                <Video className="w-4 h-4" />
+                <span>Templates</span>
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/videos')
+                  setShowMobileMenu(false)
+                }}
+                className="flex items-center gap-3 text-white hover:text-white/80 transition-colors"
+              >
+                <History className="w-4 h-4" />
+                <span>History</span>
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/analytics')
+                  setShowMobileMenu(false)
+                }}
+                className="flex items-center gap-3 text-white hover:text-white/80 transition-colors"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span>Analytics</span>
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/settings')
+                  setShowMobileMenu(false)
+                }}
+                className="flex items-center gap-3 text-white hover:text-white/80 transition-colors"
+              >
+                <User className="w-4 h-4" />
+                <span>Settings</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <main className="px-4 py-8">
