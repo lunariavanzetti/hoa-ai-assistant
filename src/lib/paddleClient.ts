@@ -11,7 +11,7 @@ class PaddleClient {
         ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
         : import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN
 
-      console.log('🔧 Initializing Paddle SDK v1.4.2')
+      console.log('🔧 Initializing Paddle SDK v2 (CDN)')
       console.log('- Environment:', environment)
       console.log('- Token found:', !!clientToken)
       console.log('- Token prefix:', clientToken?.substring(0, 10) + '...')
@@ -20,19 +20,23 @@ class PaddleClient {
         throw new Error(`Missing Paddle client token for ${environment} environment`)
       }
 
-      // Use the correct method for Paddle JS SDK v1.4.2
-      const paddleModule = await import('@paddle/paddle-js')
-      console.log('📦 Paddle module loaded:', Object.keys(paddleModule))
-      
-      // For v1.4.2, use initializePaddle method
-      console.log('🚀 Using initializePaddle method (v1.4.2)')
-      this.paddle = await paddleModule.initializePaddle({
+      // Check if Paddle is available from CDN
+      if (typeof (window as any).Paddle === 'undefined') {
+        throw new Error('Paddle SDK not loaded from CDN. Check if script is included in HTML.')
+      }
+
+      // Use Paddle v2 CDN method
+      console.log('🚀 Using Paddle v2 CDN initialization')
+      console.log('Available Paddle methods:', Object.keys((window as any).Paddle))
+
+      this.paddle = (window as any).Paddle.Setup({
         token: clientToken,
         environment: environment as 'production' | 'sandbox'
       })
-      
+
       if (!this.paddle) {
-        throw new Error('initializePaddle returned null/undefined')
+        console.log('Setup returned null, using global Paddle instance')
+        this.paddle = (window as any).Paddle
       }
       
       this.isInitialized = true
@@ -178,31 +182,33 @@ class PaddleClient {
       console.log('- Close URL valid:', checkoutConfig.closeUrl)
       console.log('- Environment matches token:', environment)
 
-      // Try different checkout methods based on SDK version
+      // Use Paddle v2 checkout method
       let checkout: any
-      console.log('🚀 Attempting to open checkout...')
+      console.log('🚀 Attempting to open checkout with v2 API...')
+      console.log('Available paddle methods:', Object.keys(paddle))
 
-      if (paddle.Checkout && paddle.Checkout.open) {
-        console.log('Using paddle.Checkout.open method')
-        try {
+      try {
+        // Try v2 method first
+        if (paddle.Checkout && paddle.Checkout.open) {
+          console.log('Using paddle.Checkout.open method (v2)')
           checkout = await paddle.Checkout.open(checkoutConfig)
           console.log('✅ Checkout opened via paddle.Checkout.open:', checkout)
-        } catch (openError) {
-          console.error('❌ paddle.Checkout.open failed:', openError)
-          throw openError
-        }
-      } else if ((paddle as any).open) {
-        console.log('Using paddle.open method')
-        try {
-          checkout = await (paddle as any).open(checkoutConfig)
+        } else if (typeof paddle.open === 'function') {
+          console.log('Using paddle.open method (v2)')
+          checkout = await paddle.open(checkoutConfig)
           console.log('✅ Checkout opened via paddle.open:', checkout)
-        } catch (openError) {
-          console.error('❌ paddle.open failed:', openError)
-          throw openError
+        } else if (typeof (window as any).Paddle?.Checkout?.open === 'function') {
+          console.log('Using global Paddle.Checkout.open method (v2)')
+          checkout = await (window as any).Paddle.Checkout.open(checkoutConfig)
+          console.log('✅ Checkout opened via global Paddle.Checkout.open:', checkout)
+        } else {
+          console.log('Available paddle methods:', Object.keys(paddle))
+          console.log('Global Paddle methods:', Object.keys((window as any).Paddle || {}))
+          throw new Error('No checkout method found on Paddle instance')
         }
-      } else {
-        console.log('Available paddle methods:', Object.keys(paddle))
-        throw new Error('No checkout method found on Paddle instance')
+      } catch (openError) {
+        console.error('❌ Checkout failed:', openError)
+        throw openError
       }
 
       console.log('✅ Final checkout result:', checkout)
