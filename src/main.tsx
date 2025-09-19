@@ -17,6 +17,9 @@ const queryClient = new QueryClient({
   },
 })
 
+// Force cache refresh
+console.log('🚀 App starting with fresh cache...')
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
