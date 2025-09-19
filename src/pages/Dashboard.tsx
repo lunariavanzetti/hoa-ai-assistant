@@ -29,6 +29,7 @@ export const Dashboard: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false)
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
 
   // Token system - starts with 0 tokens after signup
   const getTokenInfo = () => {
@@ -63,6 +64,7 @@ export const Dashboard: React.FC = () => {
 
     // Check if user has tokens
     if (tokenInfo.remaining <= 0) {
+      setAttemptedGenerationWithNoTokens(true)
       setShowPricingModal(true)
       return
     }
@@ -340,6 +342,102 @@ export const Dashboard: React.FC = () => {
                     </button>
                   </div>
 
+                  {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
+                    <div className="px-4 pb-4">
+                      <div className="flex items-center justify-between">
+                        <p className="text-red-400 text-sm">
+                          You have 0 tokens. Purchase tokens to generate videos.
+                        </p>
+                        <motion.button
+                          onClick={() => setShowPricingModal(true)}
+                          className="relative overflow-hidden group bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                          whileHover={{
+                            scale: 1.05,
+                            boxShadow: "0 0 30px rgba(59, 130, 246, 0.5)"
+                          }}
+                          whileTap={{ scale: 0.95 }}
+                          animate={{
+                            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                          }}
+                          transition={{
+                            backgroundPosition: {
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "linear"
+                            }
+                          }}
+                          style={{
+                            backgroundSize: "200% 200%"
+                          }}
+                        >
+                          <span className="relative z-10 flex items-center gap-1">
+                            <motion.span
+                              animate={{
+                                rotate: [0, 360],
+                                scale: [1, 1.2, 1]
+                              }}
+                              transition={{
+                                rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                                scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
+                              }}
+                            >
+                              ⚡
+                            </motion.span>
+                            Buy Tokens
+                          </span>
+
+                          {/* Animated background particles */}
+                          <div className="absolute inset-0 opacity-30">
+                            <motion.div
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              animate={{
+                                x: [0, 40, 0],
+                                y: [0, -20, 0],
+                                opacity: [0, 1, 0]
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: 0
+                              }}
+                              style={{ left: "10%", top: "20%" }}
+                            />
+                            <motion.div
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              animate={{
+                                x: [0, -30, 0],
+                                y: [0, -15, 0],
+                                opacity: [0, 1, 0]
+                              }}
+                              transition={{
+                                duration: 2.5,
+                                repeat: Infinity,
+                                delay: 0.5
+                              }}
+                              style={{ right: "15%", top: "60%" }}
+                            />
+                            <motion.div
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              animate={{
+                                x: [0, 20, 0],
+                                y: [0, 15, 0],
+                                opacity: [0, 1, 0]
+                              }}
+                              transition={{
+                                duration: 1.8,
+                                repeat: Infinity,
+                                delay: 1
+                              }}
+                              style={{ left: "60%", top: "10%" }}
+                            />
+                          </div>
+
+                          {/* Glow effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10" />
+                        </motion.button>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               </div>
             </div>
