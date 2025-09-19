@@ -238,12 +238,79 @@ export const VideoGenerator: React.FC = () => {
                           <p className="text-red-400 text-xs">
                             You have 0 tokens. Purchase tokens to generate videos.
                           </p>
-                          <button
+                          <motion.button
                             onClick={() => navigate('/pricing')}
-                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded-lg transition-colors"
+                            className="relative overflow-hidden group bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                            whileHover={{
+                              scale: 1.05,
+                              boxShadow: "0 0 25px rgba(59, 130, 246, 0.5)"
+                            }}
+                            whileTap={{ scale: 0.95 }}
+                            animate={{
+                              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                            }}
+                            transition={{
+                              backgroundPosition: {
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "linear"
+                              }
+                            }}
+                            style={{
+                              backgroundSize: "200% 200%"
+                            }}
                           >
-                            Buy Tokens
-                          </button>
+                            <span className="relative z-10 flex items-center gap-1">
+                              <motion.span
+                                animate={{
+                                  rotate: [0, 360],
+                                  scale: [1, 1.2, 1]
+                                }}
+                                transition={{
+                                  rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                                  scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
+                                }}
+                              >
+                                ⚡
+                              </motion.span>
+                              Buy Tokens
+                            </span>
+
+                            {/* Animated particles - smaller for compact version */}
+                            <div className="absolute inset-0 opacity-30">
+                              <motion.div
+                                className="absolute w-0.5 h-0.5 bg-white rounded-full"
+                                animate={{
+                                  x: [0, 25, 0],
+                                  y: [0, -15, 0],
+                                  opacity: [0, 1, 0]
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  delay: 0
+                                }}
+                                style={{ left: "15%", top: "25%" }}
+                              />
+                              <motion.div
+                                className="absolute w-0.5 h-0.5 bg-white rounded-full"
+                                animate={{
+                                  x: [0, -20, 0],
+                                  y: [0, -10, 0],
+                                  opacity: [0, 1, 0]
+                                }}
+                                transition={{
+                                  duration: 2.5,
+                                  repeat: Infinity,
+                                  delay: 0.5
+                                }}
+                                style={{ right: "20%", top: "65%" }}
+                              />
+                            </div>
+
+                            {/* Glow effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10" />
+                          </motion.button>
                         </div>
                       </div>
                     )}
