@@ -31,13 +31,27 @@ class PaddleClient {
 
       // Initialize Paddle v2 (environment is determined by the token)
       try {
-        (window as any).Paddle.Setup({
+        console.log('🔧 Attempting Paddle.Setup with token:', clientToken)
+        const setupResult = (window as any).Paddle.Setup({
           token: clientToken
         })
-        console.log('✅ Paddle.Setup completed with token')
+        console.log('✅ Paddle.Setup completed with token, result:', setupResult)
       } catch (setupError) {
         console.error('❌ Paddle.Setup failed:', setupError)
-        // Continue anyway, might work with global instance
+        console.error('❌ Setup error details:', {
+          message: setupError?.message,
+          stack: setupError?.stack,
+          name: setupError?.name
+        })
+
+        // Try without token as fallback test
+        console.log('🧪 Trying setup without token for testing...')
+        try {
+          const fallbackResult = (window as any).Paddle.Setup({})
+          console.log('🧪 Fallback setup result:', fallbackResult)
+        } catch (fallbackError) {
+          console.error('❌ Fallback setup also failed:', fallbackError)
+        }
       }
 
       this.paddle = (window as any).Paddle
