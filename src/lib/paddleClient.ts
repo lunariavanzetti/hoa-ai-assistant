@@ -29,15 +29,18 @@ class PaddleClient {
       console.log('🚀 Using Paddle v2 CDN initialization')
       console.log('Available Paddle methods:', Object.keys((window as any).Paddle))
 
-      this.paddle = (window as any).Paddle.Setup({
-        token: clientToken,
-        environment: environment as 'production' | 'sandbox'
-      })
-
-      if (!this.paddle) {
-        console.log('Setup returned null, using global Paddle instance')
-        this.paddle = (window as any).Paddle
+      // Initialize Paddle v2 (environment is determined by the token)
+      try {
+        (window as any).Paddle.Setup({
+          token: clientToken
+        })
+        console.log('✅ Paddle.Setup completed with token')
+      } catch (setupError) {
+        console.error('❌ Paddle.Setup failed:', setupError)
+        // Continue anyway, might work with global instance
       }
+
+      this.paddle = (window as any).Paddle
       
       this.isInitialized = true
       console.log('✅ Paddle initialized successfully for', environment)
@@ -208,6 +211,26 @@ class PaddleClient {
         }
       } catch (openError) {
         console.error('❌ Checkout failed:', openError)
+
+        // Add specific error handling
+        if (openError && typeof openError === 'object') {
+          console.error('Error details:', {
+            message: openError.message,
+            stack: openError.stack,
+            name: openError.name,
+            cause: openError.cause
+          })
+        }
+
+        // Check for common Paddle errors
+        if (openError?.message?.includes('403')) {
+          throw new Error('Authentication failed (403). Check if:\n1. Price ID exists and is active in Paddle Sandbox\n2. Client token is valid for sandbox environment\n3. Webhook URL is configured in Paddle dashboard')
+        }
+
+        if (openError?.message?.includes('price')) {
+          throw new Error(`Price ID "${priceId}" not found or not active in Paddle Sandbox. Verify the price exists and is published.`)
+        }
+
         throw openError
       }
 
