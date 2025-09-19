@@ -73,7 +73,7 @@ class PaddleClient {
     try {
       const checkoutConfig: any = {
         items: [{ priceId, quantity: 1 }],
-        successUrl: `${window.location.origin}/billing/success`,
+        successUrl: `${window.location.origin}/`,
         closeUrl: `${window.location.origin}/pricing`
       }
       
@@ -87,32 +87,88 @@ class PaddleClient {
       // Add comprehensive network monitoring
       console.log('🌐 Starting network monitoring for Paddle requests...')
 
-      // Monitor all network requests
+      // Monitor ALL network requests (not just paddle)
       const originalFetch = window.fetch
       window.fetch = function(...args) {
         const url = args[0]
-        if (typeof url === 'string' && url.includes('paddle')) {
-          console.log('🔍 Paddle Network Request:', url, args[1])
-        }
+        const urlString = typeof url === 'string' ? url : url?.toString() || 'unknown'
+
+        // Log ALL requests to see what's happening
+        console.log('🌐 Network Request:', urlString, args[1])
+
         return originalFetch.apply(this, args).then(response => {
-          if (typeof url === 'string' && url.includes('paddle')) {
-            console.log('📡 Paddle Network Response:', {
-              url,
+          console.log('📡 Network Response:', {
+            url: urlString,
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok,
+            headers: Object.fromEntries(response.headers.entries())
+          })
+
+          if (!response.ok) {
+            console.error('❌ Network Error Details:', {
+              url: urlString,
               status: response.status,
               statusText: response.statusText,
-              headers: Object.fromEntries(response.headers.entries())
+              bodyUsed: response.bodyUsed
             })
-            if (!response.ok) {
-              console.error('❌ Paddle Network Error:', response.status, response.statusText)
-            }
+
+            // Try to get error body
+            response.clone().text().then(body => {
+              console.error('❌ Error Response Body:', body)
+            }).catch(() => {
+              console.error('❌ Could not read error response body')
+            })
           }
           return response
         }).catch(error => {
-          if (typeof url === 'string' && url.includes('paddle')) {
-            console.error('💥 Paddle Network Error:', error)
-          }
+          console.error('💥 Network Request Failed:', {
+            url: urlString,
+            error: error.message,
+            stack: error.stack
+          })
           throw error
         })
+      }
+
+      // Also monitor XMLHttpRequest
+      const originalXHR = window.XMLHttpRequest
+      const xhrInstances = new Set()
+
+      window.XMLHttpRequest = function() {
+        const xhr = new originalXHR()
+        xhrInstances.add(xhr)
+
+        const originalOpen = xhr.open
+        xhr.open = function(method, url, ...args) {
+          console.log('🔗 XHR Request:', method, url)
+          return originalOpen.call(this, method, url, ...args)
+        }
+
+        const originalSend = xhr.send
+        xhr.send = function(data) {
+          console.log('📤 XHR Send:', this.responseURL || 'unknown URL', data)
+          return originalSend.call(this, data)
+        }
+
+        xhr.addEventListener('load', () => {
+          console.log('📥 XHR Response:', {
+            url: xhr.responseURL,
+            status: xhr.status,
+            statusText: xhr.statusText,
+            response: xhr.response
+          })
+        })
+
+        xhr.addEventListener('error', () => {
+          console.error('💥 XHR Error:', {
+            url: xhr.responseURL,
+            status: xhr.status,
+            statusText: xhr.statusText
+          })
+        })
+
+        return xhr
       }
 
       // Add detailed validation
@@ -151,11 +207,12 @@ class PaddleClient {
 
       console.log('✅ Final checkout result:', checkout)
 
-      // Restore original fetch after a delay
+      // Restore original fetch and XHR after a delay
       setTimeout(() => {
         window.fetch = originalFetch
+        window.XMLHttpRequest = originalXHR
         console.log('🔄 Network monitoring restored')
-      }, 10000)
+      }, 15000)
       return checkout
     } catch (error) {
       console.error('=== PADDLE CHECKOUT ERROR ===')
