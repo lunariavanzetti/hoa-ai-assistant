@@ -234,9 +234,17 @@ export const VideoGenerator: React.FC = () => {
 
                     {tokenInfo.remaining <= 0 && (
                       <div className="px-3 pb-3">
-                        <p className="text-red-400 text-xs">
-                          You have 0 tokens. Purchase tokens to generate videos.
-                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-red-400 text-xs">
+                            You have 0 tokens. Purchase tokens to generate videos.
+                          </p>
+                          <button
+                            onClick={() => navigate('/pricing')}
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded-lg transition-colors"
+                          >
+                            Buy Tokens
+                          </button>
+                        </div>
                       </div>
                     )}
                   </motion.div>

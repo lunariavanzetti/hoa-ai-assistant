@@ -342,9 +342,17 @@ export const Dashboard: React.FC = () => {
 
                   {tokenInfo.remaining <= 0 && (
                     <div className="px-4 pb-4">
-                      <p className="text-red-400 text-sm">
-                        You have 0 tokens. Purchase tokens to generate videos.
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-red-400 text-sm">
+                          You have 0 tokens. Purchase tokens to generate videos.
+                        </p>
+                        <button
+                          onClick={() => setShowPricingModal(true)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-lg transition-colors"
+                        >
+                          Buy Tokens
+                        </button>
+                      </div>
                     </div>
                   )}
                 </motion.div>
