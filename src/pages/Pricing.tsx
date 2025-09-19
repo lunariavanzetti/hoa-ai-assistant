@@ -36,7 +36,7 @@ export const Pricing: React.FC = () => {
       description: 'Perfect for trying out AI video generation',
       features: ['1 video generation', 'HD quality output', 'Horizontal & vertical formats'],
       icon: CreditCard,
-      priceId: 'pri_01k57nwm63j9t40q3pfj73dcw8',
+      priceId: import.meta.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID,
       subscriptionTier: 'pay_per_video',
       popular: false
     },
@@ -47,7 +47,7 @@ export const Pricing: React.FC = () => {
       description: 'Great for regular content creators',
       features: ['20 video generations per month', 'HD quality output', 'Horizontal & vertical formats', 'Priority processing'],
       icon: Sparkles,
-      priceId: 'pri_01k57p3ca33wrf9vs80qsvjzj8',
+      priceId: import.meta.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID,
       subscriptionTier: 'basic',
       popular: true
     },
@@ -58,7 +58,7 @@ export const Pricing: React.FC = () => {
       description: 'For professional video creators',
       features: ['120 video generations per month', 'HD quality output', 'Horizontal & vertical formats', 'Priority processing', 'Early access to new features'],
       icon: Crown,
-      priceId: 'pri_01k57pcdf2ej7gc5p7taj77e0q',
+      priceId: import.meta.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID,
       subscriptionTier: 'premium',
       popular: false
     }

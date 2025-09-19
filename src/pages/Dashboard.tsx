@@ -92,7 +92,7 @@ export const Dashboard: React.FC = () => {
       price: '$2.99',
       description: 'Generate one video',
       icon: CreditCard,
-      priceId: 'pri_01k57nwm63j9t40q3pfj73dcw8', // Pay-per-Video
+      priceId: import.meta.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID,
       subscriptionTier: 'pay_per_video'
     },
     {
@@ -101,7 +101,7 @@ export const Dashboard: React.FC = () => {
       price: '$19.99',
       description: '20 videos per month',
       icon: Sparkles,
-      priceId: 'pri_01k57p3ca33wrf9vs80qsvjzj8', // Basic Monthly
+      priceId: import.meta.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID,
       subscriptionTier: 'basic'
     },
     {
@@ -110,7 +110,7 @@ export const Dashboard: React.FC = () => {
       price: '$49.99',
       description: '120 videos per month',
       icon: Crown,
-      priceId: 'pri_01k57pcdf2ej7gc5p7taj77e0q', // Premium Monthly
+      priceId: import.meta.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID,
       subscriptionTier: 'premium'
     }
   ]
