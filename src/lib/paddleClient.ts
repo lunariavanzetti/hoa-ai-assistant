@@ -84,23 +84,78 @@ class PaddleClient {
       
       console.log('Opening checkout with config:', JSON.stringify(checkoutConfig, null, 2))
       
-      // Add network monitoring
+      // Add comprehensive network monitoring
       console.log('🌐 Starting network monitoring for Paddle requests...')
-      
+
+      // Monitor all network requests
+      const originalFetch = window.fetch
+      window.fetch = function(...args) {
+        const url = args[0]
+        if (typeof url === 'string' && url.includes('paddle')) {
+          console.log('🔍 Paddle Network Request:', url, args[1])
+        }
+        return originalFetch.apply(this, args).then(response => {
+          if (typeof url === 'string' && url.includes('paddle')) {
+            console.log('📡 Paddle Network Response:', {
+              url,
+              status: response.status,
+              statusText: response.statusText,
+              headers: Object.fromEntries(response.headers.entries())
+            })
+            if (!response.ok) {
+              console.error('❌ Paddle Network Error:', response.status, response.statusText)
+            }
+          }
+          return response
+        }).catch(error => {
+          if (typeof url === 'string' && url.includes('paddle')) {
+            console.error('💥 Paddle Network Error:', error)
+          }
+          throw error
+        })
+      }
+
+      // Add detailed validation
+      console.log('🔍 Validating checkout configuration...')
+      console.log('- Price ID format valid:', /^pri_[a-zA-Z0-9]+$/.test(priceId))
+      console.log('- Success URL valid:', checkoutConfig.successUrl)
+      console.log('- Close URL valid:', checkoutConfig.closeUrl)
+      console.log('- Environment matches token:', environment)
+
       // Try different checkout methods based on SDK version
       let checkout: any
+      console.log('🚀 Attempting to open checkout...')
+
       if (paddle.Checkout && paddle.Checkout.open) {
         console.log('Using paddle.Checkout.open method')
-        checkout = await paddle.Checkout.open(checkoutConfig)
+        try {
+          checkout = await paddle.Checkout.open(checkoutConfig)
+          console.log('✅ Checkout opened via paddle.Checkout.open:', checkout)
+        } catch (openError) {
+          console.error('❌ paddle.Checkout.open failed:', openError)
+          throw openError
+        }
       } else if ((paddle as any).open) {
         console.log('Using paddle.open method')
-        checkout = await (paddle as any).open(checkoutConfig)
+        try {
+          checkout = await (paddle as any).open(checkoutConfig)
+          console.log('✅ Checkout opened via paddle.open:', checkout)
+        } catch (openError) {
+          console.error('❌ paddle.open failed:', openError)
+          throw openError
+        }
       } else {
         console.log('Available paddle methods:', Object.keys(paddle))
         throw new Error('No checkout method found on Paddle instance')
       }
-      
-      console.log('Checkout opened successfully:', checkout)
+
+      console.log('✅ Final checkout result:', checkout)
+
+      // Restore original fetch after a delay
+      setTimeout(() => {
+        window.fetch = originalFetch
+        console.log('🔄 Network monitoring restored')
+      }, 10000)
       return checkout
     } catch (error) {
       console.error('=== PADDLE CHECKOUT ERROR ===')
