@@ -92,20 +92,19 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      // Test with minimal configuration first
+      // Restore full configuration now that permissions are fixed
       const checkoutConfig: any = {
-        items: [{ priceId, quantity: 1 }]
-        // Remove success/close URLs temporarily to test
-        // successUrl: `${window.location.origin}/`,
-        // closeUrl: `${window.location.origin}/pricing`
+        items: [{ priceId, quantity: 1 }],
+        successUrl: `${window.location.origin}/`,
+        closeUrl: `${window.location.origin}/pricing`
       }
 
-      // Don't add customerId for now to test
-      // if (customerId && customerId.trim()) {
-      //   checkoutConfig.customerId = customerId
-      // }
+      // Add customerId if available
+      if (customerId && customerId.trim()) {
+        checkoutConfig.customerId = customerId
+      }
 
-      console.log('🧪 Testing with minimal config (no URLs/customer):', JSON.stringify(checkoutConfig, null, 2))
+      console.log('🔧 Full checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
 
       // First, let's test if we can get price information from Paddle
       try {
