@@ -78,17 +78,35 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
+      // Test with minimal configuration first
       const checkoutConfig: any = {
-        items: [{ priceId, quantity: 1 }],
-        successUrl: `${window.location.origin}/`,
-        closeUrl: `${window.location.origin}/pricing`
+        items: [{ priceId, quantity: 1 }]
+        // Remove success/close URLs temporarily to test
+        // successUrl: `${window.location.origin}/`,
+        // closeUrl: `${window.location.origin}/pricing`
       }
-      
-      // Only add customerId if it exists and is not null
-      if (customerId && customerId.trim()) {
-        checkoutConfig.customerId = customerId
+
+      // Don't add customerId for now to test
+      // if (customerId && customerId.trim()) {
+      //   checkoutConfig.customerId = customerId
+      // }
+
+      console.log('🧪 Testing with minimal config (no URLs/customer):', JSON.stringify(checkoutConfig, null, 2))
+
+      // First, let's test if we can get price information from Paddle
+      try {
+        console.log('🔍 Testing if price exists in Paddle...')
+        const testPrice = await fetch(`https://sandbox-api.paddle.com/prices/${priceId}`, {
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.PADDLE_SANDBOX_API_KEY || 'test-key'}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        console.log('📊 Price API response:', testPrice.status, testPrice.statusText)
+      } catch (priceError) {
+        console.log('⚠️ Could not fetch price info (expected in sandbox):', priceError)
       }
-      
+
       console.log('Opening checkout with config:', JSON.stringify(checkoutConfig, null, 2))
       
       // Add comprehensive network monitoring
