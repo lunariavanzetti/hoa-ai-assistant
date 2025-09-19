@@ -37,7 +37,7 @@ function App() {
                   <Route path="/terms-of-service" element={<TermsOfService />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />
-                  <Route path="/templates" element={<Templates />} />
+                  <Route path="/templates" element={<VideoTemplates />} />
                   <Route path="*" element={<Landing />} />
                 </>
               ) : (

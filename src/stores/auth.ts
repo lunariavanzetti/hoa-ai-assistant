@@ -99,7 +99,8 @@ export const useAuthStore = create<AuthState>()(
                 id: data.user.id,
                 email: data.user.email!,
                 full_name: fullName,
-                subscription_tier: 'free'
+                subscription_tier: 'free',
+                tokens: 0 // Start with 0 tokens
               })
               .select()
               .single()

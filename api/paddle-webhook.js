@@ -55,15 +55,25 @@ module.exports = async (req, res) => {
       })
     }
 
-    if (eventType === 'subscription.created' || eventType === 'subscription.activated') {
+    if (eventType === 'subscription.created' || eventType === 'subscription.activated' || eventType === 'transaction.completed') {
       console.log(`🎉 ${eventType} webhook!`)
-      
-      const subscription = req.body.data
-      const customerEmail = subscription?.customer?.email
-      const paddleCustomerId = subscription?.customer?.id
-      const paddleSubscriptionId = subscription?.id
-      const priceId = subscription?.items?.[0]?.price?.id
-      
+
+      const data = req.body.data
+      let customerEmail, paddleCustomerId, paddleSubscriptionId, priceId
+
+      if (eventType === 'transaction.completed') {
+        // Handle one-time purchases
+        customerEmail = data?.customer?.email
+        paddleCustomerId = data?.customer?.id
+        priceId = data?.items?.[0]?.price?.id
+      } else {
+        // Handle subscriptions
+        customerEmail = data?.customer?.email
+        paddleCustomerId = data?.customer?.id
+        paddleSubscriptionId = data?.id
+        priceId = data?.items?.[0]?.price?.id
+      }
+
       console.log('👤 Customer email:', customerEmail)
       console.log('🆔 Paddle Customer ID:', paddleCustomerId)
       console.log('📋 Paddle Subscription ID:', paddleSubscriptionId)
@@ -74,26 +84,81 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Customer email not found' })
       }
 
-      // Determine subscription tier based on price ID
-      let subscriptionTier = 'pro' // Default to pro for any paid subscription
-      if (priceId && priceId.includes('agency')) {
-        subscriptionTier = 'agency'
-      } else if (priceId && priceId.includes('enterprise')) {
-        subscriptionTier = 'enterprise'
+      // Determine tokens and subscription tier based on price ID
+      let tokensToAdd = 0
+      let subscriptionTier = 'free'
+
+      // Map price IDs to tokens and tiers
+      const priceMap = {
+        'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'pay_per_video' }, // Pay-per-video $2.99
+        'pri_01k57p3ca33wrf9vs80qsvjzj8': { tokens: 20, tier: 'basic' }, // Basic Monthly $19.99
+        'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'premium' } // Premium Monthly $49.99
       }
 
-      console.log('🎯 Determined subscription tier:', subscriptionTier)
+      const purchase = priceMap[priceId]
+      if (purchase) {
+        tokensToAdd = purchase.tokens
+        subscriptionTier = purchase.tier
+      } else {
+        console.log('⚠️ Unknown price ID, defaulting to 1 token')
+        tokensToAdd = 1
+        subscriptionTier = 'pay_per_video'
+      }
+
+      console.log('🎯 Tokens to add:', tokensToAdd)
+      console.log('🎯 Subscription tier:', subscriptionTier)
 
       // Update user subscription using direct REST API call
       try {
         console.log('🔄 Attempting database update via REST API...')
         
+        // First, get current user data to add tokens to existing balance
+        const getUserUrl = new URL(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${customerEmail}&select=tokens`)
+        const currentUserData = await new Promise((resolve, reject) => {
+          const options = {
+            hostname: getUserUrl.hostname,
+            port: 443,
+            path: getUserUrl.pathname + getUserUrl.search,
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY
+            }
+          }
+
+          const req = https.request(options, (res) => {
+            let responseData = ''
+            res.on('data', (chunk) => { responseData += chunk })
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                resolve(JSON.parse(responseData))
+              } else {
+                resolve([])
+              }
+            })
+          })
+          req.on('error', reject)
+          req.end()
+        })
+
+        const currentTokens = currentUserData[0]?.tokens || 0
+        const newTokenBalance = currentTokens + tokensToAdd
+
+        console.log('🔄 Current tokens:', currentTokens)
+        console.log('➕ Adding tokens:', tokensToAdd)
+        console.log('🎯 New token balance:', newTokenBalance)
+
         const updateData = {
           subscription_tier: subscriptionTier,
           subscription_status: 'active',
           paddle_customer_id: paddleCustomerId,
-          paddle_subscription_id: paddleSubscriptionId,
+          tokens: newTokenBalance,
           updated_at: new Date().toISOString()
+        }
+
+        // Add subscription ID only if it exists (for subscriptions, not one-time purchases)
+        if (paddleSubscriptionId) {
+          updateData.paddle_subscription_id = paddleSubscriptionId
         }
 
         // Use native HTTPS module for better compatibility
@@ -156,16 +221,17 @@ module.exports = async (req, res) => {
         
       } catch (dbError) {
         console.error('💥 Database connection error:', dbError)
-        console.error('⚠️  FALLBACK: Logging subscription for manual processing')
-        console.log(`🔔 SUBSCRIPTION CREATED: ${customerEmail} -> ${subscriptionTier} (Paddle Sub: ${paddleSubscriptionId})`)
-        
+        console.error('⚠️  FALLBACK: Logging purchase for manual processing')
+        console.log(`🔔 TOKENS PURCHASED: ${customerEmail} -> +${tokensToAdd} tokens, tier: ${subscriptionTier} (Paddle Sub: ${paddleSubscriptionId})`)
+
         // Return success since we've logged the event for manual processing
         return res.status(200).json({
           success: true,
           fallback: true,
-          message: 'Subscription logged for manual processing',
+          message: 'Purchase logged for manual processing',
           customer_email: customerEmail,
           subscription_tier: subscriptionTier,
+          tokens_added: tokensToAdd,
           paddle_subscription_id: paddleSubscriptionId,
           timestamp: new Date().toISOString()
         })

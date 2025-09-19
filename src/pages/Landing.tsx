@@ -67,7 +67,7 @@ export const Landing: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="min-h-screen relative overflow-hidden bg-black/90">
       {/* Background Video Container */}
       <div className="absolute inset-0 z-0">
         {!videoError ? (
@@ -151,7 +151,7 @@ export const Landing: React.FC = () => {
 
               <motion.button
                 onClick={handleGetStarted}
-                className="px-8 py-4 bg-white/90 backdrop-blur-sm text-black text-lg font-medium rounded-full hover:bg-white transition-all duration-200 flex items-center gap-3 mx-auto"
+                className="px-8 py-4 bg-white/90 backdrop-blur-[2px] text-black text-lg font-medium rounded-full hover:bg-white transition-all duration-200 flex items-center gap-3 mx-auto"
                 style={{ fontFamily: 'Google Sans, sans-serif' }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -170,7 +170,7 @@ export const Landing: React.FC = () => {
             >
               {/* Feature 1 */}
               <div className="group">
-                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
+                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
                     <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
@@ -194,7 +194,7 @@ export const Landing: React.FC = () => {
 
               {/* Feature 2 */}
               <div className="group">
-                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
+                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
                     <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
@@ -218,7 +218,7 @@ export const Landing: React.FC = () => {
 
               {/* Feature 3 */}
               <div className="group">
-                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
+                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
                     <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
@@ -248,7 +248,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
                 <Users className="w-4 h-4 text-white/60" />
                 <span
                   className="text-sm text-white/60"
