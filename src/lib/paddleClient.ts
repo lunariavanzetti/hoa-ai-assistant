@@ -104,7 +104,7 @@ class PaddleClient {
         checkoutConfig.customerId = customerId
       }
 
-      console.log('🔧 Full checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
+      console.log('🔧 UPDATED Full checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
 
       // First, let's test if we can get price information from Paddle
       try {
