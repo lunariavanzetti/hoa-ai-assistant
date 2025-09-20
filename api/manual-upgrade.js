@@ -1,62 +1,132 @@
-// Manual upgrade endpoint - for immediate testing
-const { createClient } = require('@supabase/supabase-js')
+// Manual user upgrade API - for when Paddle webhook fails
+// File: /api/manual-upgrade.js
 
 module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST')
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end()
+    return
   }
 
   try {
-    const { email, tier = 'pro' } = req.body
+    const email = req.query.email || 'temakikitemakiki@gmail.com'
+    const tier = req.query.tier || 'basic'
+    const credits = parseInt(req.query.credits) || 20
 
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' })
-    }
+    console.log('=== 🔧 MANUAL USER UPGRADE ===')
+    console.log('👤 Email:', email)
+    console.log('🎯 Target tier:', tier)
+    console.log('💰 Credits to grant:', credits)
+    console.log('⏰ Timestamp:', new Date().toISOString())
 
-    // Only allow upgrading specific email for security
-    if (email !== 'v1ktor1ach124@gmail.com') {
-      return res.status(403).json({ error: 'Not authorized' })
-    }
+    const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    console.log('🔄 Manual upgrade for:', email, 'to', tier)
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
-
-    const { data, error } = await supabase
-      .from('users')
-      .update({
-        subscription_tier: tier,
-        subscription_status: 'active',
-        paddle_subscription_id: 'manual_upgrade_' + Date.now(),
-        updated_at: new Date().toISOString()
+    if (!supabaseKey) {
+      return res.status(500).json({
+        error: 'Missing Supabase service role key'
       })
-      .eq('email', email)
-      .select()
+    }
 
-    if (error) {
-      console.error('❌ Upgrade error:', error)
-      return res.status(500).json({ 
+    // Get current user data
+    const getUserResponse = await fetch(`${supabaseUrl}/rest/v1/users?email=eq.${email}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey
+      }
+    })
+
+    if (!getUserResponse.ok) {
+      return res.status(500).json({ error: 'Failed to get user data' })
+    }
+
+    const userData = await getUserResponse.json()
+    if (userData.length === 0) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const user = userData[0]
+    const currentCredits = user.usage_stats?.credits_remaining || user.video_credits || 0
+
+    console.log('=== 📊 CURRENT USER STATUS ===')
+    console.log('🎯 Current tier:', user.subscription_tier)
+    console.log('💰 Current credits:', currentCredits)
+    console.log('📹 Videos this month:', user.usage_stats?.videos_this_month || 0)
+
+    // Calculate new values (ADD credits, don't replace)
+    const newCredits = currentCredits + credits
+
+    const updateData = {
+      subscription_tier: tier,
+      subscription_status: 'active',
+      video_credits: newCredits,
+      usage_stats: {
+        credits_remaining: newCredits,
+        videos_this_month: user.usage_stats?.videos_this_month || 0,
+        total_videos_generated: user.usage_stats?.total_videos_generated || 0,
+        pay_per_video_purchases: user.usage_stats?.pay_per_video_purchases || 0
+      },
+      paddle_customer_id: `manual_${Date.now()}`, // Fake customer ID for tracking
+      updated_at: new Date().toISOString()
+    }
+
+    console.log('=== 🎯 UPGRADING USER ===')
+    console.log('🆙 New tier:', tier)
+    console.log('💰 Adding credits:', credits)
+    console.log('📊 New total credits:', newCredits)
+
+    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/users?email=eq.${email}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(updateData)
+    })
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text()
+      console.error('❌ Database update failed:', errorText)
+      return res.status(500).json({
         error: 'Failed to upgrade user',
-        details: error.message 
+        details: errorText
       })
     }
 
-    console.log('✅ User upgraded successfully:', data)
-    
-    res.status(200).json({
+    const updatedUser = await updateResponse.json()
+
+    console.log('=== ✅ MANUAL UPGRADE SUCCESS ===')
+    console.log('👤 User:', email)
+    console.log('🎯 New tier:', tier)
+    console.log('💰 Credits granted:', credits)
+    console.log('📊 New total credits:', newCredits)
+    console.log('💾 Database updated successfully')
+
+    return res.status(200).json({
       success: true,
-      message: `User upgraded to ${tier}`,
-      user: data[0]
+      message: `Successfully upgraded ${email} to ${tier} tier`,
+      previousCredits: currentCredits,
+      creditsGranted: credits,
+      newTotalCredits: newCredits,
+      newTier: tier,
+      timestamp: new Date().toISOString(),
+      updatedUser: updatedUser[0] || updatedUser
     })
 
   } catch (error) {
     console.error('💥 Manual upgrade error:', error)
-    res.status(500).json({ 
-      error: 'Upgrade failed',
-      details: error.message
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message,
+      timestamp: new Date().toISOString()
     })
   }
 }
