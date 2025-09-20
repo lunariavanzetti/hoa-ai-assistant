@@ -120,6 +120,22 @@ class PaddleClient {
       console.log('- Has items:', checkoutConfig.items?.length > 0)
       console.log('- Environment matches token:', environment)
 
+      // Add debugging for the specific price being used
+      console.log('🏷️ Using price details:')
+      console.log('- Price ID:', priceId)
+
+      // Map current price IDs to names for better debugging
+      const priceNames = {
+        'pri_01k5j03ma3tzk51v95213h7yy9': 'Pay-per-Video $2.99',
+        'pri_01k5j04nvcbwrrdz18d7yhv5ap': 'Basic Monthly $19.99',
+        'pri_01k5j06b5zmw5f8cfm06vdrvb9': 'Premium Monthly $49.99'
+      }
+
+      const priceName = priceNames[priceId] || 'Unknown Price'
+      console.log('- Expected price:', priceName)
+      console.log('⚠️ If checkout fails with 400 error, this price may be INACTIVE in Paddle dashboard')
+      console.log('🔧 Try clicking "Basic Monthly" or "Premium Monthly" to test other prices')
+
       // Open checkout using Paddle v2 API
       console.log('🚀 Opening checkout with Paddle.Checkout.open...')
       console.log('Available Paddle methods:', Object.keys((window as any).Paddle || {}))
