@@ -107,10 +107,28 @@ module.exports = async (req, res) => {
       }
     }
 
+    // Get current credits and add to them
+    let currentCredits = 0
+    if (getUserResponse.ok) {
+      const userData = await getUserResponse.json()
+      if (userData.length > 0) {
+        currentCredits = userData[0].usage_stats?.credits_remaining || userData[0].video_credits || 0
+      }
+    }
+
+    const newCredits = currentCredits + tokens
+
     // Use fetch to update the user - use valid subscription tier values
     const updateData = {
       subscription_tier: 'free', // Use a valid tier that passes constraints
       subscription_status: 'active',
+      video_credits: newCredits,
+      usage_stats: {
+        credits_remaining: newCredits,
+        videos_this_month: 0,
+        total_videos_generated: 0,
+        pay_per_video_purchases: 1
+      },
       updated_at: new Date().toISOString()
     }
 
@@ -143,16 +161,18 @@ module.exports = async (req, res) => {
 
     const userData = JSON.parse(responseText)
 
-    console.log('=== ✅ MANUAL USER UPDATE SUCCESS ===')
+    console.log('=== ✅ MANUAL CREDITS UPDATE SUCCESS ===')
     console.log('👤 Email:', email)
-    console.log('📊 Credits requested:', tokens, '(using credits_remaining field)')
-    console.log('🎯 New tier:', 'free')
+    console.log('🔄 Previous credits:', currentCredits)
+    console.log('➕ Credits added:', tokens)
+    console.log('📊 New total credits:', newCredits)
+    console.log('🎯 Tier:', 'free')
     console.log('📅 Status:', 'active')
     console.log('👤 Updated user:', userData[0] || userData)
 
     return res.status(200).json({
       success: true,
-      message: `Successfully updated user ${email} (note: using credits_remaining field instead of tokens)`,
+      message: `Successfully added ${tokens} credits to ${email}. New total: ${newCredits}`,
       user: userData[0] || userData,
       timestamp: new Date().toISOString()
     })
