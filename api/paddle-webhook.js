@@ -26,14 +26,82 @@ module.exports = async (req, res) => {
 
       console.log(`🧪 MANUAL TEST: Adding ${tokens} tokens to ${email}`)
 
-      // TODO: Add manual token addition logic here for testing
-      return res.status(200).json({
-        status: 'Manual token test initiated',
-        email: email,
-        tokens: tokens,
-        timestamp: new Date().toISOString(),
-        note: 'This is a test endpoint - check logs for webhook processing'
-      })
+      // Manually add tokens using the same logic as webhook
+      try {
+        const updateData = {
+          subscription_tier: 'pay_per_video',
+          subscription_status: 'active',
+          tokens: tokens,
+          updated_at: new Date().toISOString()
+        }
+
+        const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${email}`)
+        const postData = JSON.stringify(updateData)
+
+        const result = await new Promise((resolve, reject) => {
+          const https = require('https')
+          const options = {
+            hostname: url.hostname,
+            port: 443,
+            path: url.pathname + url.search,
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+              'Prefer': 'return=representation',
+              'Content-Length': Buffer.byteLength(postData)
+            }
+          }
+
+          const req = https.request(options, (res) => {
+            let responseData = ''
+            res.on('data', (chunk) => { responseData += chunk })
+            res.on('end', () => {
+              console.log('📡 Manual update response status:', res.statusCode)
+              console.log('📡 Manual update response data:', responseData)
+
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                resolve({ success: true, data: responseData })
+              } else {
+                resolve({ success: false, status: res.statusCode, data: responseData })
+              }
+            })
+          })
+
+          req.on('error', (error) => {
+            console.error('💥 Manual update error:', error)
+            reject(error)
+          })
+
+          req.write(postData)
+          req.end()
+        })
+
+        if (result.success) {
+          console.log('✅ Manual token addition successful')
+          return res.status(200).json({
+            status: 'Success! Tokens added manually',
+            email: email,
+            tokens: tokens,
+            tier: 'pay_per_video',
+            timestamp: new Date().toISOString(),
+            result: result.data
+          })
+        } else {
+          console.error('❌ Manual token addition failed:', result.data)
+          return res.status(500).json({
+            status: 'Failed to add tokens',
+            error: result.data
+          })
+        }
+      } catch (error) {
+        console.error('💥 Manual test error:', error)
+        return res.status(500).json({
+          status: 'Manual token test failed',
+          error: error.message
+        })
+      }
     }
 
     return res.status(200).json({
