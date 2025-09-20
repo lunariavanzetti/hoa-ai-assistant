@@ -474,182 +474,91 @@ export const Dashboard: React.FC = () => {
           )}
         </main>
 
-        {/* Fixed Bottom Input Area - Compact */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl border-t border-white/10">
-          <div className="w-full px-4 py-2">
+        {/* Fixed Bottom Input Area - Simple */}
+        <div className="fixed bottom-0 left-0 right-0 z-50">
+          <div className="w-full px-4 py-3">
             <div className="w-full md:w-3/4 mx-auto">
-              {/* Input Area with Inline Orientation */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl"
-              >
-                <div className="flex items-center gap-2 p-3">
-                  {/* Compact Orientation Selector */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowDropdown(!showDropdown)}
-                      className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/15 transition-all text-sm"
-                    >
-                      <span>{orientation === 'horizontal' ? '🖥️' : '📱'}</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {showDropdown && (
-                      <div className="absolute bottom-full left-0 mb-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[140px]">
-                        <button
-                          onClick={() => {
-                            setOrientation('horizontal')
-                            setShowDropdown(false)
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
-                        >
-                          <div className="w-6 h-4 bg-white/20 rounded-sm"></div>
-                          <span>16:9</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setOrientation('vertical')
-                            setShowDropdown(false)
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
-                        >
-                          <div className="w-4 h-6 bg-white/20 rounded-sm"></div>
-                          <span>9:16</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe your video idea..."
-                    className="flex-1 p-2 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none text-base"
-                    rows={1}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleGenerate()
-                      }
-                    }}
-                  />
-
+              <div className="flex items-center gap-2">
+                {/* Compact Orientation Selector */}
+                <div className="relative">
                   <button
-                    onClick={handleGenerate}
-                    disabled={!prompt.trim() || isGenerating}
-                    className={`p-2 rounded-lg transition-all ${
-                      (!prompt.trim() || isGenerating)
-                        ? 'bg-white/10 text-white/50 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
-                    }`}
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    className="flex items-center gap-1 px-2 py-2 text-white/70 hover:text-white transition-all text-sm"
                   >
-                    {isGenerating ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Send className="w-5 h-5" />
-                    )}
+                    <span>{orientation === 'horizontal' ? '🖥️' : '📱'}</span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
                   </button>
+
+                  {showDropdown && (
+                    <div className="absolute bottom-full left-0 mb-1 bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[100px]">
+                      <button
+                        onClick={() => {
+                          setOrientation('horizontal')
+                          setShowDropdown(false)
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
+                      >
+                        <span>🖥️</span>
+                        <span>16:9</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOrientation('vertical')
+                          setShowDropdown(false)
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
+                      >
+                        <span>📱</span>
+                        <span>9:16</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
-                  <div className="px-4 pb-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-red-400 text-sm">
-                        You have 0 tokens. Purchase tokens to generate videos.
-                      </p>
-                      <motion.button
-                        onClick={() => setShowPricingModal(true)}
-                        className="relative overflow-hidden group bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-                        whileHover={{
-                          scale: 1.05,
-                          boxShadow: "0 0 30px rgba(59, 130, 246, 0.5)"
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        animate={{
-                          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                        }}
-                        transition={{
-                          backgroundPosition: {
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }
-                        }}
-                        style={{
-                          backgroundSize: "200% 200%"
-                        }}
-                      >
-                        <span className="relative z-10 flex items-center gap-1">
-                          <motion.span
-                            animate={{
-                              rotate: [0, 360],
-                              scale: [1, 1.2, 1]
-                            }}
-                            transition={{
-                              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                              scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
-                            }}
-                          >
-                            ⚡
-                          </motion.span>
-                          Buy Tokens
-                        </span>
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Describe your video idea..."
+                  className="flex-1 p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleGenerate()
+                    }
+                  }}
+                />
 
-                        {/* Animated background particles */}
-                        <div className="absolute inset-0 opacity-30">
-                          <motion.div
-                            className="absolute w-1 h-1 bg-white rounded-full"
-                            animate={{
-                              x: [0, 40, 0],
-                              y: [0, -20, 0],
-                              opacity: [0, 1, 0]
-                            }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              delay: 0
-                            }}
-                            style={{ left: "10%", top: "20%" }}
-                          />
-                          <motion.div
-                            className="absolute w-1 h-1 bg-white rounded-full"
-                            animate={{
-                              x: [0, -30, 0],
-                              y: [0, -15, 0],
-                              opacity: [0, 1, 0]
-                            }}
-                            transition={{
-                              duration: 2.5,
-                              repeat: Infinity,
-                              delay: 0.5
-                            }}
-                            style={{ right: "15%", top: "60%" }}
-                          />
-                          <motion.div
-                            className="absolute w-1 h-1 bg-white rounded-full"
-                            animate={{
-                              x: [0, 20, 0],
-                              y: [0, 15, 0],
-                              opacity: [0, 1, 0]
-                            }}
-                            transition={{
-                              duration: 1.8,
-                              repeat: Infinity,
-                              delay: 1
-                            }}
-                            style={{ left: "60%", top: "10%" }}
-                          />
-                        </div>
+                <button
+                  onClick={handleGenerate}
+                  disabled={!prompt.trim() || isGenerating}
+                  className={`p-3 rounded-xl transition-all ${
+                    (!prompt.trim() || isGenerating)
+                      ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
+                  }`}
+                >
+                  {isGenerating ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
 
-                        {/* Glow effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10" />
-                      </motion.button>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
+              {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-red-400 text-sm">
+                    You have 0 tokens. Purchase tokens to generate videos.
+                  </p>
+                  <button
+                    onClick={() => setShowPricingModal(true)}
+                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-full font-medium hover:shadow-lg transition-all"
+                  >
+                    Buy Tokens
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
