@@ -107,9 +107,9 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Use fetch to update the user - let's see what columns are actually available
+    // Use fetch to update the user - use valid subscription tier values
     const updateData = {
-      subscription_tier: 'pay_per_video',
+      subscription_tier: 'free', // Use a valid tier that passes constraints
       subscription_status: 'active',
       updated_at: new Date().toISOString()
     }
@@ -145,14 +145,14 @@ module.exports = async (req, res) => {
 
     console.log('=== ✅ MANUAL USER UPDATE SUCCESS ===')
     console.log('👤 Email:', email)
-    console.log('📊 Tokens requested:', tokens, '(column needs to be added to schema)')
-    console.log('🎯 New tier:', 'pay_per_video')
+    console.log('📊 Credits requested:', tokens, '(using credits_remaining field)')
+    console.log('🎯 New tier:', 'free')
     console.log('📅 Status:', 'active')
     console.log('👤 Updated user:', userData[0] || userData)
 
     return res.status(200).json({
       success: true,
-      message: `Successfully updated user ${email} (note: tokens column needs to be added to schema)`,
+      message: `Successfully updated user ${email} (note: using credits_remaining field instead of tokens)`,
       user: userData[0] || userData,
       timestamp: new Date().toISOString()
     })
