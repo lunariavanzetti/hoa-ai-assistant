@@ -145,6 +145,20 @@ class PaddleClient {
         // Use the global Paddle.Checkout.open method as per docs
         checkout = await (window as any).Paddle.Checkout.open(checkoutConfig)
         console.log('✅ Checkout opened successfully:', checkout)
+
+        // Start token polling after successful checkout
+        console.log('🔄 Starting token polling after checkout...')
+        const { useAuthStore } = await import('@/stores/auth')
+        const { startTokenPolling } = useAuthStore.getState()
+        startTokenPolling()
+
+        // Stop polling after 2 minutes to avoid infinite polling
+        setTimeout(() => {
+          const { stopTokenPolling } = useAuthStore.getState()
+          stopTokenPolling()
+          console.log('⏹️ Stopped token polling after 2 minutes')
+        }, 120000)
+
       } catch (openError) {
         console.error('❌ Checkout failed:', openError)
 

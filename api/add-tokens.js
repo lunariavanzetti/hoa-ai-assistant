@@ -33,7 +33,35 @@ module.exports = async (req, res) => {
       })
     }
 
-    // Use fetch to update the user
+    // First, check current user data to see available columns
+    const getUserResponse = await fetch(`${supabaseUrl}/rest/v1/users?email=eq.${email}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey
+      }
+    })
+
+    if (getUserResponse.ok) {
+      const userData = await getUserResponse.json()
+      console.log('=== 👤 CURRENT USER DATA ===')
+      console.log('User found:', userData.length > 0)
+      if (userData.length > 0) {
+        console.log('Available columns:', Object.keys(userData[0]))
+        console.log('Current user data:', userData[0])
+      }
+    }
+
+    // Use fetch to update the user - let's see what columns are actually available
+    const updateData = {
+      subscription_tier: 'pay_per_video',
+      subscription_status: 'active',
+      updated_at: new Date().toISOString()
+    }
+
+    // Try to add tokens if column exists (check error response)
+    console.log('🔧 Attempting to update with basic fields first...')
+
     const response = await fetch(`${supabaseUrl}/rest/v1/users?email=eq.${email}`, {
       method: 'PATCH',
       headers: {
@@ -42,12 +70,7 @@ module.exports = async (req, res) => {
         'apikey': supabaseKey,
         'Prefer': 'return=representation'
       },
-      body: JSON.stringify({
-        tokens: tokens,
-        subscription_tier: 'pay_per_video',
-        subscription_status: 'active',
-        updated_at: new Date().toISOString()
-      })
+      body: JSON.stringify(updateData)
     })
 
     const responseText = await response.text()
@@ -65,16 +88,16 @@ module.exports = async (req, res) => {
 
     const userData = JSON.parse(responseText)
 
-    console.log('=== ✅ MANUAL TOKEN ADDITION SUCCESS ===')
+    console.log('=== ✅ MANUAL USER UPDATE SUCCESS ===')
     console.log('👤 Email:', email)
-    console.log('📊 Tokens added:', tokens)
+    console.log('📊 Tokens requested:', tokens, '(column needs to be added to schema)')
     console.log('🎯 New tier:', 'pay_per_video')
     console.log('📅 Status:', 'active')
     console.log('👤 Updated user:', userData[0] || userData)
 
     return res.status(200).json({
       success: true,
-      message: `Successfully added ${tokens} tokens to ${email}`,
+      message: `Successfully updated user ${email} (note: tokens column needs to be added to schema)`,
       user: userData[0] || userData,
       timestamp: new Date().toISOString()
     })

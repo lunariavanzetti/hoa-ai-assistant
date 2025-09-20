@@ -19,6 +19,8 @@ interface AuthState {
   updateUser: (updates: { data?: { full_name?: string } }) => Promise<void>
   checkSubscriptionStatus: () => Promise<void>
   refreshUserData: () => Promise<void>
+  startTokenPolling: () => void
+  stopTokenPolling: () => void
   setUser: (user: User | null) => void
   setSession: (session: Session | null) => void
   setLoading: (loading: boolean) => void
@@ -360,6 +362,29 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error('❌ Error refreshing user data:', error)
+        }
+      },
+
+      startTokenPolling: () => {
+        const { stopTokenPolling } = get()
+        stopTokenPolling() // Clear any existing polling
+
+        console.log('🔄 Starting token polling...')
+        const interval = setInterval(() => {
+          const { refreshUserData } = get()
+          refreshUserData()
+        }, 3000) // Poll every 3 seconds
+
+        // Store interval ID in a closure or global
+        ;(globalThis as any).tokenPollingInterval = interval
+      },
+
+      stopTokenPolling: () => {
+        const interval = (globalThis as any).tokenPollingInterval
+        if (interval) {
+          console.log('⏹️ Stopping token polling...')
+          clearInterval(interval)
+          ;(globalThis as any).tokenPollingInterval = null
         }
       },
 
