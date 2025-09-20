@@ -31,20 +31,20 @@ export const Dashboard: React.FC = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
 
-  // Token system - starts with 0 tokens after signup
+  // Token system - use correct database fields
   const getTokenInfo = () => {
     const userPlan = user?.subscription_tier || 'free'
-    const tokens = user?.tokens || 0 // Start with 0 tokens
+    const credits = user?.usage_stats?.credits_remaining || user?.video_credits || 0
 
     switch (userPlan) {
       case 'free':
-        return { remaining: tokens, planName: 'No Plan - Buy Tokens' }
+        return { remaining: credits, planName: 'No Plan - Buy Tokens' }
       case 'basic':
-        return { remaining: tokens, planName: 'Basic Monthly Plan' }
+        return { remaining: credits, planName: 'Basic Monthly Plan' }
       case 'premium':
-        return { remaining: tokens, planName: 'Premium Monthly Plan' }
+        return { remaining: credits, planName: 'Premium Monthly Plan' }
       default:
-        return { remaining: tokens, planName: 'No Plan - Buy Tokens' }
+        return { remaining: credits, planName: 'No Plan - Buy Tokens' }
     }
   }
 

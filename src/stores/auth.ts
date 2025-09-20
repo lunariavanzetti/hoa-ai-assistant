@@ -102,7 +102,13 @@ export const useAuthStore = create<AuthState>()(
                 email: data.user.email!,
                 full_name: fullName,
                 subscription_tier: 'free',
-                tokens: 0 // Start with 0 tokens
+                video_credits: 0, // Start with 0 video credits
+                usage_stats: {
+                  credits_remaining: 0,
+                  videos_this_month: 0,
+                  total_videos_generated: 0,
+                  pay_per_video_purchases: 0
+                }
               })
               .select()
               .single()
@@ -111,7 +117,8 @@ export const useAuthStore = create<AuthState>()(
 
             console.log('=== 👤 NEW USER CREATED ===')
             console.log('📧 Email:', profile.email)
-            console.log('📊 Initial tokens:', profile.tokens)
+            console.log('📊 Initial video credits:', profile.video_credits)
+            console.log('📊 Initial credits remaining:', profile.usage_stats?.credits_remaining || 0)
             console.log('🎯 Initial tier:', profile.subscription_tier)
             console.log('🆔 User ID:', profile.id)
 
@@ -349,9 +356,10 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (profile) {
-            // Log detailed token and tier information
+            // Log detailed credits and tier information
             console.log('✅ User data refreshed:')
-            console.log('📊 TOKENS:', profile.tokens || 0)
+            console.log('📊 VIDEO CREDITS:', profile.video_credits || 0)
+            console.log('📊 CREDITS REMAINING:', profile.usage_stats?.credits_remaining || 0)
             console.log('🎯 TIER:', profile.subscription_tier || 'free')
             console.log('📅 STATUS:', profile.subscription_status || 'inactive')
             console.log('🆔 USER ID:', profile.id)

@@ -188,12 +188,12 @@ module.exports = async (req, res) => {
       // Map price IDs to tokens and tiers (Live + Sandbox)
       const priceMap = {
         // Live/Production Price IDs
-        'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'pay_per_video' }, // Pay-per-video $2.99
+        'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'free' }, // Pay-per-video $2.99 (stays as free tier but adds credits)
         'pri_01k57p3ca33wrf9vs80qsvjzj8': { tokens: 20, tier: 'basic' }, // Basic Monthly $19.99
         'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'premium' }, // Premium Monthly $49.99
 
         // Sandbox/Test Price IDs
-        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 1, tier: 'pay_per_video' }, // Sandbox Pay-per-video $2.99
+        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 1, tier: 'free' }, // Sandbox Pay-per-video $2.99 (stays as free tier but adds credits)
         'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'basic' }, // Sandbox Basic Monthly $19.99
         'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'premium' } // Sandbox Premium Monthly $49.99
       }
@@ -203,9 +203,9 @@ module.exports = async (req, res) => {
         tokensToAdd = purchase.tokens
         subscriptionTier = purchase.tier
       } else {
-        console.log('⚠️ Unknown price ID, defaulting to 1 token')
+        console.log('⚠️ Unknown price ID, defaulting to 1 credit')
         tokensToAdd = 1
-        subscriptionTier = 'pay_per_video'
+        subscriptionTier = 'free'
       }
 
       console.log('🎯 Tokens to add:', tokensToAdd)
@@ -215,9 +215,9 @@ module.exports = async (req, res) => {
       try {
         console.log('🔄 Attempting database update via REST API...')
         
-        // First, get current user data to add tokens to existing balance
+        // First, get current user data to add credits to existing balance
         const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
-        const getUserUrl = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${customerEmail}&select=tokens`)
+        const getUserUrl = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${customerEmail}&select=video_credits,usage_stats`)
         const currentUserData = await new Promise((resolve, reject) => {
           const options = {
             hostname: getUserUrl.hostname,
@@ -245,14 +245,14 @@ module.exports = async (req, res) => {
           req.end()
         })
 
-        const currentTokens = currentUserData[0]?.tokens || 0
-        const newTokenBalance = currentTokens + tokensToAdd
+        const currentCredits = currentUserData[0]?.usage_stats?.credits_remaining || currentUserData[0]?.video_credits || 0
+        const newCreditBalance = currentCredits + tokensToAdd
 
-        console.log('=== 📊 TOKEN UPDATE DETAILS ===')
+        console.log('=== 📊 CREDIT UPDATE DETAILS ===')
         console.log('👤 Customer Email:', customerEmail)
-        console.log('🔄 Current tokens:', currentTokens)
-        console.log('➕ Adding tokens:', tokensToAdd)
-        console.log('🎯 New token balance:', newTokenBalance)
+        console.log('🔄 Current credits:', currentCredits)
+        console.log('➕ Adding credits:', tokensToAdd)
+        console.log('🎯 New credit balance:', newCreditBalance)
         console.log('🏷️ Setting tier:', subscriptionTier)
         console.log('💰 Price ID:', priceId)
         console.log('⏰ Timestamp:', new Date().toISOString())
@@ -261,7 +261,13 @@ module.exports = async (req, res) => {
           subscription_tier: subscriptionTier,
           subscription_status: 'active',
           paddle_customer_id: paddleCustomerId,
-          tokens: newTokenBalance,
+          video_credits: newCreditBalance,
+          usage_stats: {
+            credits_remaining: newCreditBalance,
+            videos_this_month: currentUserData[0]?.usage_stats?.videos_this_month || 0,
+            total_videos_generated: currentUserData[0]?.usage_stats?.total_videos_generated || 0,
+            pay_per_video_purchases: (currentUserData[0]?.usage_stats?.pay_per_video_purchases || 0) + (subscriptionTier === 'pay_per_video' ? 1 : 0)
+          },
           updated_at: new Date().toISOString()
         }
 
@@ -329,7 +335,7 @@ module.exports = async (req, res) => {
         console.log('=== ✅ WEBHOOK SUCCESS ===')
         console.log('🎉 Database update successful!')
         console.log('👤 Customer:', customerEmail)
-        console.log('📊 Final tokens:', newTokenBalance)
+        console.log('📊 Final credits:', newCreditBalance)
         console.log('🎯 Final tier:', subscriptionTier)
         console.log('📅 Status:', 'active')
         console.log('💾 Database response:', result.data)
