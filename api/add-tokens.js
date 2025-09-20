@@ -17,7 +17,10 @@ module.exports = async (req, res) => {
     const email = req.query.email || 'temakikitemakiki@gmail.com'
     const tokens = parseInt(req.query.tokens) || 4
 
-    console.log(`🔄 Adding ${tokens} tokens to ${email}`)
+    console.log('=== 🔄 MANUAL TOKEN ADDITION ===')
+    console.log('👤 Email:', email)
+    console.log('➕ Tokens to add:', tokens)
+    console.log('⏰ Timestamp:', new Date().toISOString())
 
     // Use direct Supabase URL
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
@@ -48,8 +51,9 @@ module.exports = async (req, res) => {
     })
 
     const responseText = await response.text()
-    console.log('Response status:', response.status)
-    console.log('Response body:', responseText)
+    console.log('=== 📡 DATABASE RESPONSE ===')
+    console.log('Status:', response.status)
+    console.log('Response:', responseText)
 
     if (!response.ok) {
       return res.status(response.status).json({
@@ -60,6 +64,13 @@ module.exports = async (req, res) => {
     }
 
     const userData = JSON.parse(responseText)
+
+    console.log('=== ✅ MANUAL TOKEN ADDITION SUCCESS ===')
+    console.log('👤 Email:', email)
+    console.log('📊 Tokens added:', tokens)
+    console.log('🎯 New tier:', 'pay_per_video')
+    console.log('📅 Status:', 'active')
+    console.log('👤 Updated user:', userData[0] || userData)
 
     return res.status(200).json({
       success: true,

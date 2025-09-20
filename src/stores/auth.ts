@@ -107,11 +107,18 @@ export const useAuthStore = create<AuthState>()(
 
             if (profileError) throw profileError
 
-            set({ 
-              user: profile, 
+            console.log('=== 👤 NEW USER CREATED ===')
+            console.log('📧 Email:', profile.email)
+            console.log('📊 Initial tokens:', profile.tokens)
+            console.log('🎯 Initial tier:', profile.subscription_tier)
+            console.log('🆔 User ID:', profile.id)
+
+            set({
+              user: profile,
               session: data.session,
-              loading: false 
+              loading: false
             })
+            console.log('✅ User signed up successfully')
           }
         } catch (error) {
           set({ 
@@ -340,8 +347,16 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (profile) {
+            // Log detailed token and tier information
+            console.log('✅ User data refreshed:')
+            console.log('📊 TOKENS:', profile.tokens || 0)
+            console.log('🎯 TIER:', profile.subscription_tier || 'free')
+            console.log('📅 STATUS:', profile.subscription_status || 'inactive')
+            console.log('🆔 USER ID:', profile.id)
+            console.log('📧 EMAIL:', profile.email)
+            console.log('⏰ UPDATED:', profile.updated_at)
+
             set({ user: profile })
-            console.log('✅ User data refreshed:', profile.subscription_tier)
           }
         } catch (error) {
           console.error('❌ Error refreshing user data:', error)

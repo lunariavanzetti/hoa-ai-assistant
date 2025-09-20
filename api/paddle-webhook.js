@@ -248,9 +248,14 @@ module.exports = async (req, res) => {
         const currentTokens = currentUserData[0]?.tokens || 0
         const newTokenBalance = currentTokens + tokensToAdd
 
+        console.log('=== 📊 TOKEN UPDATE DETAILS ===')
+        console.log('👤 Customer Email:', customerEmail)
         console.log('🔄 Current tokens:', currentTokens)
         console.log('➕ Adding tokens:', tokensToAdd)
         console.log('🎯 New token balance:', newTokenBalance)
+        console.log('🏷️ Setting tier:', subscriptionTier)
+        console.log('💰 Price ID:', priceId)
+        console.log('⏰ Timestamp:', new Date().toISOString())
 
         const updateData = {
           subscription_tier: subscriptionTier,
@@ -314,14 +319,20 @@ module.exports = async (req, res) => {
 
         if (!result.success) {
           console.error('💥 Database update failed:', result.data)
-          return res.status(500).json({ 
+          return res.status(500).json({
             error: 'Failed to update user subscription',
             status: result.status,
             details: result.data
           })
         }
 
-        console.log('✅ Database update successful:', result.data)
+        console.log('=== ✅ WEBHOOK SUCCESS ===')
+        console.log('🎉 Database update successful!')
+        console.log('👤 Customer:', customerEmail)
+        console.log('📊 Final tokens:', newTokenBalance)
+        console.log('🎯 Final tier:', subscriptionTier)
+        console.log('📅 Status:', 'active')
+        console.log('💾 Database response:', result.data)
         
       } catch (dbError) {
         console.error('💥 Database connection error:', dbError)
