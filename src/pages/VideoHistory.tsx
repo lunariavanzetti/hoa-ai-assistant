@@ -131,13 +131,13 @@ export const VideoHistory: React.FC = () => {
 
         <div className="relative z-10 px-4 py-8">
           <div className="max-w-7xl mx-auto space-y-6">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl p-6 animate-pulse">
+            <div className="video-card p-6 animate-pulse">
               <div className="h-8 bg-white/10 rounded w-1/3 mb-4"></div>
               <div className="h-4 bg-white/10 rounded w-2/3"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl p-4 animate-pulse">
+                <div key={i} className="video-card p-4 animate-pulse">
                   <div className="aspect-video bg-white/10 rounded-xl mb-4"></div>
                   <div className="h-6 bg-white/10 rounded mb-2"></div>
                   <div className="h-4 bg-white/10 rounded w-2/3"></div>
@@ -152,22 +152,40 @@ export const VideoHistory: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Liquid Background */}
+      {/* Fixed Looped Liquid Background */}
       <div
-        className="fixed inset-0 z-[-1] opacity-40"
+        className="fixed inset-0 z-[-1]"
         style={{
           background: `
-            radial-gradient(circle at 20% 50%, rgba(0, 122, 255, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(175, 82, 222, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(255, 45, 146, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 60% 30%, rgba(255, 149, 0, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 20% 50%, rgba(0, 122, 255, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(175, 82, 222, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(255, 45, 146, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 60% 30%, rgba(255, 149, 0, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 90% 70%, rgba(34, 197, 94, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 10% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
             linear-gradient(145deg, #000000 0%, #1a1a1a 25%, #2d2d2d 50%, #1a1a1a 75%, #000000 100%)
           `,
-          animation: 'liquidFlow 20s ease-in-out infinite'
+          animation: 'liquidFlow 25s ease-in-out infinite',
+          backgroundAttachment: 'fixed',
+          backgroundSize: '100% 100%'
         }}
       />
 
-      <div className="relative z-10">
+      {/* Additional animated overlay for more dynamic effect */}
+      <div
+        className="fixed inset-0 z-[-1]"
+        style={{
+          background: `
+            radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.1) 0%, transparent 60%),
+            radial-gradient(circle at 70% 60%, rgba(244, 63, 94, 0.1) 0%, transparent 60%),
+            radial-gradient(circle at 50% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 60%)
+          `,
+          animation: 'liquidFlow 30s ease-in-out infinite reverse',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+
+      <div className="relative z-10 scrollable-content">
         {/* Header */}
         <header className="p-4">
           <div className="flex items-center justify-between">
@@ -215,7 +233,7 @@ export const VideoHistory: React.FC = () => {
 
         {/* Mobile Menu Dropdown */}
         {showMobileMenu && (
-          <div className="absolute top-20 left-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 z-50">
+          <div className="absolute top-20 left-4 video-card p-4 z-50">
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => {
@@ -279,7 +297,7 @@ export const VideoHistory: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl p-6"
+              className="video-card p-6"
             >
               {/* Search and Filters */}
               <div className="flex flex-col lg:flex-row gap-4 mb-6">
@@ -354,7 +372,7 @@ export const VideoHistory: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden group"
+                  className="video-card rounded-xl overflow-hidden group"
                 >
                   {/* Video Preview */}
                   <div className="aspect-video bg-black relative overflow-hidden">
@@ -521,7 +539,7 @@ export const VideoHistory: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-12 bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl"
+                className="text-center py-12 video-card"
               >
                 <Video className="w-16 h-16 mx-auto mb-4 text-white/30" />
                 <h3 className="text-xl font-semibold mb-2 text-white">
@@ -562,13 +580,40 @@ export const VideoHistory: React.FC = () => {
         @keyframes liquidFlow {
           0%, 100% {
             filter: hue-rotate(0deg) blur(0px);
+            transform: scale(1) rotate(0deg);
           }
-          33% {
-            filter: hue-rotate(120deg) blur(2px);
+          25% {
+            filter: hue-rotate(90deg) blur(1px);
+            transform: scale(1.02) rotate(0.5deg);
           }
-          66% {
-            filter: hue-rotate(240deg) blur(1px);
+          50% {
+            filter: hue-rotate(180deg) blur(2px);
+            transform: scale(1.05) rotate(1deg);
           }
+          75% {
+            filter: hue-rotate(270deg) blur(1px);
+            transform: scale(1.02) rotate(0.5deg);
+          }
+        }
+
+        /* Ensure smooth scrolling over fixed background */
+        .scrollable-content {
+          backdrop-filter: blur(0.5px);
+          -webkit-backdrop-filter: blur(0.5px);
+        }
+
+        /* Enhanced video cards with better transparency */
+        .video-card {
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .video-card:hover {
+          background: rgba(255, 255, 255, 0.12);
+          transform: translateY(-4px);
+          transition: all 0.3s ease;
         }
       `}</style>
     </div>
