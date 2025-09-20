@@ -368,284 +368,285 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Main Content */}
-        <main className="flex flex-col h-[calc(100vh-100px)]">
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-6 px-4"
-            >
-              <h1 className="text-3xl font-bold text-white mb-2">
-                Create AI Video
-              </h1>
-              <p className="text-white/70 text-lg">
-                Describe your idea and generate stunning videos
-              </p>
-            </motion.div>
+        {/* Main Content - Scrollable Area */}
+        <main className="flex flex-col min-h-[calc(100vh-100px)] pb-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-6 px-4"
+          >
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Create AI Video
+            </h1>
+            <p className="text-white/70 text-lg">
+              Describe your idea and generate stunning videos
+            </p>
+          </motion.div>
 
-            {/* Spacer to push content to bottom */}
-            <div className="flex-1"></div>
-
-            {/* Bottom Controls Container */}
-            <div className="w-full px-4 pb-0">
+          {/* Generated Videos Display */}
+          {generatedVideos.length > 0 && (
+            <div className="w-full px-4">
               <div className="w-full md:w-3/4 mx-auto">
-                {/* Orientation Dropdown */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="mb-4 relative"
+                  className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl mb-6"
                 >
-                  <button
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="w-full flex items-center justify-between p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white hover:bg-white/15 transition-all"
-                  >
-                    <span className="text-lg">
-                      {orientation === 'horizontal' ? '🖥️ Horizontal (16:9)' : '📱 Vertical (9:16)'}
-                    </span>
-                    <ChevronDown className={`w-5 h-5 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {showDropdown && (
-                    <div className="absolute bottom-full left-0 right-0 mb-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden z-10">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-white">
+                        Generated Videos ({generatedVideos.length})
+                      </h3>
                       <button
                         onClick={() => {
-                          setOrientation('horizontal')
-                          setShowDropdown(false)
+                          console.log('🗑️ Clearing all generated videos from display')
+                          clearAllVideos()
                         }}
-                        className="w-full flex items-center gap-3 p-4 text-white hover:bg-white/10 transition-all"
+                        className="text-white/60 hover:text-white/80 transition-colors"
                       >
-                        <div className="w-8 h-5 bg-white/20 rounded-sm"></div>
-                        <span>Horizontal (16:9)</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setOrientation('vertical')
-                          setShowDropdown(false)
-                        }}
-                        className="w-full flex items-center gap-3 p-4 text-white hover:bg-white/10 transition-all"
-                      >
-                        <div className="w-5 h-8 bg-white/20 rounded-sm"></div>
-                        <span>Vertical (9:16)</span>
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
-                  )}
-                </motion.div>
 
-                {/* Generated Videos Display */}
-                {generatedVideos.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl mb-6"
-                  >
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-semibold text-white">
-                          Generated Videos ({generatedVideos.length})
-                        </h3>
-                        <button
-                          onClick={() => {
-                            console.log('🗑️ Clearing all generated videos from display')
-                            clearAllVideos()
-                          }}
-                          className="text-white/60 hover:text-white/80 transition-colors"
+                    <div className="space-y-6">
+                      {generatedVideos.map((video, index) => (
+                        <motion.div
+                          key={video.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-white/5 rounded-lg p-4"
                         >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      <div className="space-y-6">
-                        {generatedVideos.map((video, index) => (
-                          <motion.div
-                            key={video.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-white/5 rounded-lg p-4"
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs font-medium">
-                                  Video {generatedVideos.length - index}
-                                </span>
-                                <span className="text-white/40 text-xs">
-                                  {new Date(video.timestamp).toLocaleTimeString()}
-                                </span>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  console.log('🗑️ Removing video:', video.id)
-                                  removeVideo(video.id)
-                                }}
-                                className="text-white/40 hover:text-white/70 transition-colors"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs font-medium">
+                                Video {generatedVideos.length - index}
+                              </span>
+                              <span className="text-white/40 text-xs">
+                                {new Date(video.timestamp).toLocaleTimeString()}
+                              </span>
                             </div>
-
-                            <div className="relative rounded-lg overflow-hidden bg-black/20 mb-3">
-                              <video
-                                src={video.url}
-                                controls
-                                className="w-full max-h-64 object-cover"
-                                autoPlay={false}
-                              />
-                            </div>
-
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <p className="text-white/60 text-sm mb-1">Prompt:</p>
-                              <p className="text-white text-sm">{video.prompt}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Input Area at Bottom */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl mb-0"
-                >
-                  <div className="flex items-end gap-3 p-4">
-                    <textarea
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Describe your video idea..."
-                      className="flex-1 p-3 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none text-lg"
-                      rows={2}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          handleGenerate()
-                        }
-                      }}
-                    />
-
-                    <button
-                      onClick={handleGenerate}
-                      disabled={!prompt.trim() || isGenerating}
-                      className={`p-3 rounded-lg transition-all ${
-                        (!prompt.trim() || isGenerating)
-                          ? 'bg-white/10 text-white/50 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
-                      }`}
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                      ) : (
-                        <Send className="w-6 h-6" />
-                      )}
-                    </button>
-                  </div>
-
-                  {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
-                    <div className="px-4 pb-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-red-400 text-sm">
-                          You have 0 tokens. Purchase tokens to generate videos.
-                        </p>
-                        <motion.button
-                          onClick={() => setShowPricingModal(true)}
-                          className="relative overflow-hidden group bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-                          whileHover={{
-                            scale: 1.05,
-                            boxShadow: "0 0 30px rgba(59, 130, 246, 0.5)"
-                          }}
-                          whileTap={{ scale: 0.95 }}
-                          animate={{
-                            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                          }}
-                          transition={{
-                            backgroundPosition: {
-                              duration: 3,
-                              repeat: Infinity,
-                              ease: "linear"
-                            }
-                          }}
-                          style={{
-                            backgroundSize: "200% 200%"
-                          }}
-                        >
-                          <span className="relative z-10 flex items-center gap-1">
-                            <motion.span
-                              animate={{
-                                rotate: [0, 360],
-                                scale: [1, 1.2, 1]
+                            <button
+                              onClick={() => {
+                                console.log('🗑️ Removing video:', video.id)
+                                removeVideo(video.id)
                               }}
-                              transition={{
-                                rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                                scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
-                              }}
+                              className="text-white/40 hover:text-white/70 transition-colors"
                             >
-                              ⚡
-                            </motion.span>
-                            Buy Tokens
-                          </span>
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
 
-                          {/* Animated background particles */}
-                          <div className="absolute inset-0 opacity-30">
-                            <motion.div
-                              className="absolute w-1 h-1 bg-white rounded-full"
-                              animate={{
-                                x: [0, 40, 0],
-                                y: [0, -20, 0],
-                                opacity: [0, 1, 0]
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                delay: 0
-                              }}
-                              style={{ left: "10%", top: "20%" }}
-                            />
-                            <motion.div
-                              className="absolute w-1 h-1 bg-white rounded-full"
-                              animate={{
-                                x: [0, -30, 0],
-                                y: [0, -15, 0],
-                                opacity: [0, 1, 0]
-                              }}
-                              transition={{
-                                duration: 2.5,
-                                repeat: Infinity,
-                                delay: 0.5
-                              }}
-                              style={{ right: "15%", top: "60%" }}
-                            />
-                            <motion.div
-                              className="absolute w-1 h-1 bg-white rounded-full"
-                              animate={{
-                                x: [0, 20, 0],
-                                y: [0, 15, 0],
-                                opacity: [0, 1, 0]
-                              }}
-                              transition={{
-                                duration: 1.8,
-                                repeat: Infinity,
-                                delay: 1
-                              }}
-                              style={{ left: "60%", top: "10%" }}
+                          <div className="relative rounded-lg overflow-hidden bg-black/20 mb-3">
+                            <video
+                              src={video.url}
+                              controls
+                              className="w-full max-h-64 object-cover"
+                              autoPlay={false}
                             />
                           </div>
 
-                          {/* Glow effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10" />
-                        </motion.button>
-                      </div>
+                          <div className="bg-white/5 rounded-lg p-3">
+                            <p className="text-white/60 text-sm mb-1">Prompt:</p>
+                            <p className="text-white text-sm">{video.prompt}</p>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
-                  )}
+                  </div>
                 </motion.div>
               </div>
             </div>
-          </>
+          )}
         </main>
+
+        {/* Fixed Bottom Input Area */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl border-t border-white/10">
+          <div className="w-full px-4 py-4">
+            <div className="w-full md:w-3/4 mx-auto">
+              {/* Orientation Dropdown */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="mb-4 relative"
+              >
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="w-full flex items-center justify-between p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white hover:bg-white/15 transition-all"
+                >
+                  <span className="text-lg">
+                    {orientation === 'horizontal' ? '🖥️ Horizontal (16:9)' : '📱 Vertical (9:16)'}
+                  </span>
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showDropdown && (
+                  <div className="absolute bottom-full left-0 right-0 mb-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden z-10">
+                    <button
+                      onClick={() => {
+                        setOrientation('horizontal')
+                        setShowDropdown(false)
+                      }}
+                      className="w-full flex items-center gap-3 p-4 text-white hover:bg-white/10 transition-all"
+                    >
+                      <div className="w-8 h-5 bg-white/20 rounded-sm"></div>
+                      <span>Horizontal (16:9)</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setOrientation('vertical')
+                        setShowDropdown(false)
+                      }}
+                      className="w-full flex items-center gap-3 p-4 text-white hover:bg-white/10 transition-all"
+                    >
+                      <div className="w-5 h-8 bg-white/20 rounded-sm"></div>
+                      <span>Vertical (9:16)</span>
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Input Area */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl"
+              >
+                <div className="flex items-end gap-3 p-4">
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe your video idea..."
+                    className="flex-1 p-3 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none text-lg"
+                    rows={2}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleGenerate()
+                      }
+                    }}
+                  />
+
+                  <button
+                    onClick={handleGenerate}
+                    disabled={!prompt.trim() || isGenerating}
+                    className={`p-3 rounded-lg transition-all ${
+                      (!prompt.trim() || isGenerating)
+                        ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
+                    }`}
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    ) : (
+                      <Send className="w-6 h-6" />
+                    )}
+                  </button>
+                </div>
+
+                {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
+                  <div className="px-4 pb-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-red-400 text-sm">
+                        You have 0 tokens. Purchase tokens to generate videos.
+                      </p>
+                      <motion.button
+                        onClick={() => setShowPricingModal(true)}
+                        className="relative overflow-hidden group bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                        whileHover={{
+                          scale: 1.05,
+                          boxShadow: "0 0 30px rgba(59, 130, 246, 0.5)"
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        animate={{
+                          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                        }}
+                        transition={{
+                          backgroundPosition: {
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }
+                        }}
+                        style={{
+                          backgroundSize: "200% 200%"
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center gap-1">
+                          <motion.span
+                            animate={{
+                              rotate: [0, 360],
+                              scale: [1, 1.2, 1]
+                            }}
+                            transition={{
+                              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                              scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
+                            }}
+                          >
+                            ⚡
+                          </motion.span>
+                          Buy Tokens
+                        </span>
+
+                        {/* Animated background particles */}
+                        <div className="absolute inset-0 opacity-30">
+                          <motion.div
+                            className="absolute w-1 h-1 bg-white rounded-full"
+                            animate={{
+                              x: [0, 40, 0],
+                              y: [0, -20, 0],
+                              opacity: [0, 1, 0]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: 0
+                            }}
+                            style={{ left: "10%", top: "20%" }}
+                          />
+                          <motion.div
+                            className="absolute w-1 h-1 bg-white rounded-full"
+                            animate={{
+                              x: [0, -30, 0],
+                              y: [0, -15, 0],
+                              opacity: [0, 1, 0]
+                            }}
+                            transition={{
+                              duration: 2.5,
+                              repeat: Infinity,
+                              delay: 0.5
+                            }}
+                            style={{ right: "15%", top: "60%" }}
+                          />
+                          <motion.div
+                            className="absolute w-1 h-1 bg-white rounded-full"
+                            animate={{
+                              x: [0, 20, 0],
+                              y: [0, 15, 0],
+                              opacity: [0, 1, 0]
+                            }}
+                            transition={{
+                              duration: 1.8,
+                              repeat: Infinity,
+                              delay: 1
+                            }}
+                            style={{ left: "60%", top: "10%" }}
+                          />
+                        </div>
+
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10" />
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Pricing Modal */}
