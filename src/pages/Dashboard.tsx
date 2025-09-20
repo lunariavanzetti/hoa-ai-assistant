@@ -30,7 +30,7 @@ export const Dashboard: React.FC = () => {
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
-  const [generatedVideo, setGeneratedVideo] = useState<{url: string, prompt: string} | null>(null)
+  const [generatedVideos, setGeneratedVideos] = useState<{id: string, url: string, prompt: string, timestamp: string}[]>([])
 
   // Token system - use correct database fields
   const getTokenInfo = () => {
@@ -93,21 +93,35 @@ export const Dashboard: React.FC = () => {
       console.log('✅ Video generation completed!')
       console.log('🎥 Generated video for prompt:', prompt.trim())
 
-      // Simulate a generated video (for now, use a placeholder)
-      const mockVideoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-      const generatedVideoData = {
-        url: mockVideoUrl,
-        prompt: prompt.trim()
+      // Simulate a generated video (for now, use different placeholder videos)
+      const videoSamples = [
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
+      ]
+
+      const randomVideoUrl = videoSamples[generatedVideos.length % videoSamples.length]
+      const newVideoData = {
+        id: `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        url: randomVideoUrl,
+        prompt: prompt.trim(),
+        timestamp: new Date().toISOString()
       }
 
-      console.log('🎬 Setting generated video data:', generatedVideoData)
-      setGeneratedVideo(generatedVideoData)
+      console.log('🎬 Adding new video to collection:', newVideoData)
+      console.log('📊 Total videos after this generation:', generatedVideos.length + 1)
+
+      // Add to the beginning of the array (newest first)
+      setGeneratedVideos(prev => [newVideoData, ...prev])
 
       // TODO: In real implementation, this would:
       // 1. Call actual video generation API
       // 2. Deduct 1 credit from user's balance
       // 3. Save video to database
-      console.log('💾 Video now displayed on dashboard')
+      console.log('💾 Video now added to dashboard collection')
+      console.log('📹 Videos in collection:', generatedVideos.length + 1)
       console.log('📊 Credits should be deducted by 1 (not implemented yet)')
 
       // Don't navigate away - stay on dashboard to show the video
@@ -357,8 +371,8 @@ export const Dashboard: React.FC = () => {
                   )}
                 </motion.div>
 
-                {/* Generated Video Display */}
-                {generatedVideo && (
+                {/* Generated Videos Display */}
+                {generatedVideos.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -367,11 +381,13 @@ export const Dashboard: React.FC = () => {
                   >
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-semibold text-white">Generated Video</h3>
+                        <h3 className="text-xl font-semibold text-white">
+                          Generated Videos ({generatedVideos.length})
+                        </h3>
                         <button
                           onClick={() => {
-                            console.log('🗑️ Clearing generated video from display')
-                            setGeneratedVideo(null)
+                            console.log('🗑️ Clearing all generated videos from display')
+                            setGeneratedVideos([])
                           }}
                           className="text-white/60 hover:text-white/80 transition-colors"
                         >
@@ -379,18 +395,50 @@ export const Dashboard: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="relative rounded-lg overflow-hidden bg-black/20 mb-4">
-                        <video
-                          src={generatedVideo.url}
-                          controls
-                          className="w-full max-h-96 object-contain"
-                          autoPlay={false}
-                        />
-                      </div>
+                      <div className="space-y-6">
+                        {generatedVideos.map((video, index) => (
+                          <motion.div
+                            key={video.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-white/5 rounded-lg p-4"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs font-medium">
+                                  Video {generatedVideos.length - index}
+                                </span>
+                                <span className="text-white/40 text-xs">
+                                  {new Date(video.timestamp).toLocaleTimeString()}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  console.log('🗑️ Removing video:', video.id)
+                                  setGeneratedVideos(prev => prev.filter(v => v.id !== video.id))
+                                }}
+                                className="text-white/40 hover:text-white/70 transition-colors"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
 
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <p className="text-white/60 text-sm mb-1">Prompt used:</p>
-                        <p className="text-white text-sm">{generatedVideo.prompt}</p>
+                            <div className="relative rounded-lg overflow-hidden bg-black/20 mb-3">
+                              <video
+                                src={video.url}
+                                controls
+                                className="w-full max-h-64 object-contain"
+                                autoPlay={false}
+                              />
+                            </div>
+
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <p className="text-white/60 text-sm mb-1">Prompt:</p>
+                              <p className="text-white text-sm">{video.prompt}</p>
+                            </div>
+                          </motion.div>
+                        ))}
                       </div>
                     </div>
                   </motion.div>
