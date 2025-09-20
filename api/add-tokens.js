@@ -97,21 +97,18 @@ module.exports = async (req, res) => {
       }
     })
 
+    let currentCredits = 0
+    let currentUserData = []
+
     if (getUserResponse.ok) {
       const userData = await getUserResponse.json()
+      currentUserData = userData
+
       console.log('=== 👤 CURRENT USER DATA ===')
       console.log('User found:', userData.length > 0)
       if (userData.length > 0) {
         console.log('Available columns:', Object.keys(userData[0]))
         console.log('Current user data:', userData[0])
-      }
-    }
-
-    // Get current credits and add to them
-    let currentCredits = 0
-    if (getUserResponse.ok) {
-      const userData = await getUserResponse.json()
-      if (userData.length > 0) {
         currentCredits = userData[0].usage_stats?.credits_remaining || userData[0].video_credits || 0
       }
     }
