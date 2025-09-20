@@ -84,6 +84,7 @@ class PaddleClient {
     console.log('- Client Token Valid:', clientToken?.startsWith(environment === 'sandbox' ? 'test_' : 'live_'))
     console.log('- Price ID:', priceId)
     console.log('- Customer ID:', customerId)
+    console.log('- User Email:', userEmail)
     console.log('- Current URL:', window.location.href)
     console.log('- User Agent:', navigator.userAgent)
     
@@ -91,21 +92,24 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      // Basic checkout configuration with required URLs
+      // Use the correct Paddle Checkout.open() configuration format
       const checkoutConfig: any = {
-        items: [{ priceId, quantity: 1 }],
-        settings: {
-          successUrl: `${window.location.origin}/pricing?success=true`,
-          errorUrl: `${window.location.origin}/pricing?error=true`
-        }
+        items: [{
+          priceId: priceId,
+          quantity: 1
+        }]
       }
 
-      // Add customer info if available
+      // Add customer info if available (for better UX)
       if (customerId) {
         checkoutConfig.customerId = customerId
       } else if (userEmail) {
-        checkoutConfig.customer = { email: userEmail }
+        checkoutConfig.customerEmail = userEmail
       }
+
+      // Add success/error URLs (these help with completion tracking)
+      checkoutConfig.successUrl = `${window.location.origin}/pricing?success=true`
+      checkoutConfig.errorUrl = `${window.location.origin}/pricing?error=true`
 
       console.log('🔧 UPDATED Full checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
 
@@ -225,29 +229,19 @@ class PaddleClient {
       console.log('Available paddle methods:', Object.keys(paddle))
 
       try {
-        // Try global Paddle first (bypasses token setup issues)
-        console.log('🧪 Testing with global Paddle instance (no token)...')
-        try {
+        // Use the initialized paddle instance first (proper v2 approach)
+        console.log('🚀 Using initialized Paddle instance with token...')
+        if (paddle.Checkout && paddle.Checkout.open) {
+          console.log('Using paddle.Checkout.open method (v2)')
+          checkout = await paddle.Checkout.open(checkoutConfig)
+          console.log('✅ Checkout opened via paddle.Checkout.open:', checkout)
+        } else {
+          // Fallback to global Paddle
+          console.log('🔄 Falling back to global Paddle instance...')
           if (typeof (window as any).Paddle?.Checkout?.open === 'function') {
-            console.log('Using GLOBAL Paddle.Checkout.open (bypassing token)')
+            console.log('Using GLOBAL Paddle.Checkout.open')
             checkout = await (window as any).Paddle.Checkout.open(checkoutConfig)
             console.log('✅ Global checkout success:', checkout)
-          } else {
-            throw new Error('Global Paddle.Checkout.open not available')
-          }
-        } catch (globalError) {
-          console.error('❌ Global Paddle failed:', globalError)
-
-          // Fallback to initialized instance
-          console.log('🔄 Falling back to initialized Paddle instance...')
-          if (paddle.Checkout && paddle.Checkout.open) {
-            console.log('Using paddle.Checkout.open method (v2)')
-            checkout = await paddle.Checkout.open(checkoutConfig)
-            console.log('✅ Checkout opened via paddle.Checkout.open:', checkout)
-          } else if (typeof paddle.open === 'function') {
-            console.log('Using paddle.open method (v2)')
-            checkout = await paddle.open(checkoutConfig)
-            console.log('✅ Checkout opened via paddle.open:', checkout)
           } else {
             console.log('Available paddle methods:', Object.keys(paddle))
             console.log('Global Paddle methods:', Object.keys((window as any).Paddle || {}))
