@@ -221,20 +221,51 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Liquid Background */}
-      <div
-        className="fixed inset-0 z-[-1] opacity-40"
-        style={{
-          background: `
-            radial-gradient(circle at 20% 50%, rgba(0, 122, 255, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(175, 82, 222, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(255, 45, 146, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 60% 30%, rgba(255, 149, 0, 0.15) 0%, transparent 50%),
-            linear-gradient(145deg, #000000 0%, #1a1a1a 25%, #2d2d2d 50%, #1a1a1a 75%, #000000 100%)
-          `,
-          animation: 'liquidFlow 20s ease-in-out infinite'
-        }}
-      />
+      {/* Enhanced Liquid Background - Fixed Position */}
+      <div className="fixed inset-0 z-[-1] overflow-hidden">
+        {/* Base gradient layer */}
+        <div
+          className="absolute inset-0 opacity-80"
+          style={{
+            background: `
+              radial-gradient(circle at 20% 50%, rgba(0, 122, 255, 0.25) 0%, transparent 60%),
+              radial-gradient(circle at 80% 20%, rgba(175, 82, 222, 0.25) 0%, transparent 60%),
+              radial-gradient(circle at 40% 80%, rgba(255, 45, 146, 0.25) 0%, transparent 60%),
+              radial-gradient(circle at 60% 30%, rgba(255, 149, 0, 0.25) 0%, transparent 60%),
+              linear-gradient(145deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%, #000000 100%)
+            `,
+            animation: 'liquidFlow 25s ease-in-out infinite'
+          }}
+        />
+
+        {/* Animated flowing layer */}
+        <div
+          className="absolute inset-0 opacity-60"
+          style={{
+            background: `
+              radial-gradient(ellipse at 10% 60%, rgba(34, 197, 94, 0.15) 0%, transparent 70%),
+              radial-gradient(ellipse at 90% 40%, rgba(168, 85, 247, 0.15) 0%, transparent 70%),
+              radial-gradient(ellipse at 50% 10%, rgba(59, 130, 246, 0.15) 0%, transparent 70%),
+              radial-gradient(ellipse at 30% 90%, rgba(239, 68, 68, 0.15) 0%, transparent 70%)
+            `,
+            animation: 'liquidFlow 20s ease-in-out infinite reverse'
+          }}
+        />
+
+        {/* Subtle overlay layer */}
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            background: `
+              radial-gradient(circle at 70% 70%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 30% 30%, rgba(244, 63, 94, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+              conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(99, 102, 241, 0.05) 45deg, transparent 90deg, rgba(168, 85, 247, 0.05) 135deg, transparent 180deg, rgba(236, 72, 153, 0.05) 225deg, transparent 270deg, rgba(59, 130, 246, 0.05) 315deg, transparent 360deg)
+            `,
+            animation: 'liquidFlow 30s linear infinite'
+          }}
+        />
+      </div>
 
       <div className="relative z-10">
         {/* Header */}
@@ -661,12 +692,19 @@ export const Dashboard: React.FC = () => {
         @keyframes liquidFlow {
           0%, 100% {
             filter: hue-rotate(0deg) blur(0px);
+            transform: scale(1) rotate(0deg);
           }
-          33% {
-            filter: hue-rotate(120deg) blur(2px);
+          25% {
+            filter: hue-rotate(90deg) blur(1px);
+            transform: scale(1.02) rotate(0.5deg);
           }
-          66% {
-            filter: hue-rotate(240deg) blur(1px);
+          50% {
+            filter: hue-rotate(180deg) blur(2px);
+            transform: scale(1.05) rotate(1deg);
+          }
+          75% {
+            filter: hue-rotate(270deg) blur(1px);
+            transform: scale(1.02) rotate(0.5deg);
           }
         }
       `}</style>
