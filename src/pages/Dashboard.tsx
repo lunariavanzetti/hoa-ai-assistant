@@ -232,7 +232,11 @@ export const Dashboard: React.FC = () => {
               radial-gradient(circle at 80% 20%, rgba(175, 82, 222, 0.25) 0%, transparent 60%),
               radial-gradient(circle at 40% 80%, rgba(255, 45, 146, 0.25) 0%, transparent 60%),
               radial-gradient(circle at 60% 30%, rgba(255, 149, 0, 0.25) 0%, transparent 60%),
-              linear-gradient(145deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%, #000000 100%)
+              linear-gradient(145deg, #000000 0%, #050505 25%, #0f0f0f 50%, #050505 75%, #000000 100%),
+              radial-gradient(ellipse at top left, rgba(0, 0, 0, 0.5) 0%, transparent 50%),
+              radial-gradient(ellipse at top right, rgba(0, 0, 0, 0.5) 0%, transparent 50%),
+              radial-gradient(ellipse at bottom left, rgba(0, 0, 0, 0.5) 0%, transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(0, 0, 0, 0.5) 0%, transparent 50%)
             `,
             animation: 'liquidFlow 8.3s ease-in-out infinite'
           }}
