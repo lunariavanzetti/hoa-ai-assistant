@@ -22,12 +22,18 @@ module.exports = async (req, res) => {
     const action = req.query.action
     if (action === 'test-add-tokens') {
       const email = req.query.email || 'temakikitemakiki@gmail.com'
-      const tokens = parseInt(req.query.tokens) || 1
+      const tokens = parseInt(req.query.tokens) || 2
 
       console.log(`🧪 MANUAL TEST: Adding ${tokens} tokens to ${email}`)
+      console.log('🔧 Environment check:')
+      console.log('- SUPABASE_URL:', process.env.SUPABASE_URL)
+      console.log('- SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
 
       // Manually add tokens using the same logic as webhook
       try {
+        // Use the correct Supabase URL directly
+        const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+        console.log('🔗 Using Supabase URL:', supabaseUrl)
         const updateData = {
           subscription_tier: 'pay_per_video',
           subscription_status: 'active',
@@ -35,7 +41,7 @@ module.exports = async (req, res) => {
           updated_at: new Date().toISOString()
         }
 
-        const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${email}`)
+        const url = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${email}`)
         const postData = JSON.stringify(updateData)
 
         const result = await new Promise((resolve, reject) => {
@@ -210,7 +216,8 @@ module.exports = async (req, res) => {
         console.log('🔄 Attempting database update via REST API...')
         
         // First, get current user data to add tokens to existing balance
-        const getUserUrl = new URL(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${customerEmail}&select=tokens`)
+        const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+        const getUserUrl = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${customerEmail}&select=tokens`)
         const currentUserData = await new Promise((resolve, reject) => {
           const options = {
             hostname: getUserUrl.hostname,
@@ -259,7 +266,7 @@ module.exports = async (req, res) => {
         }
 
         // Use native HTTPS module for better compatibility
-        const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${customerEmail}`)
+        const url = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${customerEmail}`)
         const postData = JSON.stringify(updateData)
 
         const result = await new Promise((resolve, reject) => {
@@ -352,7 +359,8 @@ module.exports = async (req, res) => {
             updated_at: new Date().toISOString()
           }
 
-          const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?paddle_subscription_id=eq.${paddleSubscriptionId}`, {
+          const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+          const response = await fetch(`${supabaseUrl}/rest/v1/users?paddle_subscription_id=eq.${paddleSubscriptionId}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
