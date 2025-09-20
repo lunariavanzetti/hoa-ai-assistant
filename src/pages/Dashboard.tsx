@@ -234,7 +234,7 @@ export const Dashboard: React.FC = () => {
               radial-gradient(circle at 60% 30%, rgba(255, 149, 0, 0.25) 0%, transparent 60%),
               linear-gradient(145deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%, #000000 100%)
             `,
-            animation: 'liquidFlow 25s ease-in-out infinite'
+            animation: 'liquidFlow 8.3s ease-in-out infinite'
           }}
         />
 
@@ -248,7 +248,7 @@ export const Dashboard: React.FC = () => {
               radial-gradient(ellipse at 50% 10%, rgba(59, 130, 246, 0.15) 0%, transparent 70%),
               radial-gradient(ellipse at 30% 90%, rgba(239, 68, 68, 0.15) 0%, transparent 70%)
             `,
-            animation: 'liquidFlow 20s ease-in-out infinite reverse'
+            animation: 'liquidFlow 6.7s ease-in-out infinite reverse'
           }}
         />
 
@@ -262,7 +262,7 @@ export const Dashboard: React.FC = () => {
               radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
               conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(99, 102, 241, 0.05) 45deg, transparent 90deg, rgba(168, 85, 247, 0.05) 135deg, transparent 180deg, rgba(236, 72, 153, 0.05) 225deg, transparent 270deg, rgba(59, 130, 246, 0.05) 315deg, transparent 360deg)
             `,
-            animation: 'liquidFlow 30s linear infinite'
+            animation: 'liquidFlow 10s linear infinite'
           }}
         />
       </div>
