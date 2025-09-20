@@ -92,12 +92,14 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      // Use the correct Paddle Checkout.open() configuration format
+      // Use the correct Paddle v2 checkout configuration format
       const checkoutConfig: any = {
         items: [{
           priceId: priceId,
           quantity: 1
-        }]
+        }],
+        successUrl: `${window.location.origin}/pricing?success=true`,
+        closeUrl: `${window.location.origin}/pricing?error=true`
       }
 
       // Add customer info if available (for better UX)
@@ -107,147 +109,24 @@ class PaddleClient {
         checkoutConfig.customerEmail = userEmail
       }
 
-      // Add success/error URLs (these help with completion tracking)
-      checkoutConfig.successUrl = `${window.location.origin}/pricing?success=true`
-      checkoutConfig.errorUrl = `${window.location.origin}/pricing?error=true`
+      console.log('🔧 Final checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
 
-      console.log('🔧 UPDATED Full checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
-
-      // First, let's test if we can get price information from Paddle
-      try {
-        console.log('🔍 Testing if price exists in Paddle...')
-        const testPrice = await fetch(`https://sandbox-api.paddle.com/prices/${priceId}`, {
-          headers: {
-            'Authorization': `Bearer ${import.meta.env.PADDLE_SANDBOX_API_KEY || 'test-key'}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        console.log('📊 Price API response:', testPrice.status, testPrice.statusText)
-      } catch (priceError) {
-        console.log('⚠️ Could not fetch price info (expected in sandbox):', priceError)
-      }
-
-      console.log('Opening checkout with config:', JSON.stringify(checkoutConfig, null, 2))
-      
-      // Add comprehensive network monitoring
-      console.log('🌐 Starting network monitoring for Paddle requests...')
-
-      // Monitor ALL network requests (not just paddle)
-      const originalFetch = window.fetch
-      window.fetch = function(...args) {
-        const url = args[0]
-        const urlString = typeof url === 'string' ? url : url?.toString() || 'unknown'
-
-        // Log ALL requests to see what's happening
-        console.log('🌐 Network Request:', urlString, args[1])
-
-        return originalFetch.apply(this, args).then(response => {
-          console.log('📡 Network Response:', {
-            url: urlString,
-            status: response.status,
-            statusText: response.statusText,
-            ok: response.ok,
-            headers: Object.fromEntries(response.headers.entries())
-          })
-
-          if (!response.ok) {
-            console.error('❌ Network Error Details:', {
-              url: urlString,
-              status: response.status,
-              statusText: response.statusText,
-              bodyUsed: response.bodyUsed
-            })
-
-            // Try to get error body
-            response.clone().text().then(body => {
-              console.error('❌ Error Response Body:', body)
-            }).catch(() => {
-              console.error('❌ Could not read error response body')
-            })
-          }
-          return response
-        }).catch(error => {
-          console.error('💥 Network Request Failed:', {
-            url: urlString,
-            error: error.message,
-            stack: error.stack
-          })
-          throw error
-        })
-      }
-
-      // Also monitor XMLHttpRequest
-      const originalXHR = window.XMLHttpRequest
-      const xhrInstances = new Set()
-
-      window.XMLHttpRequest = function() {
-        const xhr = new originalXHR()
-        xhrInstances.add(xhr)
-
-        const originalOpen = xhr.open
-        xhr.open = function(method, url, ...args) {
-          console.log('🔗 XHR Request:', method, url)
-          return originalOpen.call(this, method, url, ...args)
-        }
-
-        const originalSend = xhr.send
-        xhr.send = function(data) {
-          console.log('📤 XHR Send:', this.responseURL || 'unknown URL', data)
-          return originalSend.call(this, data)
-        }
-
-        xhr.addEventListener('load', () => {
-          console.log('📥 XHR Response:', {
-            url: xhr.responseURL,
-            status: xhr.status,
-            statusText: xhr.statusText,
-            response: xhr.response
-          })
-        })
-
-        xhr.addEventListener('error', () => {
-          console.error('💥 XHR Error:', {
-            url: xhr.responseURL,
-            status: xhr.status,
-            statusText: xhr.statusText
-          })
-        })
-
-        return xhr
-      }
-
-      // Add detailed validation
+      // Validate checkout configuration
       console.log('🔍 Validating checkout configuration...')
       console.log('- Price ID format valid:', /^pri_[a-zA-Z0-9]+$/.test(priceId))
-      console.log('- Success URL valid:', checkoutConfig.successUrl)
-      console.log('- Close URL valid:', checkoutConfig.closeUrl)
+      console.log('- Success URL:', checkoutConfig.successUrl)
+      console.log('- Close URL:', checkoutConfig.closeUrl)
       console.log('- Environment matches token:', environment)
 
-      // Use Paddle v2 checkout method
-      let checkout: any
-      console.log('🚀 Attempting to open checkout with v2 API...')
-      console.log('Available paddle methods:', Object.keys(paddle))
+      // Open checkout using Paddle v2 API
+      console.log('🚀 Opening checkout with Paddle.Checkout.open...')
+      console.log('Available Paddle methods:', Object.keys((window as any).Paddle || {}))
 
+      let checkout: any
       try {
-        // Use the initialized paddle instance first (proper v2 approach)
-        console.log('🚀 Using initialized Paddle instance with token...')
-        if (paddle.Checkout && paddle.Checkout.open) {
-          console.log('Using paddle.Checkout.open method (v2)')
-          checkout = await paddle.Checkout.open(checkoutConfig)
-          console.log('✅ Checkout opened via paddle.Checkout.open:', checkout)
-        } else {
-          // Fallback to global Paddle
-          console.log('🔄 Falling back to global Paddle instance...')
-          if (typeof (window as any).Paddle?.Checkout?.open === 'function') {
-            console.log('Using GLOBAL Paddle.Checkout.open')
-            checkout = await (window as any).Paddle.Checkout.open(checkoutConfig)
-            console.log('✅ Global checkout success:', checkout)
-          } else {
-            console.log('Available paddle methods:', Object.keys(paddle))
-            console.log('Global Paddle methods:', Object.keys((window as any).Paddle || {}))
-            throw new Error('No checkout method found on Paddle instance')
-          }
-        }
+        // Use the global Paddle.Checkout.open method as per docs
+        checkout = await (window as any).Paddle.Checkout.open(checkoutConfig)
+        console.log('✅ Checkout opened successfully:', checkout)
       } catch (openError) {
         console.error('❌ Checkout failed:', openError)
 
@@ -274,13 +153,6 @@ class PaddleClient {
       }
 
       console.log('✅ Final checkout result:', checkout)
-
-      // Restore original fetch and XHR after a delay
-      setTimeout(() => {
-        window.fetch = originalFetch
-        window.XMLHttpRequest = originalXHR
-        console.log('🔄 Network monitoring restored')
-      }, 15000)
       return checkout
     } catch (error) {
       console.error('=== PADDLE CHECKOUT ERROR ===')
