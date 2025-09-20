@@ -18,10 +18,30 @@ module.exports = async (req, res) => {
   }
   
   if (req.method === 'GET') {
-    return res.status(200).json({ 
+    // Add manual testing endpoint
+    const action = req.query.action
+    if (action === 'test-add-tokens') {
+      const email = req.query.email || 'temakikitemakiki@gmail.com'
+      const tokens = parseInt(req.query.tokens) || 1
+
+      console.log(`🧪 MANUAL TEST: Adding ${tokens} tokens to ${email}`)
+
+      // TODO: Add manual token addition logic here for testing
+      return res.status(200).json({
+        status: 'Manual token test initiated',
+        email: email,
+        tokens: tokens,
+        timestamp: new Date().toISOString(),
+        note: 'This is a test endpoint - check logs for webhook processing'
+      })
+    }
+
+    return res.status(200).json({
       status: 'Paddle webhook endpoint is working',
       method: 'GET',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      webhook_url: 'https://hoa-ai-assistant.vercel.app/api/paddle-webhook',
+      test_url: 'https://hoa-ai-assistant.vercel.app/api/paddle-webhook?action=test-add-tokens&email=temakikitemakiki@gmail.com&tokens=1'
     })
   }
   
@@ -35,9 +55,12 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('✅ POST request received')
-    console.log('📦 Request body:', req.body)
-    console.log('📋 Headers:', req.headers)
+    console.log('=== 🎣 PADDLE WEBHOOK RECEIVED ===')
+    console.log('✅ POST request received at:', new Date().toISOString())
+    console.log('📦 Request body:', JSON.stringify(req.body, null, 2))
+    console.log('📋 Headers:', JSON.stringify(req.headers, null, 2))
+    console.log('🌐 Origin:', req.headers.origin)
+    console.log('🔐 User-Agent:', req.headers['user-agent'])
 
     const eventType = req.body?.event_type
     console.log('📬 Event type:', eventType)
