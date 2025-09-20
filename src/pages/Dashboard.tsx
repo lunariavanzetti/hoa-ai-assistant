@@ -18,11 +18,13 @@ import {
   BarChart3
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
+import { useVideoStore } from '@/stores/videos'
 import { paddleClient } from '@/lib/paddleClient'
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
+  const { generatedVideos, addVideo, removeVideo, clearAllVideos } = useVideoStore()
   const [prompt, setPrompt] = useState('')
   const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -30,7 +32,6 @@ export const Dashboard: React.FC = () => {
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
-  const [generatedVideos, setGeneratedVideos] = useState<{id: string, url: string, prompt: string, timestamp: string}[]>([])
 
   // Token system - use correct database fields
   const getTokenInfo = () => {
@@ -103,18 +104,18 @@ export const Dashboard: React.FC = () => {
       ]
 
       const randomVideoUrl = videoSamples[generatedVideos.length % videoSamples.length]
-      const newVideoData = {
-        id: `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        url: randomVideoUrl,
-        prompt: prompt.trim(),
-        timestamp: new Date().toISOString()
-      }
 
-      console.log('🎬 Adding new video to collection:', newVideoData)
+      console.log('🎬 Adding new video to store:', {
+        url: randomVideoUrl,
+        prompt: prompt.trim()
+      })
       console.log('📊 Total videos after this generation:', generatedVideos.length + 1)
 
-      // Add to the beginning of the array (newest first)
-      setGeneratedVideos(prev => [newVideoData, ...prev])
+      // Add video using the store
+      addVideo({
+        url: randomVideoUrl,
+        prompt: prompt.trim()
+      })
 
       // TODO: In real implementation, this would:
       // 1. Call actual video generation API
@@ -387,7 +388,7 @@ export const Dashboard: React.FC = () => {
                         <button
                           onClick={() => {
                             console.log('🗑️ Clearing all generated videos from display')
-                            setGeneratedVideos([])
+                            clearAllVideos()
                           }}
                           className="text-white/60 hover:text-white/80 transition-colors"
                         >
@@ -416,7 +417,7 @@ export const Dashboard: React.FC = () => {
                               <button
                                 onClick={() => {
                                   console.log('🗑️ Removing video:', video.id)
-                                  setGeneratedVideos(prev => prev.filter(v => v.id !== video.id))
+                                  removeVideo(video.id)
                                 }}
                                 className="text-white/40 hover:text-white/70 transition-colors"
                               >

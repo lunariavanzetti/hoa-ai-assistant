@@ -20,30 +20,33 @@ import {
   User
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
+import { useVideoStore, type GeneratedVideo } from '@/stores/videos'
 
-interface VideoProject {
-  id: string
-  title: string
+// Use the GeneratedVideo type from the store
+type VideoProject = GeneratedVideo & {
   thumbnailUrl?: string
   videoUrl?: string
-  status: 'completed' | 'processing' | 'failed'
-  quality: 'hd' | '4k'
-  duration: number
   createdAt: string
-  fileSize: number
   originalPrompt: string
-  template: string
 }
 
 export const VideoHistory: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
-  const [videos, setVideos] = useState<VideoProject[]>([])
+  const { generatedVideos, removeVideo } = useVideoStore()
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [qualityFilter, setQualityFilter] = useState<string>('all')
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+
+  // Convert store videos to VideoProject format
+  const videos: VideoProject[] = generatedVideos.map(video => ({
+    ...video,
+    videoUrl: video.url,
+    createdAt: video.timestamp,
+    originalPrompt: video.prompt
+  }))
 
   const handleLogout = async () => {
     try {
@@ -54,63 +57,13 @@ export const VideoHistory: React.FC = () => {
     }
   }
 
-  // Mock data
-  const mockVideos: VideoProject[] = [
-    {
-      id: 'video_1',
-      title: 'Product Launch Video',
-      thumbnailUrl: '/api/placeholder/400/225',
-      videoUrl: '/videos/product-launch.mp4',
-      status: 'completed',
-      quality: '4k',
-      duration: 45,
-      createdAt: '2024-01-15T10:30:00Z',
-      fileSize: 89456123,
-      originalPrompt: 'Create a dynamic product launch video for our new smartphone with sleek animations and modern music',
-      template: 'Dynamic Intro'
-    },
-    {
-      id: 'video_2',
-      title: 'Tutorial: Getting Started',
-      thumbnailUrl: '/api/placeholder/400/225',
-      videoUrl: '/videos/tutorial.mp4',
-      status: 'completed',
-      quality: 'hd',
-      duration: 120,
-      createdAt: '2024-01-14T15:22:00Z',
-      fileSize: 156789012,
-      originalPrompt: 'Educational video explaining how to use our platform step by step',
-      template: 'Tutorial Format'
-    },
-    {
-      id: 'video_3',
-      title: 'Social Media Promo',
-      status: 'processing',
-      quality: 'hd',
-      duration: 30,
-      createdAt: '2024-01-14T12:10:00Z',
-      fileSize: 0,
-      originalPrompt: 'Short promotional video for Instagram and TikTok with trendy music',
-      template: 'Social Vertical'
-    },
-    {
-      id: 'video_4',
-      title: 'Company Overview',
-      status: 'failed',
-      quality: 'hd',
-      duration: 60,
-      createdAt: '2024-01-13T09:45:00Z',
-      fileSize: 0,
-      originalPrompt: 'Professional company overview video for our website homepage',
-      template: 'Corporate Presentation'
-    }
-  ]
-
   useEffect(() => {
-    setTimeout(() => {
-      setVideos(mockVideos)
+    // Simulate brief loading to show the loading state
+    const timer = setTimeout(() => {
       setLoading(false)
-    }, 1000)
+    }, 500)
+
+    return () => clearTimeout(timer)
   }, [])
 
   const filteredVideos = videos.filter(video => {
@@ -154,7 +107,8 @@ export const VideoHistory: React.FC = () => {
 
   const handleDelete = (videoId: string) => {
     if (confirm('Are you sure you want to delete this video? This action cannot be undone.')) {
-      setVideos(videos.filter(v => v.id !== videoId))
+      console.log('🗑️ Deleting video from store:', videoId)
+      removeVideo(videoId)
     }
   }
 
@@ -245,7 +199,7 @@ export const VideoHistory: React.FC = () => {
               <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
                 <Zap className="w-4 h-4 text-yellow-400" />
                 <span className="text-sm font-medium text-white">
-                  {user?.tokens || 0} tokens
+                  {user?.usage_stats?.credits_remaining || user?.video_credits || 0} credits
                 </span>
               </div>
 
@@ -402,12 +356,17 @@ export const VideoHistory: React.FC = () => {
                   transition={{ delay: index * 0.1 }}
                   className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden group"
                 >
-                  {/* Video Thumbnail */}
+                  {/* Video Preview */}
                   <div className="aspect-video bg-black relative overflow-hidden">
-                    {video.thumbnailUrl && video.status === 'completed' ? (
-                      <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${video.thumbnailUrl})` }}
+                    {video.videoUrl && video.status === 'completed' ? (
+                      <video
+                        src={video.videoUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        onMouseEnter={(e) => {
+                          const video = e.target as HTMLVideoElement
+                          video.currentTime = 2 // Show a frame from 2 seconds in
+                        }}
                       />
                     ) : video.status === 'processing' ? (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/50 to-purple-900/50">
@@ -444,11 +403,45 @@ export const VideoHistory: React.FC = () => {
                     </div>
 
                     {/* Play Button */}
-                    {video.status === 'completed' && (
+                    {video.status === 'completed' && video.videoUrl && (
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={() => {
+                            console.log('🎬 Playing video:', video.id, video.title)
+                            const videoElement = document.createElement('video')
+                            videoElement.src = video.videoUrl!
+                            videoElement.controls = true
+                            videoElement.autoplay = true
+                            videoElement.style.position = 'fixed'
+                            videoElement.style.top = '50%'
+                            videoElement.style.left = '50%'
+                            videoElement.style.transform = 'translate(-50%, -50%)'
+                            videoElement.style.maxWidth = '90vw'
+                            videoElement.style.maxHeight = '90vh'
+                            videoElement.style.zIndex = '1000'
+                            videoElement.style.borderRadius = '8px'
+                            videoElement.style.boxShadow = '0 20px 40px rgba(0,0,0,0.8)'
+
+                            const overlay = document.createElement('div')
+                            overlay.style.position = 'fixed'
+                            overlay.style.inset = '0'
+                            overlay.style.backgroundColor = 'rgba(0,0,0,0.8)'
+                            overlay.style.zIndex = '999'
+                            overlay.style.backdropFilter = 'blur(4px)'
+
+                            const closeVideo = () => {
+                              document.body.removeChild(overlay)
+                              document.body.removeChild(videoElement)
+                            }
+
+                            overlay.onclick = closeVideo
+                            videoElement.onended = closeVideo
+
+                            document.body.appendChild(overlay)
+                            document.body.appendChild(videoElement)
+                          }}
                           className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-xl flex items-center gap-2 transition-colors"
                         >
                           <Play className="w-4 h-4" />
@@ -542,7 +535,7 @@ export const VideoHistory: React.FC = () => {
                 </p>
                 {videos.length === 0 ? (
                   <button
-                    onClick={() => navigate('/generate')}
+                    onClick={() => navigate('/')}
                     className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded-xl transition-colors"
                   >
                     Generate Your First Video
