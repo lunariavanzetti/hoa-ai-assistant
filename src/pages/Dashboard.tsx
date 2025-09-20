@@ -117,13 +117,39 @@ export const Dashboard: React.FC = () => {
         prompt: prompt.trim()
       })
 
-      // TODO: In real implementation, this would:
-      // 1. Call actual video generation API
-      // 2. Deduct 1 credit from user's balance
-      // 3. Save video to database
       console.log('💾 Video now added to dashboard collection')
       console.log('📹 Videos in collection:', generatedVideos.length + 1)
-      console.log('📊 Credits should be deducted by 1 (not implemented yet)')
+
+      // CRITICAL: Deduct 1 credit from user's balance
+      console.log('💳 Deducting 1 credit from user balance...')
+      try {
+        const response = await fetch('/api/deduct-credit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: user?.email,
+            videoPrompt: prompt.trim()
+          })
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          console.log('✅ Credit deducted successfully:', result)
+          console.log('📊 New credit balance:', result.newBalance)
+
+          // Refresh user data to show updated credits
+          const { refreshUserData } = useAuthStore.getState()
+          refreshUserData()
+        } else {
+          console.error('❌ Failed to deduct credit:', response.status)
+          throw new Error('Credit deduction failed')
+        }
+      } catch (error) {
+        console.error('💥 Credit deduction error:', error)
+        // TODO: Handle credit deduction failure (maybe refund the video?)
+      }
 
       // Don't navigate away - stay on dashboard to show the video
       // navigate('/videos') // REMOVED: Don't redirect
