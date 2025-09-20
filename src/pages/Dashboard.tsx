@@ -94,8 +94,8 @@ export const Dashboard: React.FC = () => {
       console.log('✅ Video generation completed!')
       console.log('🎥 Generated video for prompt:', prompt.trim())
 
-      // Simulate a generated video (for now, use different placeholder videos)
-      const videoSamples = [
+      // Simulate a generated video based on orientation
+      const horizontalVideos = [
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
@@ -103,7 +103,19 @@ export const Dashboard: React.FC = () => {
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
       ]
 
+      const verticalVideos = [
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'
+      ]
+
+      const videoSamples = orientation === 'vertical' ? verticalVideos : horizontalVideos
       const randomVideoUrl = videoSamples[generatedVideos.length % videoSamples.length]
+
+      console.log('🎬 Selected orientation:', orientation)
+      console.log('🎥 Using video URL:', randomVideoUrl)
 
       console.log('🎬 Adding new video to store:', {
         url: randomVideoUrl,
@@ -111,10 +123,11 @@ export const Dashboard: React.FC = () => {
       })
       console.log('📊 Total videos after this generation:', generatedVideos.length + 1)
 
-      // Add video using the store
+      // Add video using the store with orientation
       addVideo({
         url: randomVideoUrl,
-        prompt: prompt.trim()
+        prompt: prompt.trim(),
+        orientation: orientation
       })
 
       console.log('💾 Video now added to dashboard collection')
@@ -461,67 +474,60 @@ export const Dashboard: React.FC = () => {
           )}
         </main>
 
-        {/* Fixed Bottom Input Area */}
+        {/* Fixed Bottom Input Area - Compact */}
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl border-t border-white/10">
-          <div className="w-full px-4 py-4">
+          <div className="w-full px-4 py-2">
             <div className="w-full md:w-3/4 mx-auto">
-              {/* Orientation Dropdown */}
+              {/* Input Area with Inline Orientation */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mb-4 relative"
-              >
-                <button
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="w-full flex items-center justify-between p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white hover:bg-white/15 transition-all"
-                >
-                  <span className="text-lg">
-                    {orientation === 'horizontal' ? '🖥️ Horizontal (16:9)' : '📱 Vertical (9:16)'}
-                  </span>
-                  <ChevronDown className={`w-5 h-5 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showDropdown && (
-                  <div className="absolute bottom-full left-0 right-0 mb-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden z-10">
-                    <button
-                      onClick={() => {
-                        setOrientation('horizontal')
-                        setShowDropdown(false)
-                      }}
-                      className="w-full flex items-center gap-3 p-4 text-white hover:bg-white/10 transition-all"
-                    >
-                      <div className="w-8 h-5 bg-white/20 rounded-sm"></div>
-                      <span>Horizontal (16:9)</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setOrientation('vertical')
-                        setShowDropdown(false)
-                      }}
-                      className="w-full flex items-center gap-3 p-4 text-white hover:bg-white/10 transition-all"
-                    >
-                      <div className="w-5 h-8 bg-white/20 rounded-sm"></div>
-                      <span>Vertical (9:16)</span>
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-
-              {/* Input Area */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
                 className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl"
               >
-                <div className="flex items-end gap-3 p-4">
+                <div className="flex items-center gap-2 p-3">
+                  {/* Compact Orientation Selector */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/15 transition-all text-sm"
+                    >
+                      <span>{orientation === 'horizontal' ? '🖥️' : '📱'}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {showDropdown && (
+                      <div className="absolute bottom-full left-0 mb-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[140px]">
+                        <button
+                          onClick={() => {
+                            setOrientation('horizontal')
+                            setShowDropdown(false)
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
+                        >
+                          <div className="w-6 h-4 bg-white/20 rounded-sm"></div>
+                          <span>16:9</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOrientation('vertical')
+                            setShowDropdown(false)
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
+                        >
+                          <div className="w-4 h-6 bg-white/20 rounded-sm"></div>
+                          <span>9:16</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Describe your video idea..."
-                    className="flex-1 p-3 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none text-lg"
-                    rows={2}
+                    className="flex-1 p-2 bg-transparent text-white placeholder-white/50 resize-none focus:outline-none text-base"
+                    rows={1}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
@@ -533,16 +539,16 @@ export const Dashboard: React.FC = () => {
                   <button
                     onClick={handleGenerate}
                     disabled={!prompt.trim() || isGenerating}
-                    className={`p-3 rounded-lg transition-all ${
+                    className={`p-2 rounded-lg transition-all ${
                       (!prompt.trim() || isGenerating)
                         ? 'bg-white/10 text-white/50 cursor-not-allowed'
                         : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
                     }`}
                   >
                     {isGenerating ? (
-                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Send className="w-6 h-6" />
+                      <Send className="w-5 h-5" />
                     )}
                   </button>
                 </div>
