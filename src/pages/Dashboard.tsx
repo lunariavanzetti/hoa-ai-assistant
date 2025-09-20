@@ -30,6 +30,7 @@ export const Dashboard: React.FC = () => {
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
+  const [generatedVideo, setGeneratedVideo] = useState<{url: string, prompt: string} | null>(null)
 
   // Token system - use correct database fields
   const getTokenInfo = () => {
@@ -60,28 +61,73 @@ export const Dashboard: React.FC = () => {
   }
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return
+    console.log('=== 🎬 VIDEO GENERATION STARTED ===')
+    console.log('📝 Prompt:', prompt.trim())
+    console.log('👤 User ID:', user?.id)
+    console.log('📧 User Email:', user?.email)
+    console.log('📊 Credits before generation:', tokenInfo.remaining)
+    console.log('🎯 Current tier:', user?.subscription_tier)
 
-    // Check if user has tokens
+    if (!prompt.trim()) {
+      console.log('❌ Generation cancelled: Empty prompt')
+      return
+    }
+
+    // Check if user has credits
     if (tokenInfo.remaining <= 0) {
+      console.log('❌ Generation cancelled: No credits remaining')
       setAttemptedGenerationWithNoTokens(true)
       setShowPricingModal(true)
       return
     }
 
     setIsGenerating(true)
+    console.log('🔄 Setting generation state to true')
+
     try {
+      console.log('⏳ Starting video generation simulation (5 seconds)...')
+
       // Simulate video generation (5 seconds)
       await new Promise(resolve => setTimeout(resolve, 5000))
 
-      // After generation, navigate to video history to see the result
-      navigate('/videos')
+      console.log('✅ Video generation completed!')
+      console.log('🎥 Generated video for prompt:', prompt.trim())
+
+      // Simulate a generated video (for now, use a placeholder)
+      const mockVideoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+      const generatedVideoData = {
+        url: mockVideoUrl,
+        prompt: prompt.trim()
+      }
+
+      console.log('🎬 Setting generated video data:', generatedVideoData)
+      setGeneratedVideo(generatedVideoData)
+
+      // TODO: In real implementation, this would:
+      // 1. Call actual video generation API
+      // 2. Deduct 1 credit from user's balance
+      // 3. Save video to database
+      console.log('💾 Video now displayed on dashboard')
+      console.log('📊 Credits should be deducted by 1 (not implemented yet)')
+
+      // Don't navigate away - stay on dashboard to show the video
+      // navigate('/videos') // REMOVED: Don't redirect
+
     } catch (error) {
-      console.error('Generation failed:', error)
+      console.error('💥 Generation failed:', error)
+      console.error('Error details:', {
+        message: error?.message,
+        stack: error?.stack
+      })
     } finally {
       setIsGenerating(false)
+      console.log('✅ Generation process completed, setting loading state to false')
+
       // Clear the prompt after generation
       setPrompt('')
+      console.log('🧹 Prompt cleared')
+
+      console.log('=== 🎬 VIDEO GENERATION FINISHED ===')
     }
   }
 
@@ -310,6 +356,45 @@ export const Dashboard: React.FC = () => {
                     </div>
                   )}
                 </motion.div>
+
+                {/* Generated Video Display */}
+                {generatedVideo && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl mb-6"
+                  >
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-white">Generated Video</h3>
+                        <button
+                          onClick={() => {
+                            console.log('🗑️ Clearing generated video from display')
+                            setGeneratedVideo(null)
+                          }}
+                          className="text-white/60 hover:text-white/80 transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <div className="relative rounded-lg overflow-hidden bg-black/20 mb-4">
+                        <video
+                          src={generatedVideo.url}
+                          controls
+                          className="w-full max-h-96 object-contain"
+                          autoPlay={false}
+                        />
+                      </div>
+
+                      <div className="bg-white/5 rounded-lg p-3">
+                        <p className="text-white/60 text-sm mb-1">Prompt used:</p>
+                        <p className="text-white text-sm">{generatedVideo.prompt}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Input Area at Bottom */}
                 <motion.div
