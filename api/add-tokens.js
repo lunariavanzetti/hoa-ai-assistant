@@ -13,6 +13,61 @@ module.exports = async (req, res) => {
     return
   }
 
+  if (req.method === 'GET' && req.query.action === 'check-schema') {
+    // Schema check functionality
+    try {
+      const email = req.query.email || 'temakikitemakiki@gmail.com'
+      const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+      if (!supabaseKey) {
+        return res.status(500).json({
+          error: 'Missing Supabase service role key'
+        })
+      }
+
+      // Get current user data to see the schema
+      const response = await fetch(`${supabaseUrl}/rest/v1/users?email=eq.${email}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey
+        }
+      })
+
+      const responseText = await response.text()
+      console.log('=== 📊 SCHEMA CHECK ===')
+      console.log('Status:', response.status)
+      console.log('Response:', responseText)
+
+      if (response.ok && responseText) {
+        const userData = JSON.parse(responseText)
+        const availableColumns = userData.length > 0 ? Object.keys(userData[0]) : []
+        console.log('Available columns:', availableColumns)
+        console.log('Has tokens column:', availableColumns.includes('tokens'))
+
+        return res.status(200).json({
+          success: true,
+          usersFound: userData.length,
+          availableColumns: availableColumns,
+          hasTokensColumn: availableColumns.includes('tokens'),
+          sampleData: userData[0] || null
+        })
+      } else {
+        return res.status(500).json({
+          error: 'Failed to query users table',
+          status: response.status,
+          details: responseText
+        })
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error: 'Schema check failed',
+        message: error.message
+      })
+    }
+  }
+
   try {
     const email = req.query.email || 'temakikitemakiki@gmail.com'
     const tokens = parseInt(req.query.tokens) || 4
