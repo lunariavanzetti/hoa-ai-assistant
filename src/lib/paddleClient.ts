@@ -92,21 +92,24 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      // Use the correct Paddle v2 checkout configuration format
+      // Use the correct Paddle v2 checkout configuration format (minimal and clean)
       const checkoutConfig: any = {
         items: [{
           priceId: priceId,
           quantity: 1
-        }],
-        successUrl: `${window.location.origin}/pricing?success=true`,
-        closeUrl: `${window.location.origin}/pricing?error=true`
+        }]
       }
 
-      // Add customer info if available (for better UX)
+      // Add customer info if available (for better UX) - using correct field names
       if (customerId) {
         checkoutConfig.customerId = customerId
-      } else if (userEmail) {
-        checkoutConfig.customerEmail = userEmail
+      }
+
+      // Add customer email separately (not customerEmail)
+      if (userEmail && !customerId) {
+        checkoutConfig.customer = {
+          email: userEmail
+        }
       }
 
       console.log('🔧 Final checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
@@ -114,8 +117,7 @@ class PaddleClient {
       // Validate checkout configuration
       console.log('🔍 Validating checkout configuration...')
       console.log('- Price ID format valid:', /^pri_[a-zA-Z0-9]+$/.test(priceId))
-      console.log('- Success URL:', checkoutConfig.successUrl)
-      console.log('- Close URL:', checkoutConfig.closeUrl)
+      console.log('- Has items:', checkoutConfig.items?.length > 0)
       console.log('- Environment matches token:', environment)
 
       // Open checkout using Paddle v2 API
@@ -141,8 +143,12 @@ class PaddleClient {
         }
 
         // Check for common Paddle errors
+        if (openError?.message?.includes('400') || openError?.message?.includes('Bad Request')) {
+          throw new Error(`HTTP 400 Bad Request: Invalid checkout configuration. This could be due to:\n1. Price ID "${priceId}" is invalid or not found\n2. Price is not active/published in Paddle Sandbox\n3. Invalid checkout parameters\n4. Check the price exists in your Paddle dashboard`)
+        }
+
         if (openError?.message?.includes('403')) {
-          throw new Error('Authentication failed (403). Check if:\n1. Price ID exists and is active in Paddle Sandbox\n2. Client token is valid for sandbox environment\n3. Webhook URL is configured in Paddle dashboard')
+          throw new Error('Authentication failed (403). Check if:\n1. Client token is valid for sandbox environment\n2. Price ID exists and is active in Paddle Sandbox\n3. Domain is approved (if required)')
         }
 
         if (openError?.message?.includes('price')) {
