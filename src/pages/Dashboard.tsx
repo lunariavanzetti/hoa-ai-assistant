@@ -490,7 +490,7 @@ export const Dashboard: React.FC = () => {
                               <video
                                 src={video.url}
                                 controls
-                                className="w-full max-h-64 object-contain"
+                                className="w-full max-h-64 object-cover"
                                 autoPlay={false}
                               />
                             </div>
