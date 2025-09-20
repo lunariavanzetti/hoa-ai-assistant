@@ -70,7 +70,7 @@ class PaddleClient {
     }
   }
 
-  async openCheckout(priceId: string, customerId?: string) {
+  async openCheckout(priceId: string, customerId?: string, userEmail?: string) {
     const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT as 'production' | 'sandbox'
     const clientToken = environment === 'sandbox' 
       ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
@@ -91,13 +91,21 @@ class PaddleClient {
     if (!paddle) throw new Error('Paddle not initialized')
 
     try {
-      // Try extremely minimal configuration to test basic checkout
+      // Basic checkout configuration with required URLs
       const checkoutConfig: any = {
-        items: [{ priceId, quantity: 1 }]
-        // Temporarily remove ALL optional fields to test basic checkout
+        items: [{ priceId, quantity: 1 }],
+        settings: {
+          successUrl: `${window.location.origin}/pricing?success=true`,
+          errorUrl: `${window.location.origin}/pricing?error=true`
+        }
       }
 
-      // Skip customerId and URLs to test minimal setup
+      // Add customer info if available
+      if (customerId) {
+        checkoutConfig.customerId = customerId
+      } else if (userEmail) {
+        checkoutConfig.customer = { email: userEmail }
+      }
 
       console.log('🔧 UPDATED Full checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
 

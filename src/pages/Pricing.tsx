@@ -70,7 +70,7 @@ export const Pricing: React.FC = () => {
       console.log(`Purchasing ${tier.name} for user ${user?.id}`)
 
       // Open Paddle checkout
-      await paddleClient.openCheckout(tier.priceId, user?.paddle_customer_id)
+      await paddleClient.openCheckout(tier.priceId, user?.paddle_customer_id, user?.email)
 
     } catch (error) {
       console.error('Purchase failed:', error)
