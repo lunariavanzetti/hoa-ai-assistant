@@ -31,8 +31,8 @@ class PaddleClient {
 
       // Use correct Paddle.js initialization according to docs
       try {
-        console.log('🔧 Setting Paddle environment to sandbox...')
-        (window as any).Paddle.Environment.set("sandbox")
+        console.log('🔧 Setting Paddle environment to sandbox...');
+        (window as any).Paddle.Environment.set("sandbox");
         console.log('✅ Environment set to sandbox')
 
         console.log('🔧 Initializing Paddle with token:', clientToken)
