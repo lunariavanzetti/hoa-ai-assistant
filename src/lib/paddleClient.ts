@@ -29,29 +29,28 @@ class PaddleClient {
       console.log('🚀 Using Paddle v2 CDN initialization')
       console.log('Available Paddle methods:', Object.keys((window as any).Paddle))
 
-      // Initialize Paddle v2 (environment is determined by the token)
+      // Use correct Paddle.js initialization according to docs
       try {
-        console.log('🔧 Attempting Paddle.Setup with token:', clientToken)
-        const setupResult = (window as any).Paddle.Setup({
-          token: clientToken
+        console.log('🔧 Setting Paddle environment to sandbox...')
+        (window as any).Paddle.Environment.set("sandbox")
+        console.log('✅ Environment set to sandbox')
+
+        console.log('🔧 Initializing Paddle with token:', clientToken)
+        const initResult = (window as any).Paddle.Initialize({
+          token: clientToken,
+          pwCustomer: {}
         })
-        console.log('✅ Paddle.Setup completed with token, result:', setupResult)
-      } catch (setupError) {
-        console.error('❌ Paddle.Setup failed:', setupError)
-        console.error('❌ Setup error details:', {
-          message: setupError?.message,
-          stack: setupError?.stack,
-          name: setupError?.name
+        console.log('✅ Paddle.Initialize completed, result:', initResult)
+      } catch (initError) {
+        console.error('❌ Paddle initialization failed:', initError)
+        console.error('❌ Init error details:', {
+          message: initError?.message,
+          stack: initError?.stack,
+          name: initError?.name
         })
 
-        // Try without token as fallback test
-        console.log('🧪 Trying setup without token for testing...')
-        try {
-          const fallbackResult = (window as any).Paddle.Setup({})
-          console.log('🧪 Fallback setup result:', fallbackResult)
-        } catch (fallbackError) {
-          console.error('❌ Fallback setup also failed:', fallbackError)
-        }
+        // This is a critical error - don't continue without proper initialization
+        throw new Error(`Paddle initialization failed: ${initError?.message}`)
       }
 
       this.paddle = (window as any).Paddle
