@@ -223,13 +223,29 @@ module.exports = async (req, res) => {
         console.log('📝 Available price IDs:', Object.keys(priceMap))
         console.log('💡 ADD THIS PRICE ID TO WEBHOOK MAPPING!')
 
-        // Guess tokens based on common patterns
-        if (priceId.includes('premium') || priceId.includes('120')) {
+        // Guess tokens based on common patterns AND webhook data
+        const amount = data?.items?.[0]?.price?.unit_price?.amount
+        const currency = data?.items?.[0]?.price?.unit_price?.currency_code
+
+        console.log('💰 Price amount:', amount, currency)
+
+        // Detect Premium by price amount ($49.99 = 4999 cents)
+        if (amount >= 4900 && amount <= 5099) {
           tokensToAdd = 120
-          console.log('🎯 Guessing Premium tier: 120 tokens')
+          console.log('🎯 Detected Premium by price ($49.99): 120 tokens')
+        }
+        // Detect Basic by price amount ($19.99 = 1999 cents)
+        else if (amount >= 1900 && amount <= 2099) {
+          tokensToAdd = 20
+          console.log('🎯 Detected Basic by price ($19.99): 20 tokens')
+        }
+        // Pattern matching fallback
+        else if (priceId.includes('premium') || priceId.includes('120')) {
+          tokensToAdd = 120
+          console.log('🎯 Guessing Premium by ID pattern: 120 tokens')
         } else if (priceId.includes('basic') || priceId.includes('20')) {
           tokensToAdd = 20
-          console.log('🎯 Guessing Basic tier: 20 tokens')
+          console.log('🎯 Guessing Basic by ID pattern: 20 tokens')
         } else {
           tokensToAdd = 1
           console.log('🎯 Guessing Pay-per-video: 1 token')
