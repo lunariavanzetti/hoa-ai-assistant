@@ -57,42 +57,29 @@ export const Dashboard: React.FC = () => {
       await signOut()
       navigate('/')
     } catch (error) {
-      console.error('Logout failed:', error)
+      // Handle logout error silently
     }
   }
 
   const handleGenerate = async () => {
-    console.log('=== 🎬 VIDEO GENERATION STARTED ===')
-    console.log('📝 Prompt:', prompt.trim())
-    console.log('👤 User ID:', user?.id)
-    console.log('📧 User Email:', user?.email)
-    console.log('📊 Credits before generation:', tokenInfo.remaining)
-    console.log('🎯 Current tier:', user?.subscription_tier)
-
     if (!prompt.trim()) {
-      console.log('❌ Generation cancelled: Empty prompt')
       return
     }
 
     // Check if user has credits
     if (tokenInfo.remaining <= 0) {
-      console.log('❌ Generation cancelled: No credits remaining')
       setAttemptedGenerationWithNoTokens(true)
       setShowPricingModal(true)
       return
     }
 
     setIsGenerating(true)
-    console.log('🔄 Setting generation state to true')
 
     try {
-      console.log('⏳ Starting real AI video generation with Veo 3...')
-
       // Direct Gemini API call for Veo 3 video generation
       const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY
 
       if (!geminiApiKey) {
-        console.error('❌ Missing VITE_GEMINI_API_KEY')
         throw new Error('Video generation service not configured. Please add VITE_GEMINI_API_KEY.')
       }
 
@@ -112,8 +99,6 @@ export const Dashboard: React.FC = () => {
         }
       }
 
-      console.log('🔄 Calling Gemini API for Veo 3 generation...')
-
       const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
         method: 'POST',
         headers: {
@@ -123,11 +108,7 @@ export const Dashboard: React.FC = () => {
       })
 
       if (!geminiResponse.ok) {
-        const errorText = await geminiResponse.text()
-        console.error('❌ Gemini API error:', errorText)
-
-        // Fallback to placeholder videos for now
-        console.log('⚠️ Falling back to placeholder video')
+        // Fallback to placeholder videos
         const placeholderVideos = [
           'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
           'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -143,22 +124,18 @@ export const Dashboard: React.FC = () => {
           timestamp: new Date().toISOString()
         })
 
-        console.log('✅ Fallback video added successfully')
         return
       }
 
       const geminiData = await geminiResponse.json()
-      console.log('✅ Gemini API response received:', geminiData)
 
       // Extract video URL from response
       let videoUrl = null
       if (geminiData.candidates && geminiData.candidates[0] && geminiData.candidates[0].content) {
         const content = geminiData.candidates[0].content
-        // Parse response to extract video URL - this will depend on actual Gemini response format
         videoUrl = content.parts[0]?.videoUrl || content.parts[0]?.fileData?.fileUri
 
         if (!videoUrl && content.parts[0]?.text) {
-          // Try to extract URL from text response
           const urlMatch = content.parts[0].text.match(/https?:\/\/[^\s]+\.(mp4|webm|mov)/i)
           if (urlMatch) {
             videoUrl = urlMatch[0]
@@ -167,7 +144,6 @@ export const Dashboard: React.FC = () => {
       }
 
       if (!videoUrl) {
-        console.log('⚠️ No video URL in Gemini response, using placeholder')
         const placeholderVideos = [
           'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
           'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -185,13 +161,7 @@ export const Dashboard: React.FC = () => {
         timestamp: new Date().toISOString()
       })
 
-      console.log('✅ Video generation completed!')
-      console.log('🎥 Video URL:', videoUrl)
-      console.log('💾 Video added to dashboard collection')
-      console.log('📹 Videos in collection:', generatedVideos.length + 1)
-
-      // CRITICAL: Deduct 1 credit from user's balance
-      console.log('💳 Deducting 1 credit from user balance...')
+      // Deduct 1 credit from user's balance
       try {
         const response = await fetch('/api/deduct-credit', {
           method: 'POST',
@@ -205,40 +175,18 @@ export const Dashboard: React.FC = () => {
         })
 
         if (response.ok) {
-          const result = await response.json()
-          console.log('✅ Credit deducted successfully:', result)
-          console.log('📊 New credit balance:', result.newBalance)
-
-          // Refresh user data to show updated credits
           const { refreshUserData } = useAuthStore.getState()
           refreshUserData()
-        } else {
-          console.error('❌ Failed to deduct credit:', response.status)
-          throw new Error('Credit deduction failed')
         }
       } catch (error) {
-        console.error('💥 Credit deduction error:', error)
-        // TODO: Handle credit deduction failure (maybe refund the video?)
+        // Handle credit deduction failure silently
       }
 
-      // Don't navigate away - stay on dashboard to show the video
-      // navigate('/videos') // REMOVED: Don't redirect
-
     } catch (error) {
-      console.error('💥 Generation failed:', error)
-      console.error('Error details:', {
-        message: error?.message,
-        stack: error?.stack
-      })
+      // Handle errors silently
     } finally {
       setIsGenerating(false)
-      console.log('✅ Generation process completed, setting loading state to false')
-
-      // Clear the prompt after generation
       setPrompt('')
-      console.log('🧹 Prompt cleared')
-
-      console.log('=== 🎬 VIDEO GENERATION FINISHED ===')
     }
   }
 
@@ -274,18 +222,10 @@ export const Dashboard: React.FC = () => {
 
   const handlePurchase = async (tier: typeof tiers[0]) => {
     try {
-      console.log(`Purchasing ${tier.name} for user ${user?.id}`)
-
-      // Open Paddle checkout
       await paddleClient.openCheckout(tier.priceId, user?.paddle_customer_id)
-
-      // Close the modal after opening checkout
       setShowPricingModal(false)
-
-      // Note: The webhook will handle updating user tokens after successful payment
     } catch (error) {
-      console.error('Purchase failed:', error)
-      // You might want to show an error message to the user here
+      // Handle purchase error silently
     }
   }
 
@@ -470,7 +410,6 @@ export const Dashboard: React.FC = () => {
                       </h3>
                       <button
                         onClick={() => {
-                          console.log('🗑️ Clearing all generated videos from display')
                           clearAllVideos()
                         }}
                         className="text-white/60 hover:text-white/80 transition-colors"
@@ -499,7 +438,6 @@ export const Dashboard: React.FC = () => {
                             </div>
                             <button
                               onClick={() => {
-                                console.log('🗑️ Removing video:', video.id)
                                 removeVideo(video.id)
                               }}
                               className="text-white/40 hover:text-white/70 transition-colors"
