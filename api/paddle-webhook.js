@@ -202,7 +202,16 @@ module.exports = async (req, res) => {
         // Sandbox/Test Price IDs
         'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 1, tier: 'free' }, // Sandbox Pay-per-video $2.99
         'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'free' }, // Sandbox Basic Monthly $19.99 (20 credits)
-        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' } // Sandbox Premium Monthly $49.99 (120 credits)
+        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Sandbox Premium Monthly $49.99 (120 credits)
+
+        // Additional possible Premium price IDs (add as discovered)
+        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Premium variant 1
+        'pri_premium_monthly': { tokens: 120, tier: 'free' }, // Generic Premium
+        'pri_premium_120': { tokens: 120, tier: 'free' }, // Premium 120 tokens
+
+        // Additional possible Basic price IDs
+        'pri_basic_monthly': { tokens: 20, tier: 'free' }, // Generic Basic
+        'pri_basic_20': { tokens: 20, tier: 'free' } // Basic 20 tokens
       }
 
       const purchase = priceMap[priceId]
@@ -210,8 +219,22 @@ module.exports = async (req, res) => {
         tokensToAdd = purchase.tokens
         subscriptionTier = purchase.tier
       } else {
-        console.log('⚠️ Unknown price ID, defaulting to 1 credit')
-        tokensToAdd = 1
+        console.log('❌ UNKNOWN PRICE ID DETECTED:', priceId)
+        console.log('🔍 Customer email:', customerEmail)
+        console.log('📝 Available price IDs:', Object.keys(priceMap))
+        console.log('💡 ADD THIS PRICE ID TO WEBHOOK MAPPING!')
+
+        // Guess tokens based on common patterns
+        if (priceId.includes('premium') || priceId.includes('120')) {
+          tokensToAdd = 120
+          console.log('🎯 Guessing Premium tier: 120 tokens')
+        } else if (priceId.includes('basic') || priceId.includes('20')) {
+          tokensToAdd = 20
+          console.log('🎯 Guessing Basic tier: 20 tokens')
+        } else {
+          tokensToAdd = 1
+          console.log('🎯 Guessing Pay-per-video: 1 token')
+        }
         subscriptionTier = 'free'
       }
 
