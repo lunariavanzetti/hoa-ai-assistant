@@ -67,6 +67,14 @@ export const Pricing: React.FC = () => {
     try {
       setIsLoading(tier.priceId)
 
+      // Log subscription purchase attempt
+      console.log('User attempting to buy subscription:', {
+        username: user?.email,
+        tier: tier.subscriptionTier,
+        price: tier.price,
+        tokens: tier.tokens
+      })
+
       // Open Paddle checkout
       await paddleClient.openCheckout(tier.priceId, user?.paddle_customer_id, user?.email)
 

@@ -57,10 +57,17 @@ export const useAuthStore = create<AuthState>()(
 
             if (profileError) throw profileError
 
-            set({ 
-              user: profile, 
+            set({
+              user: profile,
               session: data.session,
-              loading: false 
+              loading: false
+            })
+
+            // Log user details after login
+            console.log('User logged in:', {
+              username: profile.email,
+              tier: profile.subscription_tier || 'free',
+              tokens: profile.usage_stats?.credits_remaining || profile.video_credits || 0
             })
 
             // Automatically check subscription status after sign in
@@ -338,7 +345,18 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (profile) {
-            // Log detailed credits and tier information
+            const currentUser = get().user
+            const newTokens = profile.usage_stats?.credits_remaining || profile.video_credits || 0
+            const oldTokens = currentUser?.usage_stats?.credits_remaining || currentUser?.video_credits || 0
+
+            // Log if tokens changed (subscription purchase detected)
+            if (newTokens !== oldTokens) {
+              console.log('Subscription purchase completed:', {
+                username: profile.email,
+                tier: profile.subscription_tier || 'free',
+                tokens: newTokens
+              })
+            }
 
             set({ user: profile })
           }

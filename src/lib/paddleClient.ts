@@ -25,7 +25,7 @@ class PaddleClient {
 
       // Use correct Paddle.js initialization according to docs
       try {
-        (window as any).Paddle.Environment.set("sandbox");
+        (window as any).Paddle.Environment.set(environment);
 
         const initResult = (window as any).Paddle.Initialize({
           token: clientToken,

@@ -75,6 +75,14 @@ export const Dashboard: React.FC = () => {
 
     setIsGenerating(true)
 
+    // Log video generation attempt
+    console.log('User generating video:', {
+      username: user?.email,
+      prompt: prompt.trim(),
+      orientation: orientation,
+      tokensRemaining: tokenInfo.remaining
+    })
+
     try {
       // Direct Gemini API call for Veo 3 video generation
       const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY

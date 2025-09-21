@@ -137,6 +137,8 @@ module.exports = async (req, res) => {
 
     if (eventType === 'subscription.created' || eventType === 'subscription.activated' || eventType === 'transaction.completed') {
 
+      console.log('Processing webhook event:', eventType)
+
       const data = req.body.data
       let customerEmail, paddleCustomerId, paddleSubscriptionId, priceId
 
@@ -162,10 +164,18 @@ module.exports = async (req, res) => {
       let tokensToAdd = 0
       let subscriptionTier = 'free'
 
+      // Log the price ID for debugging production setup
+      console.log('Webhook received price ID:', priceId)
+
       // Map price IDs to tokens and tiers (Live + Sandbox)
       // Note: Using 'free' tier for all due to database constraints, but adding appropriate credits
       const priceMap = {
-        // Live/Production Price IDs
+        // Production Price IDs (from environment variables)
+        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 1, tier: 'free' }, // Pay-per-video $2.99
+        [process.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID]: { tokens: 20, tier: 'free' }, // Basic Monthly $19.99 (20 credits)
+        [process.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID]: { tokens: 120, tier: 'free' }, // Premium Monthly $49.99 (120 credits)
+
+        // Legacy Production Price IDs
         'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'free' }, // Pay-per-video $2.99
         'pri_01k57p3ca33wrf9vs80qsvjzj8': { tokens: 20, tier: 'free' }, // Basic Monthly $19.99 (20 credits)
         'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'free' }, // Premium Monthly $49.99 (120 credits)
@@ -176,7 +186,6 @@ module.exports = async (req, res) => {
         'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Sandbox Premium Monthly $49.99 (120 credits)
 
         // Additional possible Premium price IDs (add as discovered)
-        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Premium variant 1
         'pri_premium_monthly': { tokens: 120, tier: 'free' }, // Generic Premium
         'pri_premium_120': { tokens: 120, tier: 'free' }, // Premium 120 tokens
 
@@ -317,6 +326,7 @@ module.exports = async (req, res) => {
         })
 
         if (!result.success) {
+          console.log('Database update failed:', result)
           return res.status(500).json({
             error: 'Failed to update user subscription',
             status: result.status,
@@ -324,7 +334,14 @@ module.exports = async (req, res) => {
           })
         }
 
-        
+        console.log('Successfully processed subscription:', {
+          customerEmail,
+          tokensAdded,
+          subscriptionTier,
+          eventType
+        })
+
+
       } catch (dbError) {
 
         // Return success since we've logged the event for manual processing
