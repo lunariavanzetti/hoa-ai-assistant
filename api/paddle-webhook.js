@@ -35,9 +35,15 @@ module.exports = async (req, res) => {
         const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
         console.log('🔗 Using Supabase URL:', supabaseUrl)
         const updateData = {
-          subscription_tier: 'pay_per_video',
+          subscription_tier: 'free',
           subscription_status: 'active',
-          tokens: tokens,
+          video_credits: tokens,
+          usage_stats: {
+            credits_remaining: tokens,
+            videos_this_month: 0,
+            total_videos_generated: 0,
+            pay_per_video_purchases: 1
+          },
           updated_at: new Date().toISOString()
         }
 
@@ -186,16 +192,17 @@ module.exports = async (req, res) => {
       let subscriptionTier = 'free'
 
       // Map price IDs to tokens and tiers (Live + Sandbox)
+      // Note: Using 'free' tier for all due to database constraints, but adding appropriate credits
       const priceMap = {
         // Live/Production Price IDs
-        'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'free' }, // Pay-per-video $2.99 (stays as free tier but adds credits)
-        'pri_01k57p3ca33wrf9vs80qsvjzj8': { tokens: 20, tier: 'basic' }, // Basic Monthly $19.99
-        'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'premium' }, // Premium Monthly $49.99
+        'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'free' }, // Pay-per-video $2.99
+        'pri_01k57p3ca33wrf9vs80qsvjzj8': { tokens: 20, tier: 'free' }, // Basic Monthly $19.99 (20 credits)
+        'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'free' }, // Premium Monthly $49.99 (120 credits)
 
         // Sandbox/Test Price IDs
-        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 1, tier: 'free' }, // Sandbox Pay-per-video $2.99 (stays as free tier but adds credits)
-        'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'basic' }, // Sandbox Basic Monthly $19.99
-        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'premium' } // Sandbox Premium Monthly $49.99
+        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 1, tier: 'free' }, // Sandbox Pay-per-video $2.99
+        'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'free' }, // Sandbox Basic Monthly $19.99 (20 credits)
+        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' } // Sandbox Premium Monthly $49.99 (120 credits)
       }
 
       const purchase = priceMap[priceId]
