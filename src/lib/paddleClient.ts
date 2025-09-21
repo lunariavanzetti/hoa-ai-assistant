@@ -32,24 +32,17 @@ class PaddleClient {
           pwCustomer: {}
         })
       } catch (initError) {
-          message: initError?.message,
-          stack: initError?.stack,
-          name: initError?.name
-        })
+        // Handle initialization error silently
 
         // This is a critical error - don't continue without proper initialization
         throw new Error(`Paddle initialization failed: ${initError?.message}`)
       }
 
       this.paddle = (window as any).Paddle
-      
+
       this.isInitialized = true
       return this.paddle
     } catch (error) {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        type: typeof error
-      })
       throw error
     }
   }
@@ -121,11 +114,7 @@ class PaddleClient {
 
         // Add specific error handling
         if (openError && typeof openError === 'object') {
-            message: openError.message,
-            stack: openError.stack,
-            name: openError.name,
-            cause: openError.cause
-          })
+          // Handle error object silently
         }
 
         // Check for common Paddle errors
@@ -147,10 +136,9 @@ class PaddleClient {
       return checkout
     } catch (error) {
       
-      // Log the raw error object
+      // Handle error object silently
       if (error && typeof error === 'object') {
-        for (const key of Object.keys(error)) {
-        }
+        // Error handling without logging
       }
       
       // Check for specific error types
