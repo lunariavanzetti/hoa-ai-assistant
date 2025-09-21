@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
       // Manually add tokens using the same logic as webhook
       try {
         // Use the correct Supabase URL directly
-        const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+        const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
         console.log('🔗 Using Supabase URL:', supabaseUrl)
         const updateData = {
           subscription_tier: 'free',
@@ -223,7 +223,7 @@ module.exports = async (req, res) => {
         console.log('🔄 Attempting database update via REST API...')
         
         // First, get current user data to add credits to existing balance
-        const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+        const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
         const getUserUrl = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${customerEmail}&select=video_credits,usage_stats`)
         const currentUserData = await new Promise((resolve, reject) => {
           const options = {
@@ -383,7 +383,7 @@ module.exports = async (req, res) => {
             updated_at: new Date().toISOString()
           }
 
-          const supabaseUrl = process.env.SUPABASE_URL || 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+          const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
           const response = await fetch(`${supabaseUrl}/rest/v1/users?paddle_subscription_id=eq.${paddleSubscriptionId}`, {
             method: 'PATCH',
             headers: {
