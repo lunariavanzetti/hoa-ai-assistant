@@ -18,6 +18,17 @@ module.exports = async (req, res) => {
     const tier = req.query.tier || 'basic'
     const credits = parseInt(req.query.credits) || 20
 
+    // Map tier names to valid database values
+    const tierMap = {
+      'basic': 'basic',
+      'premium': 'premium',
+      'pay_per_video': 'free', // Pay per video purchases stay as free tier but add credits
+      'free': 'free'
+    }
+
+    const validTier = tierMap[tier] || 'free'
+    console.log('🔄 Tier mapping:', tier, '->', validTier)
+
     console.log('=== 🔧 MANUAL USER UPGRADE ===')
     console.log('👤 Email:', email)
     console.log('🎯 Target tier:', tier)
@@ -63,7 +74,7 @@ module.exports = async (req, res) => {
     const newCredits = currentCredits + credits
 
     const updateData = {
-      subscription_tier: tier,
+      subscription_tier: validTier,
       subscription_status: 'active',
       video_credits: newCredits,
       usage_stats: {
@@ -77,7 +88,7 @@ module.exports = async (req, res) => {
     }
 
     console.log('=== 🎯 UPGRADING USER ===')
-    console.log('🆙 New tier:', tier)
+    console.log('🆙 New tier:', validTier, '(requested:', tier, ')')
     console.log('💰 Adding credits:', credits)
     console.log('📊 New total credits:', newCredits)
 
@@ -112,11 +123,12 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `Successfully upgraded ${email} to ${tier} tier`,
+      message: `Successfully upgraded ${email} to ${validTier} tier`,
       previousCredits: currentCredits,
       creditsGranted: credits,
       newTotalCredits: newCredits,
-      newTier: tier,
+      requestedTier: tier,
+      actualTier: validTier,
       timestamp: new Date().toISOString(),
       updatedUser: updatedUser[0] || updatedUser
     })
