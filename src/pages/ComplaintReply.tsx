@@ -86,7 +86,6 @@ export const ComplaintReply: React.FC = () => {
       
       success('Response Generated!', 'Professional complaint response created successfully')
     } catch (error) {
-      console.error('Error generating response:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate response'
       setError(errorMessage)
       showError('Generation Failed', errorMessage)

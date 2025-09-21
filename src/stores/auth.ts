@@ -115,19 +115,12 @@ export const useAuthStore = create<AuthState>()(
 
             if (profileError) throw profileError
 
-            console.log('=== 👤 NEW USER CREATED ===')
-            console.log('📧 Email:', profile.email)
-            console.log('📊 Initial video credits:', profile.video_credits)
-            console.log('📊 Initial credits remaining:', profile.usage_stats?.credits_remaining || 0)
-            console.log('🎯 Initial tier:', profile.subscription_tier)
-            console.log('🆔 User ID:', profile.id)
 
             set({
               user: profile,
               session: data.session,
               loading: false
             })
-            console.log('✅ User signed up successfully')
           }
         } catch (error) {
           set({ 
@@ -142,7 +135,6 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ loading: true, error: null })
           
-          console.log('Signing out user...')
           const { error } = await supabase.auth.signOut()
           if (error) throw error
 
@@ -157,10 +149,8 @@ export const useAuthStore = create<AuthState>()(
           // Force clear localStorage
           localStorage.removeItem('auth-storage')
           
-          console.log('Sign out successful')
           
         } catch (error) {
-          console.error('Sign out error:', error)
           set({ 
             error: (error as AuthError).message, 
             loading: false 
@@ -269,7 +259,6 @@ export const useAuthStore = create<AuthState>()(
               .single()
 
             if (profileError) {
-              console.warn('Profile update failed, but auth metadata updated:', profileError)
             }
             
             set({ 
@@ -280,7 +269,6 @@ export const useAuthStore = create<AuthState>()(
             set({ loading: false })
           }
         } catch (error) {
-          console.error('UpdateUser error:', error)
           set({ 
             error: (error as Error).message, 
             loading: false 
@@ -294,7 +282,6 @@ export const useAuthStore = create<AuthState>()(
           const { user } = get()
           if (!user?.email) return
 
-          console.log('🔄 Checking subscription status for:', user.email)
 
           // Check with Paddle backend to see if user has active subscription
           const response = await fetch('/api/check-subscription', {
@@ -309,7 +296,6 @@ export const useAuthStore = create<AuthState>()(
             const result = await response.json()
             
             if (result.hasActiveSubscription && result.subscriptionTier !== user.subscription_tier) {
-              console.log('🎉 Found active subscription! Upgrading user to:', result.subscriptionTier)
               
               // Update user in database
               const { data, error } = await supabase
@@ -327,12 +313,10 @@ export const useAuthStore = create<AuthState>()(
 
               if (!error && data) {
                 set({ user: data })
-                console.log('✅ User automatically upgraded to:', result.subscriptionTier)
               }
             }
           }
         } catch (error) {
-          console.error('❌ Error checking subscription status:', error)
         }
       },
 
@@ -341,7 +325,6 @@ export const useAuthStore = create<AuthState>()(
           const { session } = get()
           if (!session?.user) return
 
-          console.log('🔄 Refreshing user data from database...')
 
           // Fetch fresh user data from database
           const { data: profile, error } = await supabase
@@ -351,25 +334,15 @@ export const useAuthStore = create<AuthState>()(
             .single()
 
           if (error) {
-            console.error('❌ Error refreshing user data:', error)
             return
           }
 
           if (profile) {
             // Log detailed credits and tier information
-            console.log('✅ User data refreshed:')
-            console.log('📊 VIDEO CREDITS:', profile.video_credits || 0)
-            console.log('📊 CREDITS REMAINING:', profile.usage_stats?.credits_remaining || 0)
-            console.log('🎯 TIER:', profile.subscription_tier || 'free')
-            console.log('📅 STATUS:', profile.subscription_status || 'inactive')
-            console.log('🆔 USER ID:', profile.id)
-            console.log('📧 EMAIL:', profile.email)
-            console.log('⏰ UPDATED:', profile.updated_at)
 
             set({ user: profile })
           }
         } catch (error) {
-          console.error('❌ Error refreshing user data:', error)
         }
       },
 
@@ -377,7 +350,6 @@ export const useAuthStore = create<AuthState>()(
         const { stopTokenPolling } = get()
         stopTokenPolling() // Clear any existing polling
 
-        console.log('🔄 Starting token polling...')
         const interval = setInterval(() => {
           const { refreshUserData } = get()
           refreshUserData()
@@ -390,7 +362,6 @@ export const useAuthStore = create<AuthState>()(
       stopTokenPolling: () => {
         const interval = (globalThis as any).tokenPollingInterval
         if (interval) {
-          console.log('⏹️ Stopping token polling...')
           clearInterval(interval)
           ;(globalThis as any).tokenPollingInterval = null
         }

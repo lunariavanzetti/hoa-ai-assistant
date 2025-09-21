@@ -21,7 +21,6 @@ import { Analytics as AnalyticsPage } from '@/pages/Analytics'
 function App() {
   const { user } = useAuthStore()
 
-  console.log('🎯 App render - User state:', user ? 'Authenticated' : 'Not authenticated')
 
   return (
     <ThemeProvider>

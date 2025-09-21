@@ -92,7 +92,6 @@ class AdvancedAnalyticsService {
         .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('❌ Failed to get usage trends:', error)
         return []
       }
 
@@ -172,7 +171,6 @@ class AdvancedAnalyticsService {
 
       return trends.sort((a, b) => a.date.localeCompare(b.date))
     } catch (error) {
-      console.error('❌ Get usage trends error:', error)
       return []
     }
   }
@@ -202,7 +200,6 @@ class AdvancedAnalyticsService {
         .lt('created_at', compareDate.toISOString())
 
       if (currentError || previousError) {
-        console.error('❌ Failed to get popular features:', currentError || previousError)
         return []
       }
 
@@ -262,7 +259,6 @@ class AdvancedAnalyticsService {
 
       return features
     } catch (error) {
-      console.error('❌ Get popular features error:', error)
       return []
     }
   }
@@ -278,7 +274,6 @@ class AdvancedAnalyticsService {
         .eq('user_id', userId)
 
       if (error) {
-        console.error('❌ Failed to get time saved metrics:', error)
         return this.getEmptyTimeSavedMetrics()
       }
 
@@ -342,7 +337,6 @@ class AdvancedAnalyticsService {
         breakdown
       }
     } catch (error) {
-      console.error('❌ Get time saved metrics error:', error)
       return this.getEmptyTimeSavedMetrics()
     }
   }
@@ -421,7 +415,6 @@ class AdvancedAnalyticsService {
         recommendations
       }
     } catch (error) {
-      console.error('❌ Get productivity insights error:', error)
       return this.getEmptyProductivityInsights()
     }
   }
@@ -457,7 +450,6 @@ class AdvancedAnalyticsService {
         .eq('user_id', userId)
 
       if (thisMonthError || lastMonthError || allTimeError) {
-        console.error('❌ Failed to get comparison metrics')
         return this.getEmptyComparisonMetrics()
       }
 
@@ -503,7 +495,6 @@ class AdvancedAnalyticsService {
         }
       }
     } catch (error) {
-      console.error('❌ Get comparison metrics error:', error)
       return this.getEmptyComparisonMetrics()
     }
   }

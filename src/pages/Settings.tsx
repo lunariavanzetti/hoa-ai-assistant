@@ -44,7 +44,6 @@ export const Settings: React.FC = () => {
       await signOut()
       navigate('/')
     } catch (error) {
-      console.error('Logout failed:', error)
     }
   }
 
@@ -102,7 +101,6 @@ export const Settings: React.FC = () => {
 
       success('Profile Updated', 'Your profile changes have been saved successfully.')
     } catch (err) {
-      console.error('Profile update error:', err)
       error('Update Failed', `Failed to update profile: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
@@ -125,7 +123,6 @@ export const Settings: React.FC = () => {
 
       success('Email Sent', 'Password reset instructions have been sent to your email.')
     } catch (err) {
-      console.error('Password reset error:', err)
       error('Reset Failed', 'Failed to send password reset email. Please try again.')
     } finally {
       setIsLoading(false)
@@ -162,7 +159,6 @@ export const Settings: React.FC = () => {
 
       success('Download Complete', 'Your data has been downloaded to your device.')
     } catch (err) {
-      console.error('Data export error:', err)
       error('Export Failed', 'Failed to export data. Please try again.')
     }
   }
@@ -175,7 +171,6 @@ export const Settings: React.FC = () => {
         success('Signed Out', 'You have been successfully signed out.')
         window.location.href = '/'
       } catch (err) {
-        console.error('Sign out error:', err)
         error('Sign Out Failed', 'Failed to sign out. Please try again.')
       } finally {
         setIsLoading(false)

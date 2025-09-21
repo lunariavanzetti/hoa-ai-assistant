@@ -24,7 +24,6 @@ export const Pricing: React.FC = () => {
       await signOut()
       navigate('/')
     } catch (error) {
-      console.error('Logout failed:', error)
     }
   }
 
@@ -67,13 +66,11 @@ export const Pricing: React.FC = () => {
   const handlePurchase = async (tier: typeof tiers[0]) => {
     try {
       setIsLoading(tier.priceId)
-      console.log(`Purchasing ${tier.name} for user ${user?.id}`)
 
       // Open Paddle checkout
       await paddleClient.openCheckout(tier.priceId, user?.paddle_customer_id, user?.email)
 
     } catch (error) {
-      console.error('Purchase failed:', error)
       // You might want to show an error message to the user here
     } finally {
       setIsLoading(null)

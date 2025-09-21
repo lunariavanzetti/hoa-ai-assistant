@@ -40,29 +40,24 @@ export const useVideoStore = create<VideoState>()(
           ...videoData
         }
 
-        console.log('📹 Adding video to store:', newVideo)
 
         set(state => ({
           generatedVideos: [newVideo, ...state.generatedVideos]
         }))
 
-        console.log('📊 Total videos in store:', get().generatedVideos.length)
       },
 
       removeVideo: (id) => {
-        console.log('🗑️ Removing video from store:', id)
         set(state => ({
           generatedVideos: state.generatedVideos.filter(video => video.id !== id)
         }))
       },
 
       clearAllVideos: () => {
-        console.log('🗑️ Clearing all videos from store')
         set({ generatedVideos: [] })
       },
 
       updateVideo: (id, updates) => {
-        console.log('✏️ Updating video in store:', id, updates)
         set(state => ({
           generatedVideos: state.generatedVideos.map(video =>
             video.id === id ? { ...video, ...updates } : video

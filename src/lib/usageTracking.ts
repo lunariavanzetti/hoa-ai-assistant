@@ -33,7 +33,6 @@ class UsageTrackingService {
     metadata?: Record<string, any>
   ): Promise<UserActivity | null> {
     try {
-      console.log(`📊 Tracking activity: ${type} for user ${userId}`)
       
       const { data, error } = await supabase
         .from('user_activities')
@@ -48,14 +47,11 @@ class UsageTrackingService {
         .single()
 
       if (error) {
-        console.error('❌ Failed to track activity:', error)
         return null
       }
 
-      console.log('✅ Activity tracked successfully:', data.id)
       return data
     } catch (error) {
-      console.error('❌ Usage tracking error:', error)
       return null
     }
   }
@@ -71,7 +67,6 @@ class UsageTrackingService {
         .eq('user_id', userId)
 
       if (error) {
-        console.error('❌ Failed to get user stats:', error)
         return this.getEmptyStats()
       }
 
@@ -121,7 +116,6 @@ class UsageTrackingService {
 
       return stats
     } catch (error) {
-      console.error('❌ Get stats error:', error)
       return this.getEmptyStats()
     }
   }
@@ -150,13 +144,11 @@ class UsageTrackingService {
       const { data, error } = await query
 
       if (error) {
-        console.error('❌ Failed to get user history:', error)
         return []
       }
 
       return data || []
     } catch (error) {
-      console.error('❌ Get history error:', error)
       return []
     }
   }
@@ -173,13 +165,11 @@ class UsageTrackingService {
         .eq('user_id', userId) // Ensure user can only delete their own
 
       if (error) {
-        console.error('❌ Failed to delete activity:', error)
         return false
       }
 
       return true
     } catch (error) {
-      console.error('❌ Delete activity error:', error)
       return false
     }
   }

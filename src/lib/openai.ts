@@ -2,7 +2,6 @@
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
 
 if (!OPENAI_API_KEY) {
-  console.warn('OpenAI API key not found. AI features will not work.')
 }
 
 interface ViolationData {
@@ -158,7 +157,6 @@ class OpenAIService {
 
       return data.choices[0].message.content
     } catch (error) {
-      console.error('OpenAI API request failed:', error)
       throw error
     }
   }

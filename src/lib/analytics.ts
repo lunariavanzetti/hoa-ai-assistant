@@ -2,8 +2,6 @@
 
 class AnalyticsService {
   track(event: string, properties: Record<string, any> = {}) {
-    // For now, just log to console. In production, integrate with your analytics provider
-    console.log('Analytics Event:', { event, properties, timestamp: new Date().toISOString() })
     
     // TODO: Integrate with your analytics provider (e.g., PostHog, Mixpanel, Google Analytics)
     // Example:

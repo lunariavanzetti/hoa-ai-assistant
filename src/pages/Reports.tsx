@@ -89,7 +89,6 @@ export const Reports: React.FC = () => {
       
       success('Monthly Report Generated!', 'Comprehensive performance analysis created successfully')
     } catch (error) {
-      console.error('Error generating report:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate monthly report'
       setError(errorMessage)
       showError('Generation Failed', errorMessage)

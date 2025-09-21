@@ -11,10 +11,6 @@ class PaddleClient {
         ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
         : import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN
 
-      console.log('🔧 Initializing Paddle SDK v2 (CDN)')
-      console.log('- Environment:', environment)
-      console.log('- Token found:', !!clientToken)
-      console.log('- Token prefix:', clientToken?.substring(0, 10) + '...')
 
       if (!clientToken) {
         throw new Error(`Missing Paddle client token for ${environment} environment`)
@@ -26,24 +22,16 @@ class PaddleClient {
       }
 
       // Use Paddle v2 CDN method
-      console.log('🚀 Using Paddle v2 CDN initialization')
-      console.log('Available Paddle methods:', Object.keys((window as any).Paddle))
 
       // Use correct Paddle.js initialization according to docs
       try {
-        console.log('🔧 Setting Paddle environment to sandbox...');
         (window as any).Paddle.Environment.set("sandbox");
-        console.log('✅ Environment set to sandbox')
 
-        console.log('🔧 Initializing Paddle with token:', clientToken)
         const initResult = (window as any).Paddle.Initialize({
           token: clientToken,
           pwCustomer: {}
         })
-        console.log('✅ Paddle.Initialize completed, result:', initResult)
       } catch (initError) {
-        console.error('❌ Paddle initialization failed:', initError)
-        console.error('❌ Init error details:', {
           message: initError?.message,
           stack: initError?.stack,
           name: initError?.name
@@ -56,12 +44,8 @@ class PaddleClient {
       this.paddle = (window as any).Paddle
       
       this.isInitialized = true
-      console.log('✅ Paddle initialized successfully for', environment)
-      console.log('Paddle instance methods:', Object.keys(this.paddle))
       return this.paddle
     } catch (error) {
-      console.error('❌ Error initializing Paddle:', error)
-      console.error('Error details:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
         type: typeof error
@@ -76,17 +60,6 @@ class PaddleClient {
       ? import.meta.env.VITE_PADDLE_SANDBOX_CLIENT_TOKEN
       : import.meta.env.VITE_PADDLE_PRODUCTION_CLIENT_TOKEN
 
-    console.log('=== PADDLE CLIENT DEBUG ===')
-    console.log('Initializing Paddle with:')
-    console.log('- Environment:', environment)
-    console.log('- Client Token (first 20 chars):', clientToken?.substring(0, 20) + '...')
-    console.log('- Client Token Length:', clientToken?.length)
-    console.log('- Client Token Valid:', clientToken?.startsWith(environment === 'sandbox' ? 'test_' : 'live_'))
-    console.log('- Price ID:', priceId)
-    console.log('- Customer ID:', customerId)
-    console.log('- User Email:', userEmail)
-    console.log('- Current URL:', window.location.href)
-    console.log('- User Agent:', navigator.userAgent)
     
     const paddle = await this.initialize()
     if (!paddle) throw new Error('Paddle not initialized')
@@ -112,17 +85,10 @@ class PaddleClient {
         }
       }
 
-      console.log('🔧 Final checkout configuration:', JSON.stringify(checkoutConfig, null, 2))
 
       // Validate checkout configuration
-      console.log('🔍 Validating checkout configuration...')
-      console.log('- Price ID format valid:', /^pri_[a-zA-Z0-9]+$/.test(priceId))
-      console.log('- Has items:', checkoutConfig.items?.length > 0)
-      console.log('- Environment matches token:', environment)
 
       // Add debugging for the specific price being used
-      console.log('🏷️ Using price details:')
-      console.log('- Price ID:', priceId)
 
       // Map current price IDs to names for better debugging
       const priceNames = {
@@ -132,22 +98,15 @@ class PaddleClient {
       }
 
       const priceName = priceNames[priceId] || 'Unknown Price'
-      console.log('- Expected price:', priceName)
-      console.log('⚠️ If checkout fails with 400 error, this price may be INACTIVE in Paddle dashboard')
-      console.log('🔧 Try clicking "Basic Monthly" or "Premium Monthly" to test other prices')
 
       // Open checkout using Paddle v2 API
-      console.log('🚀 Opening checkout with Paddle.Checkout.open...')
-      console.log('Available Paddle methods:', Object.keys((window as any).Paddle || {}))
 
       let checkout: any
       try {
         // Use the global Paddle.Checkout.open method as per docs
         checkout = await (window as any).Paddle.Checkout.open(checkoutConfig)
-        console.log('✅ Checkout opened successfully:', checkout)
 
         // Start token polling after successful checkout
-        console.log('🔄 Starting token polling after checkout...')
         const { useAuthStore } = await import('@/stores/auth')
         const { startTokenPolling } = useAuthStore.getState()
         startTokenPolling()
@@ -156,15 +115,12 @@ class PaddleClient {
         setTimeout(() => {
           const { stopTokenPolling } = useAuthStore.getState()
           stopTokenPolling()
-          console.log('⏹️ Stopped token polling after 2 minutes')
         }, 120000)
 
       } catch (openError) {
-        console.error('❌ Checkout failed:', openError)
 
         // Add specific error handling
         if (openError && typeof openError === 'object') {
-          console.error('Error details:', {
             message: openError.message,
             stack: openError.stack,
             name: openError.name,
@@ -188,21 +144,12 @@ class PaddleClient {
         throw openError
       }
 
-      console.log('✅ Final checkout result:', checkout)
       return checkout
     } catch (error) {
-      console.error('=== PADDLE CHECKOUT ERROR ===')
-      console.error('Error details:', error)
-      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error')
-      console.error('Error stack:', error instanceof Error ? error.stack : undefined)
-      console.error('Error type:', typeof error)
-      console.error('Error constructor:', error?.constructor?.name)
       
       // Log the raw error object
       if (error && typeof error === 'object') {
-        console.error('Raw error object keys:', Object.keys(error))
         for (const key of Object.keys(error)) {
-          console.error(`Error.${key}:`, (error as any)[key])
         }
       }
       
@@ -231,7 +178,6 @@ class PaddleClient {
       // For subscription updates, redirect to a simpler flow
       window.location.href = '/pricing'
     } catch (error) {
-      console.error('Error opening subscription update:', error)
       throw error
     }
   }
@@ -245,7 +191,6 @@ class PaddleClient {
       // This is typically done server-side, but for now we'll show a message
       window.open(`https://checkout.paddle.com/subscription/update`, '_blank')
     } catch (error) {
-      console.error('Error opening customer portal:', error)
       throw error
     }
   }

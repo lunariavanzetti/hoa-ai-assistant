@@ -149,11 +149,9 @@ class SubscriptionService {
         }
       } catch (apiError) {
         // Fallback to mock data if API fails
-        console.warn('API failed, using mock data:', apiError)
         throw new Error('Unable to fetch billing details')
       }
     } catch (error) {
-      console.error('Error fetching billing details:', error)
       throw error
     }
   }
@@ -272,12 +270,10 @@ class SubscriptionService {
 
         return result
       } catch (apiError) {
-        console.warn('API call failed, falling back to local mode')
         // This will fall back to the local development path above
         throw new Error('Unable to process cancellation')
       }
     } catch (error) {
-      console.error('Error canceling subscription:', error)
       throw error
     }
   }
@@ -359,12 +355,10 @@ class SubscriptionService {
 
         return result
       } catch (apiError) {
-        console.warn('API call failed, falling back to local mode')
         // This will fall back to the local development path above
         throw new Error('Unable to process reactivation')
       }
     } catch (error) {
-      console.error('Error reactivating subscription:', error)
       throw error
     }
   }
@@ -377,7 +371,6 @@ class SubscriptionService {
       // Open Paddle's customer portal for payment method updates
       await paddleClient.openCustomerPortal(customerId)
     } catch (error) {
-      console.error('Error opening payment method update:', error)
       throw error
     }
   }
@@ -400,7 +393,6 @@ class SubscriptionService {
       const result = await response.json()
       return result.downloadUrl
     } catch (error) {
-      console.error('Error downloading invoice:', error)
       throw error
     }
   }

@@ -15,7 +15,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     try {
       await signOut()
     } catch (error) {
-      console.error('Sign out error:', error)
     }
   }
 

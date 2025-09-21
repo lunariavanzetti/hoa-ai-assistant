@@ -39,16 +39,13 @@ class GeminiVideoService {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY
       if (!apiKey) {
-        console.warn('Gemini API key not found')
         return
       }
 
       this.genAI = new GoogleGenerativeAI(apiKey)
       this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' })
 
-      console.log('✅ Gemini AI initialized successfully')
     } catch (error) {
-      console.error('❌ Failed to initialize Gemini AI:', error)
     }
   }
 
@@ -108,7 +105,6 @@ Focus on:
         }
       }
     } catch (error) {
-      console.error('Error enhancing prompt:', error)
       throw new Error('Failed to enhance prompt. Please try again.')
     }
   }
@@ -143,7 +139,6 @@ Make the script engaging, visually rich, and suitable for modern digital platfor
 
       return script
     } catch (error) {
-      console.error('Error generating script:', error)
       throw new Error('Failed to generate video script. Please try again.')
     }
   }
@@ -153,8 +148,6 @@ Make the script engaging, visually rich, and suitable for modern digital platfor
       // This is where we'll integrate with VEO 3 FAST API when available
       // For now, we'll simulate the video generation process
 
-      console.log('🎬 Starting video generation with VEO 3 FAST...')
-      console.log('Project:', videoProject)
 
       // Simulate video generation process
       const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -182,7 +175,6 @@ Make the script engaging, visually rich, and suitable for modern digital platfor
         jobId
       }
     } catch (error) {
-      console.error('Error generating video:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -216,7 +208,6 @@ Make the script engaging, visually rich, and suitable for modern digital platfor
       webhook_url: `${window.location.origin}/api/veo-webhook`
     }
 
-    console.log('🚀 VEO 3 FAST API call (mock):', mockResponse)
     return mockResponse
   }
 }
