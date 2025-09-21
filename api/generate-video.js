@@ -1,5 +1,6 @@
 // Video generation API using Google Veo 3 via Gemini API
 // File: /api/generate-video.js
+// Production deployment
 
 module.exports = async (req, res) => {
   // Enable CORS
