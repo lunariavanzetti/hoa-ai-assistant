@@ -86,51 +86,41 @@ export const Dashboard: React.FC = () => {
     console.log('🔄 Setting generation state to true')
 
     try {
-      console.log('⏳ Starting video generation simulation (5 seconds)...')
+      console.log('⏳ Starting real AI video generation with Veo 3...')
 
-      // Simulate video generation (5 seconds)
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      // Call the real video generation API
+      const videoResponse = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          orientation: orientation,
+          email: user?.email
+        })
+      })
 
+      if (!videoResponse.ok) {
+        const errorData = await videoResponse.json()
+        console.error('❌ Video generation API error:', errorData)
+        throw new Error(errorData.message || 'Video generation failed')
+      }
+
+      const videoData = await videoResponse.json()
       console.log('✅ Video generation completed!')
-      console.log('🎥 Generated video for prompt:', prompt.trim())
+      console.log('🎥 Generated video:', videoData.video)
 
-      // Simulate a generated video based on orientation
-      const horizontalVideos = [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-      ]
-
-      const verticalVideos = [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'
-      ]
-
-      const videoSamples = orientation === 'vertical' ? verticalVideos : horizontalVideos
-      const randomVideoUrl = videoSamples[generatedVideos.length % videoSamples.length]
-
-      console.log('🎬 Selected orientation:', orientation)
-      console.log('🎥 Using video URL:', randomVideoUrl)
-
-      console.log('🎬 Adding new video to store:', {
-        url: randomVideoUrl,
-        prompt: prompt.trim()
-      })
-      console.log('📊 Total videos after this generation:', generatedVideos.length + 1)
-
-      // Add video using the store with orientation
+      // Add video using the store with all metadata
       addVideo({
-        url: randomVideoUrl,
+        id: videoData.video.id,
+        url: videoData.video.url,
         prompt: prompt.trim(),
-        orientation: orientation
+        orientation: orientation,
+        timestamp: videoData.video.timestamp
       })
 
-      console.log('💾 Video now added to dashboard collection')
+      console.log('💾 Video added to dashboard collection')
       console.log('📹 Videos in collection:', generatedVideos.length + 1)
 
       // CRITICAL: Deduct 1 credit from user's balance
