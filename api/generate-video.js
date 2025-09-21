@@ -27,15 +27,9 @@ module.exports = async (req, res) => {
       })
     }
 
-    console.log('=== 🎬 VEO 3 VIDEO GENERATION STARTED ===')
-    console.log('👤 User email:', email)
-    console.log('📝 Prompt:', prompt)
-    console.log('📐 Orientation:', orientation)
-    console.log('⏰ Timestamp:', new Date().toISOString())
 
     const geminiApiKey = process.env.VITE_GEMINI_API_KEY
     if (!geminiApiKey) {
-      console.error('❌ Missing VITE_GEMINI_API_KEY')
       return res.status(500).json({
         error: 'Video generation service not configured'
       })
@@ -59,7 +53,6 @@ module.exports = async (req, res) => {
       }
     }
 
-    console.log('🔄 Calling Gemini API for Veo 3 generation...')
 
     // Call Gemini API for video generation
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
@@ -72,7 +65,6 @@ module.exports = async (req, res) => {
 
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text()
-      console.error('❌ Gemini API error:', errorText)
       return res.status(500).json({
         error: 'Video generation failed',
         details: errorText
@@ -80,7 +72,6 @@ module.exports = async (req, res) => {
     }
 
     const geminiData = await geminiResponse.json()
-    console.log('✅ Gemini API response received')
 
     // Extract video URL from response
     let videoUrl = null
@@ -92,7 +83,6 @@ module.exports = async (req, res) => {
     }
 
     if (!videoUrl) {
-      console.error('❌ No video URL in Gemini response:', geminiData)
       // Fallback to placeholder for now
       const placeholderVideos = [
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -100,7 +90,6 @@ module.exports = async (req, res) => {
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
       ]
       videoUrl = placeholderVideos[Math.floor(Math.random() * placeholderVideos.length)]
-      console.log('⚠️ Using placeholder video:', videoUrl)
     }
 
     // Store video metadata in database
@@ -118,7 +107,6 @@ module.exports = async (req, res) => {
       duration: 8 // Approximate duration in seconds
     }
 
-    console.log('💾 Storing video metadata in database...')
 
     const dbResponse = await fetch(`${supabaseUrl}/rest/v1/videos`, {
       method: 'POST',
@@ -134,17 +122,10 @@ module.exports = async (req, res) => {
     let savedVideo = null
     if (dbResponse.ok) {
       savedVideo = await dbResponse.json()
-      console.log('✅ Video metadata saved to database')
     } else {
       const errorText = await dbResponse.text()
-      console.error('❌ Failed to save video metadata:', errorText)
     }
 
-    console.log('=== ✅ VIDEO GENERATION COMPLETED ===')
-    console.log('🎥 Video URL:', videoUrl)
-    console.log('👤 User:', email)
-    console.log('📝 Prompt:', prompt)
-    console.log('💾 Database saved:', !!savedVideo)
 
     return res.status(200).json({
       success: true,
@@ -161,7 +142,6 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('💥 Video generation error:', error)
     return res.status(500).json({
       error: 'Video generation failed',
       message: error.message,

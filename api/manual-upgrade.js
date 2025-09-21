@@ -27,13 +27,7 @@ module.exports = async (req, res) => {
     }
 
     const validTier = tierMap[tier] || 'free'
-    console.log('🔄 Tier mapping:', tier, '->', validTier)
 
-    console.log('=== 🔧 MANUAL USER UPGRADE ===')
-    console.log('👤 Email:', email)
-    console.log('🎯 Target tier:', tier)
-    console.log('💰 Credits to grant:', credits)
-    console.log('⏰ Timestamp:', new Date().toISOString())
 
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -65,10 +59,6 @@ module.exports = async (req, res) => {
     const user = userData[0]
     const currentCredits = user.usage_stats?.credits_remaining || user.video_credits || 0
 
-    console.log('=== 📊 CURRENT USER STATUS ===')
-    console.log('🎯 Current tier:', user.subscription_tier)
-    console.log('💰 Current credits:', currentCredits)
-    console.log('📹 Videos this month:', user.usage_stats?.videos_this_month || 0)
 
     // Calculate new values (ADD credits, don't replace)
     const newCredits = currentCredits + credits
@@ -87,10 +77,6 @@ module.exports = async (req, res) => {
       updated_at: new Date().toISOString()
     }
 
-    console.log('=== 🎯 UPGRADING USER ===')
-    console.log('🆙 New tier:', validTier, '(requested:', tier, ')')
-    console.log('💰 Adding credits:', credits)
-    console.log('📊 New total credits:', newCredits)
 
     const updateResponse = await fetch(`${supabaseUrl}/rest/v1/users?email=eq.${email}`, {
       method: 'PATCH',
@@ -105,7 +91,6 @@ module.exports = async (req, res) => {
 
     if (!updateResponse.ok) {
       const errorText = await updateResponse.text()
-      console.error('❌ Database update failed:', errorText)
       return res.status(500).json({
         error: 'Failed to upgrade user',
         details: errorText
@@ -114,12 +99,6 @@ module.exports = async (req, res) => {
 
     const updatedUser = await updateResponse.json()
 
-    console.log('=== ✅ MANUAL UPGRADE SUCCESS ===')
-    console.log('👤 User:', email)
-    console.log('🎯 New tier:', tier)
-    console.log('💰 Credits granted:', credits)
-    console.log('📊 New total credits:', newCredits)
-    console.log('💾 Database updated successfully')
 
     return res.status(200).json({
       success: true,
@@ -134,7 +113,6 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('💥 Manual upgrade error:', error)
     return res.status(500).json({
       error: 'Internal server error',
       message: error.message,

@@ -16,9 +16,6 @@ module.exports = async (req, res) => {
   try {
     const email = req.query.email || 'temakikitemakiki@gmail.com'
 
-    console.log('=== 🔍 CHECKING DATABASE SCHEMA ===')
-    console.log('👤 Email:', email)
-    console.log('⏰ Timestamp:', new Date().toISOString())
 
     // Use direct Supabase URL
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
@@ -41,9 +38,6 @@ module.exports = async (req, res) => {
     })
 
     const responseText = await response.text()
-    console.log('=== 📡 DATABASE RESPONSE ===')
-    console.log('Status:', response.status)
-    console.log('Response:', responseText)
 
     if (!response.ok) {
       return res.status(response.status).json({
@@ -55,15 +49,10 @@ module.exports = async (req, res) => {
 
     const userData = JSON.parse(responseText)
 
-    console.log('=== 📊 USER DATA ANALYSIS ===')
-    console.log('👤 Users found:', userData.length)
 
     if (userData.length > 0) {
       const user = userData[0]
-      console.log('📋 Available columns:', Object.keys(user))
-      console.log('👤 Sample user data:')
       Object.keys(user).forEach(key => {
-        console.log(`  ${key}:`, user[key])
       })
     }
 
@@ -77,7 +66,6 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('Error checking schema:', error)
     return res.status(500).json({
       error: 'Internal server error',
       message: error.message,

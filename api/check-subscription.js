@@ -24,11 +24,9 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Email is required' })
     }
 
-    console.log('🔍 Checking subscription for:', email)
 
     // Check if we have Paddle API credentials
     if (!process.env.PADDLE_API_KEY) {
-      console.log('⚠️  No Paddle API key configured')
       return res.status(200).json({ 
         hasActiveSubscription: false,
         reason: 'No Paddle API key configured'
@@ -45,7 +43,6 @@ module.exports = async (req, res) => {
     })
 
     if (!paddleResponse.ok) {
-      console.log('❌ Paddle API error:', paddleResponse.status)
       return res.status(200).json({ 
         hasActiveSubscription: false,
         reason: 'Paddle API error'
@@ -53,17 +50,13 @@ module.exports = async (req, res) => {
     }
 
     const subscriptions = await paddleResponse.json()
-    console.log('📊 Found subscriptions:', subscriptions.data?.length || 0)
-    console.log('📋 All subscriptions:', JSON.stringify(subscriptions.data, null, 2))
 
     // Find any subscription for this email (not just active ones)
     const userSubscriptions = subscriptions.data?.filter(sub => 
       sub.customer?.email === email
     )
     
-    console.log(`👤 Subscriptions for ${email}:`, userSubscriptions?.length || 0)
     if (userSubscriptions?.length > 0) {
-      console.log('📝 User subscription details:', JSON.stringify(userSubscriptions, null, 2))
     }
 
     // Find active subscription for this email
@@ -72,7 +65,6 @@ module.exports = async (req, res) => {
     )
 
     if (activeSubscription) {
-      console.log('✅ Found active subscription for:', email)
       
       // Determine subscription tier based on price ID
       const priceId = activeSubscription.items?.[0]?.price?.id
@@ -93,14 +85,12 @@ module.exports = async (req, res) => {
       })
     }
 
-    console.log('❌ No active subscription found for:', email)
     return res.status(200).json({ 
       hasActiveSubscription: false,
       reason: 'No active subscription found'
     })
 
   } catch (error) {
-    console.error('💥 Check subscription error:', error)
     return res.status(500).json({ 
       error: 'Failed to check subscription',
       details: error.message

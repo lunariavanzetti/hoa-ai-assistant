@@ -28,10 +28,6 @@ module.exports = async (req, res) => {
       })
     }
 
-    console.log('=== 📹 FETCHING USER VIDEOS ===')
-    console.log('👤 Email:', email)
-    console.log('📊 Limit:', limit)
-    console.log('📊 Offset:', offset)
 
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -56,7 +52,6 @@ module.exports = async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('❌ Database query failed:', errorText)
 
       // Return empty array if table doesn't exist yet
       if (errorText.includes('relation "videos" does not exist')) {
@@ -77,8 +72,6 @@ module.exports = async (req, res) => {
 
     const videos = await response.json()
 
-    console.log('✅ Videos fetched successfully')
-    console.log('📊 Videos found:', videos.length)
 
     return res.status(200).json({
       success: true,
@@ -90,7 +83,6 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('💥 Get videos error:', error)
     return res.status(500).json({
       error: 'Failed to fetch videos',
       message: error.message,

@@ -23,7 +23,6 @@ module.exports = async (req, res) => {
       })
     }
 
-    console.log('=== 🔧 SETTING UP VIDEOS TABLE ===')
 
     // SQL to create videos table
     const createTableSQL = `
@@ -60,7 +59,6 @@ module.exports = async (req, res) => {
         FOR ALL USING (auth.role() = 'service_role');
     `
 
-    console.log('📝 Executing SQL to create videos table...')
 
     const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
       method: 'POST',
@@ -75,11 +73,8 @@ module.exports = async (req, res) => {
     })
 
     const responseText = await response.text()
-    console.log('📡 Response status:', response.status)
-    console.log('📡 Response:', responseText)
 
     if (response.ok) {
-      console.log('✅ Videos table setup completed successfully')
       return res.status(200).json({
         success: true,
         message: 'Videos table created successfully',
@@ -87,7 +82,6 @@ module.exports = async (req, res) => {
       })
     } else {
       // Try alternative approach using raw SQL execution
-      console.log('⚠️ First approach failed, trying alternative...')
 
       // For now, let's just return success and handle table creation manually
       return res.status(200).json({
@@ -99,7 +93,6 @@ module.exports = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('💥 Videos table setup error:', error)
     return res.status(500).json({
       error: 'Failed to setup videos table',
       message: error.message,

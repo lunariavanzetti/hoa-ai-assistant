@@ -24,10 +24,6 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Email is required' })
     }
 
-    console.log('=== 💳 CREDIT DEDUCTION STARTED ===')
-    console.log('👤 Email:', email)
-    console.log('📝 Video prompt:', videoPrompt)
-    console.log('⏰ Timestamp:', new Date().toISOString())
 
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -61,14 +57,9 @@ module.exports = async (req, res) => {
     const currentVideosThisMonth = user.usage_stats?.videos_this_month || 0
     const currentTotalVideos = user.usage_stats?.total_videos_generated || 0
 
-    console.log('=== 📊 CURRENT USER STATUS ===')
-    console.log('💰 Current credits:', currentCredits)
-    console.log('📹 Videos this month:', currentVideosThisMonth)
-    console.log('🎬 Total videos generated:', currentTotalVideos)
 
     // Check if user has credits
     if (currentCredits <= 0) {
-      console.log('❌ Insufficient credits for video generation')
       return res.status(400).json({
         error: 'Insufficient credits',
         currentCredits: currentCredits
@@ -80,11 +71,6 @@ module.exports = async (req, res) => {
     const newVideosThisMonth = currentVideosThisMonth + 1
     const newTotalVideos = currentTotalVideos + 1
 
-    console.log('=== 💳 DEDUCTING CREDIT ===')
-    console.log('➖ Deducting 1 credit')
-    console.log('📊 New credit balance:', newCredits)
-    console.log('📹 New videos this month:', newVideosThisMonth)
-    console.log('🎬 New total videos:', newTotalVideos)
 
     // Update user with new credit balance and stats
     const updateData = {
@@ -112,7 +98,6 @@ module.exports = async (req, res) => {
 
     if (!updateResponse.ok) {
       const errorText = await updateResponse.text()
-      console.error('❌ Database update failed:', errorText)
       return res.status(500).json({
         error: 'Failed to update user credits',
         details: errorText
@@ -121,13 +106,6 @@ module.exports = async (req, res) => {
 
     const updatedUser = await updateResponse.json()
 
-    console.log('=== ✅ CREDIT DEDUCTION SUCCESS ===')
-    console.log('👤 User:', email)
-    console.log('💰 Credits deducted: 1')
-    console.log('📊 New balance:', newCredits)
-    console.log('📹 Videos this month:', newVideosThisMonth)
-    console.log('🎬 Total videos:', newTotalVideos)
-    console.log('💾 Database updated successfully')
 
     return res.status(200).json({
       success: true,
@@ -142,7 +120,6 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('💥 Credit deduction error:', error)
     return res.status(500).json({
       error: 'Internal server error',
       message: error.message,

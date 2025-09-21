@@ -23,16 +23,11 @@ module.exports = async (req, res) => {
       const email = req.query.email || 'temakikitemakiki@gmail.com'
       const tokens = parseInt(req.query.tokens) || 2
 
-      console.log(`🧪 MANUAL TEST: Adding ${tokens} tokens to ${email}`)
-      console.log('🔧 Environment check:')
-      console.log('- SUPABASE_URL:', process.env.SUPABASE_URL)
-      console.log('- SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
 
       // Manually add tokens using the same logic as webhook
       try {
         // Use the correct Supabase URL directly
         const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
-        console.log('🔗 Using Supabase URL:', supabaseUrl)
         const updateData = {
           subscription_tier: 'free',
           subscription_status: 'active',
@@ -69,8 +64,6 @@ module.exports = async (req, res) => {
             let responseData = ''
             res.on('data', (chunk) => { responseData += chunk })
             res.on('end', () => {
-              console.log('📡 Manual update response status:', res.statusCode)
-              console.log('📡 Manual update response data:', responseData)
 
               if (res.statusCode >= 200 && res.statusCode < 300) {
                 resolve({ success: true, data: responseData })
@@ -81,7 +74,6 @@ module.exports = async (req, res) => {
           })
 
           req.on('error', (error) => {
-            console.error('💥 Manual update error:', error)
             reject(error)
           })
 
@@ -90,7 +82,6 @@ module.exports = async (req, res) => {
         })
 
         if (result.success) {
-          console.log('✅ Manual token addition successful')
           return res.status(200).json({
             status: 'Success! Tokens added manually',
             email: email,
@@ -100,14 +91,12 @@ module.exports = async (req, res) => {
             result: result.data
           })
         } else {
-          console.error('❌ Manual token addition failed:', result.data)
           return res.status(500).json({
             status: 'Failed to add tokens',
             error: result.data
           })
         }
       } catch (error) {
-        console.error('💥 Manual test error:', error)
         return res.status(500).json({
           status: 'Manual token test failed',
           error: error.message
@@ -125,7 +114,6 @@ module.exports = async (req, res) => {
   }
   
   if (req.method !== 'POST') {
-    console.log('❌ Method not allowed:', req.method)
     return res.status(405).json({ 
       error: 'Method not allowed', 
       method: req.method,
@@ -134,22 +122,12 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('=== 🎣 PADDLE WEBHOOK RECEIVED ===')
-    console.log('✅ POST request received at:', new Date().toISOString())
-    console.log('📦 Request body:', JSON.stringify(req.body, null, 2))
-    console.log('📋 Headers:', JSON.stringify(req.headers, null, 2))
-    console.log('🌐 Origin:', req.headers.origin)
-    console.log('🔐 User-Agent:', req.headers['user-agent'])
 
     const eventType = req.body?.event_type
-    console.log('📬 Event type:', eventType)
 
     // Check environment variables
-    console.log('🔧 SUPABASE_URL exists:', !!process.env.SUPABASE_URL)
-    console.log('🔧 SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
     
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.log('❌ Missing Supabase environment variables')
       return res.status(500).json({ 
         error: 'Missing Supabase configuration',
         hasUrl: !!process.env.SUPABASE_URL,
@@ -158,7 +136,6 @@ module.exports = async (req, res) => {
     }
 
     if (eventType === 'subscription.created' || eventType === 'subscription.activated' || eventType === 'transaction.completed') {
-      console.log(`🎉 ${eventType} webhook!`)
 
       const data = req.body.data
       let customerEmail, paddleCustomerId, paddleSubscriptionId, priceId
@@ -176,13 +153,8 @@ module.exports = async (req, res) => {
         priceId = data?.items?.[0]?.price?.id
       }
 
-      console.log('👤 Customer email:', customerEmail)
-      console.log('🆔 Paddle Customer ID:', paddleCustomerId)
-      console.log('📋 Paddle Subscription ID:', paddleSubscriptionId)
-      console.log('💰 Price ID:', priceId)
 
       if (!customerEmail) {
-        console.log('❌ No customer email found')
         return res.status(400).json({ error: 'Customer email not found' })
       }
 
@@ -218,47 +190,34 @@ module.exports = async (req, res) => {
         tokensToAdd = purchase.tokens
         subscriptionTier = purchase.tier
       } else {
-        console.log('❌ UNKNOWN PRICE ID DETECTED:', priceId)
-        console.log('🔍 Customer email:', customerEmail)
-        console.log('📝 Available price IDs:', Object.keys(priceMap))
-        console.log('💡 ADD THIS PRICE ID TO WEBHOOK MAPPING!')
 
         // Guess tokens based on common patterns AND webhook data
         const amount = data?.items?.[0]?.price?.unit_price?.amount
         const currency = data?.items?.[0]?.price?.unit_price?.currency_code
 
-        console.log('💰 Price amount:', amount, currency)
 
         // Detect Premium by price amount ($49.99 = 4999 cents)
         if (amount >= 4900 && amount <= 5099) {
           tokensToAdd = 120
-          console.log('🎯 Detected Premium by price ($49.99): 120 tokens')
         }
         // Detect Basic by price amount ($19.99 = 1999 cents)
         else if (amount >= 1900 && amount <= 2099) {
           tokensToAdd = 20
-          console.log('🎯 Detected Basic by price ($19.99): 20 tokens')
         }
         // Pattern matching fallback
         else if (priceId.includes('premium') || priceId.includes('120')) {
           tokensToAdd = 120
-          console.log('🎯 Guessing Premium by ID pattern: 120 tokens')
         } else if (priceId.includes('basic') || priceId.includes('20')) {
           tokensToAdd = 20
-          console.log('🎯 Guessing Basic by ID pattern: 20 tokens')
         } else {
           tokensToAdd = 1
-          console.log('🎯 Guessing Pay-per-video: 1 token')
         }
         subscriptionTier = 'free'
       }
 
-      console.log('🎯 Tokens to add:', tokensToAdd)
-      console.log('🎯 Subscription tier:', subscriptionTier)
 
       // Update user subscription using direct REST API call
       try {
-        console.log('🔄 Attempting database update via REST API...')
         
         // First, get current user data to add credits to existing balance
         const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
@@ -293,14 +252,6 @@ module.exports = async (req, res) => {
         const currentCredits = currentUserData[0]?.usage_stats?.credits_remaining || currentUserData[0]?.video_credits || 0
         const newCreditBalance = currentCredits + tokensToAdd
 
-        console.log('=== 📊 CREDIT UPDATE DETAILS ===')
-        console.log('👤 Customer Email:', customerEmail)
-        console.log('🔄 Current credits:', currentCredits)
-        console.log('➕ Adding credits:', tokensToAdd)
-        console.log('🎯 New credit balance:', newCreditBalance)
-        console.log('🏷️ Setting tier:', subscriptionTier)
-        console.log('💰 Price ID:', priceId)
-        console.log('⏰ Timestamp:', new Date().toISOString())
 
         const updateData = {
           subscription_tier: subscriptionTier,
@@ -348,8 +299,6 @@ module.exports = async (req, res) => {
             })
             
             res.on('end', () => {
-              console.log('📡 Response status:', res.statusCode)
-              console.log('📡 Response data:', responseData)
               
               if (res.statusCode >= 200 && res.statusCode < 300) {
                 resolve({ success: true, data: responseData })
@@ -360,7 +309,6 @@ module.exports = async (req, res) => {
           })
 
           req.on('error', (error) => {
-            console.error('💥 HTTPS request error:', error)
             reject(error)
           })
 
@@ -369,7 +317,6 @@ module.exports = async (req, res) => {
         })
 
         if (!result.success) {
-          console.error('💥 Database update failed:', result.data)
           return res.status(500).json({
             error: 'Failed to update user subscription',
             status: result.status,
@@ -377,18 +324,8 @@ module.exports = async (req, res) => {
           })
         }
 
-        console.log('=== ✅ WEBHOOK SUCCESS ===')
-        console.log('🎉 Database update successful!')
-        console.log('👤 Customer:', customerEmail)
-        console.log('📊 Final credits:', newCreditBalance)
-        console.log('🎯 Final tier:', subscriptionTier)
-        console.log('📅 Status:', 'active')
-        console.log('💾 Database response:', result.data)
         
       } catch (dbError) {
-        console.error('💥 Database connection error:', dbError)
-        console.error('⚠️  FALLBACK: Logging purchase for manual processing')
-        console.log(`🔔 TOKENS PURCHASED: ${customerEmail} -> +${tokensToAdd} tokens, tier: ${subscriptionTier} (Paddle Sub: ${paddleSubscriptionId})`)
 
         // Return success since we've logged the event for manual processing
         return res.status(200).json({
@@ -405,12 +342,10 @@ module.exports = async (req, res) => {
     }
 
     if (eventType === 'subscription.cancelled' || eventType === 'subscription.expired') {
-      console.log(`🚫 ${eventType} webhook!`)
       
       const subscription = req.body.data
       const paddleSubscriptionId = subscription?.id
       
-      console.log('📋 Paddle Subscription ID:', paddleSubscriptionId)
 
       if (paddleSubscriptionId) {
         try {
@@ -435,7 +370,6 @@ module.exports = async (req, res) => {
 
           if (!response.ok) {
             const errorText = await response.text()
-            console.error('💥 Database downgrade failed:', errorText)
             return res.status(500).json({ 
               error: 'Failed to downgrade user subscription',
               status: response.status,
@@ -444,9 +378,7 @@ module.exports = async (req, res) => {
           }
 
           const data = await response.json()
-          console.log('✅ Successfully downgraded user subscription:', data)
         } catch (error) {
-          console.error('💥 Database downgrade error:', error)
           return res.status(500).json({ 
             error: 'Failed to downgrade user subscription',
             details: error.message 
@@ -464,7 +396,6 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('💥 Webhook error:', error)
     res.status(500).json({
       error: 'Internal server error',
       message: error.message,
