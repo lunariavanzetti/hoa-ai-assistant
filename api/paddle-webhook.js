@@ -4,7 +4,6 @@
 const https = require('https')
 
 module.exports = async (req, res) => {
-  console.log('🎣 Webhook called:', req.method, req.url)
   
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true)
