@@ -171,7 +171,7 @@ module.exports = async (req, res) => {
       // Note: Using 'free' tier for all due to database constraints, but adding appropriate credits
       const priceMap = {
         // Production Price IDs (from environment variables)
-        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 1, tier: 'free' }, // Pay-per-video $1.99
+        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 2, tier: 'free' }, // Pay-per-video $1.99
         [process.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID]: { tokens: 20, tier: 'free' }, // Basic Monthly $17.99 (20 credits)
         [process.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID]: { tokens: 120, tier: 'free' }, // Premium Monthly $109.99 (120 credits)
 
@@ -215,7 +215,7 @@ module.exports = async (req, res) => {
         }
         // Detect Pay-per-Video by price amount ($1.99 = 199 cents)
         else if (amount >= 190 && amount <= 209) {
-          tokensToAdd = 1
+          tokensToAdd = 2
         }
         // Pattern matching fallback
         else if (priceId.includes('premium') || priceId.includes('120')) {
@@ -223,7 +223,7 @@ module.exports = async (req, res) => {
         } else if (priceId.includes('basic') || priceId.includes('20')) {
           tokensToAdd = 20
         } else {
-          tokensToAdd = 1
+          tokensToAdd = 2
         }
         subscriptionTier = 'free'
       }

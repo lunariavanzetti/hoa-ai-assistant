@@ -30,7 +30,7 @@ export const Pricing: React.FC = () => {
   const tiers = [
     {
       name: 'Pay-per-Video',
-      tokens: 1,
+      tokens: 2,
       price: '$1.99',
       description: 'Generate 2 videos',
       features: ['2 video generations', 'HD quality output', 'Horizontal & vertical formats'],
@@ -148,25 +148,25 @@ export const Pricing: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-6 sm:mb-12"
+              className="text-center mb-4 sm:mb-12"
             >
-              <h1 className="text-xl sm:text-4xl font-bold text-white mb-3">
+              <h1 className="text-lg sm:text-4xl font-bold text-white mb-2">
                 Choose Your Plan
               </h1>
-              <p className="text-white/70 text-xs sm:text-lg max-w-2xl mx-auto px-4">
-                Select the perfect plan for your AI video generation needs. All plans include HD quality output and both horizontal and vertical formats.
+              <p className="text-white/70 text-xs sm:text-lg max-w-2xl mx-auto px-4 leading-tight">
+                Select the perfect plan for your AI video generation needs.
               </p>
             </motion.div>
 
             {/* Pricing Cards */}
-            <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+            <div className="grid gap-3 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
               {tiers.map((tier, index) => (
                 <motion.div
                   key={tier.name}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`relative bg-white/5 border rounded-2xl p-3 sm:p-6 ${
+                  className={`relative bg-white/5 border rounded-2xl p-2 sm:p-6 ${
                     tier.popular ? 'border-blue-500/50 bg-blue-500/5' : 'border-white/20'
                   }`}
                 >
@@ -178,23 +178,23 @@ export const Pricing: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                    <tier.icon className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
-                    <h3 className="text-base sm:text-xl font-semibold text-white">{tier.name}</h3>
+                  <div className="flex items-center gap-1 sm:gap-3 mb-2">
+                    <tier.icon className="w-4 h-4 sm:w-8 sm:h-8 text-white" />
+                    <h3 className="text-sm sm:text-xl font-semibold text-white">{tier.name}</h3>
                   </div>
 
-                  <div className="mb-3">
-                    <span className="text-xl sm:text-3xl font-bold text-white">{tier.price}</span>
+                  <div className="mb-2">
+                    <span className="text-lg sm:text-3xl font-bold text-white">{tier.price}</span>
                     {tier.name !== 'Pay-per-Video' && (
                       <span className="text-white/60 text-xs sm:text-sm">/month</span>
                     )}
                   </div>
 
-                  <p className="text-white/70 text-xs sm:text-sm mb-3 sm:mb-6">{tier.description}</p>
+                  <p className="text-white/70 text-xs sm:text-sm mb-2 sm:mb-6">{tier.description}</p>
 
-                  <div className="mb-3 sm:mb-6">
+                  <div className="mb-2 sm:mb-6">
                     <p className="text-yellow-400 font-medium mb-1 text-xs sm:text-base">
-                      {tier.tokens} video generation{tier.tokens > 1 ? 's' : ''}
+                      {tier.tokens} token{tier.tokens > 1 ? 's' : ''}
                     </p>
                   </div>
 

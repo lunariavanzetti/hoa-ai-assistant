@@ -201,7 +201,7 @@ export const Dashboard: React.FC = () => {
   const tiers = [
     {
       name: 'Pay-per-Video',
-      tokens: 1,
+      tokens: 2,
       price: '$1.99',
       description: 'Generate 2 videos',
       icon: CreditCard,
