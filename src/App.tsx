@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { ToastProvider } from '@/components/ui/Toaster'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { AuthProvider } from '@/components/providers/AuthProvider'
+import { LanguageProvider } from '@/contexts/LanguageContext'
 import { Dashboard } from '@/pages/Dashboard'
 import { VideoGenerator } from '@/pages/VideoGenerator'
 import { VideoTemplates } from '@/pages/VideoTemplates'
@@ -23,9 +24,10 @@ function App() {
 
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <ToastProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
           <div className="min-h-screen">
             <Routes>
               {!user ? (
@@ -63,9 +65,10 @@ function App() {
             </Routes>
           </div>
         </ToastProvider>
-      </AuthProvider>
-      <Analytics />
-    </ThemeProvider>
+        </AuthProvider>
+        <Analytics />
+      </ThemeProvider>
+    </LanguageProvider>
   )
 }
 

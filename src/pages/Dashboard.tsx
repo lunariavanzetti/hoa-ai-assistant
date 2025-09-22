@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '@/contexts/LanguageContext'
+import { LanguageToggle } from '@/components/LanguageToggle'
 import {
   Video,
   Zap,
@@ -25,6 +27,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
   const { generatedVideos, addVideo, removeVideo, clearAllVideos } = useVideoStore()
+  const { t } = useLanguage()
   const [prompt, setPrompt] = useState('')
   const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -318,7 +321,7 @@ export const Dashboard: React.FC = () => {
               >
                 <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
                 <span className="text-xs sm:text-sm font-medium text-white">
-                  {tokenInfo.remaining} tokens
+                  {tokenInfo.remaining} {t('header.tokens')}
                 </span>
               </button>
 
@@ -326,9 +329,12 @@ export const Dashboard: React.FC = () => {
               <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
                 <Crown className="w-4 h-4 text-blue-400" />
                 <span className="text-sm font-medium text-white capitalize">
-                  {user?.subscription_tier || 'free'} plan
+                  {user?.subscription_tier || 'free'} {t('header.plan')}
                 </span>
               </div>
+
+              {/* Language Toggle */}
+              <LanguageToggle />
 
               {/* Logout Button */}
               <button
@@ -415,10 +421,10 @@ export const Dashboard: React.FC = () => {
             className="text-center mb-4 px-4"
           >
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
-              Create AI Video
+              {t('dashboard.title')}
             </h1>
             <p className="text-white/70 text-sm sm:text-base">
-              Describe your idea and generate stunning videos
+              {t('dashboard.subtitle')}
             </p>
           </motion.div>
 
@@ -506,13 +512,13 @@ export const Dashboard: React.FC = () => {
               {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
                   <p className="text-red-400 text-xs sm:text-sm">
-                    You have 0 tokens. Select a plan to start generating videos.
+                    {t('dashboard.noTokens')}
                   </p>
                   <button
                     onClick={() => setShowPricingModal(true)}
                     className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-full font-medium hover:shadow-lg transition-all whitespace-nowrap"
                   >
-                    Buy Tokens
+                    {t('dashboard.buyTokens')}
                   </button>
                 </div>
               )}
@@ -560,7 +566,7 @@ export const Dashboard: React.FC = () => {
                   type="text"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe your video idea..."
+                  placeholder={t('dashboard.placeholder')}
                   className="flex-1 p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all text-sm"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
