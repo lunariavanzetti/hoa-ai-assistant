@@ -117,14 +117,14 @@ export const Pricing: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-white/90 backdrop-blur-sm flex items-center justify-center">
                 <Video className="w-5 h-5 text-black" />
               </div>
-              <span className="text-xl font-medium text-white" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+              <span className="text-lg sm:text-xl font-medium text-white" style={{ fontFamily: 'Google Sans, sans-serif' }}>
                 Kateriss
               </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Token Counter */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
                 <Zap className="w-4 h-4 text-yellow-400" />
                 <span className="text-sm font-medium text-white">
                   {user?.tokens || 0} tokens
@@ -143,30 +143,30 @@ export const Pricing: React.FC = () => {
         </header>
 
         {/* Main Content */}
-        <main className="px-4 py-8">
+        <main className="px-2 sm:px-4 py-4 sm:py-8">
           <div className="max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-12"
+              className="text-center mb-8 sm:mb-12"
             >
-              <h1 className="text-4xl font-bold text-white mb-4">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-4">
                 Choose Your Plan
               </h1>
-              <p className="text-white/70 text-lg max-w-2xl mx-auto">
+              <p className="text-white/70 text-sm sm:text-lg max-w-2xl mx-auto px-4">
                 Select the perfect plan for your AI video generation needs. All plans include HD quality output and both horizontal and vertical formats.
               </p>
             </motion.div>
 
             {/* Pricing Cards */}
-            <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+            <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
               {tiers.map((tier, index) => (
                 <motion.div
                   key={tier.name}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`relative bg-white/5 border rounded-2xl p-6 ${
+                  className={`relative bg-white/5 border rounded-2xl p-4 sm:p-6 ${
                     tier.popular ? 'border-blue-500/50 bg-blue-500/5' : 'border-white/20'
                   }`}
                 >
@@ -178,31 +178,31 @@ export const Pricing: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3 mb-4">
-                    <tier.icon className="w-8 h-8 text-white" />
-                    <h3 className="text-xl font-semibold text-white">{tier.name}</h3>
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                    <tier.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                    <h3 className="text-lg sm:text-xl font-semibold text-white">{tier.name}</h3>
                   </div>
 
                   <div className="mb-4">
-                    <span className="text-3xl font-bold text-white">{tier.price}</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-white">{tier.price}</span>
                     {tier.name !== 'Pay-per-Video' && (
-                      <span className="text-white/60 text-sm">/month</span>
+                      <span className="text-white/60 text-xs sm:text-sm">/month</span>
                     )}
                   </div>
 
-                  <p className="text-white/70 text-sm mb-6">{tier.description}</p>
+                  <p className="text-white/70 text-xs sm:text-sm mb-4 sm:mb-6">{tier.description}</p>
 
-                  <div className="mb-6">
-                    <p className="text-yellow-400 font-medium mb-2">
+                  <div className="mb-4 sm:mb-6">
+                    <p className="text-yellow-400 font-medium mb-2 text-sm sm:text-base">
                       {tier.tokens} video generation{tier.tokens > 1 ? 's' : ''}
                     </p>
                   </div>
 
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                     {tier.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-                        <span className="text-white/80 text-sm">{feature}</span>
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
+                        <span className="text-white/80 text-xs sm:text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -210,7 +210,7 @@ export const Pricing: React.FC = () => {
                   <button
                     onClick={() => handlePurchase(tier)}
                     disabled={isLoading === tier.priceId}
-                    className={`w-full py-3 rounded-xl font-medium transition-all ${
+                    className={`w-full py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base ${
                       tier.popular
                         ? 'bg-blue-500 hover:bg-blue-600 text-white'
                         : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'

@@ -320,7 +320,7 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {/* Subscription Tier */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
                 <Crown className="w-4 h-4 text-blue-400" />
                 <span className="text-sm font-medium text-white capitalize">
                   {user?.subscription_tier || 'free'} plan
@@ -340,8 +340,20 @@ export const Dashboard: React.FC = () => {
 
         {/* Mobile Menu Dropdown */}
         {showMobileMenu && (
-          <div className="absolute top-20 left-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 z-50">
+          <div className="absolute top-16 left-2 right-2 sm:left-4 sm:right-auto sm:w-64 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 z-50">
             <div className="flex flex-col gap-3">
+              {/* Mobile Subscription Tier */}
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10 mb-2">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium text-white capitalize">
+                    {user?.subscription_tier || 'free'} plan
+                  </span>
+                </div>
+                <div className="text-xs text-white/60">
+                  {tokenInfo.remaining} tokens
+                </div>
+              </div>
               <button
                 onClick={() => {
                   navigate('/templates')
@@ -393,28 +405,28 @@ export const Dashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-6 px-4"
           >
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
               Create AI Video
             </h1>
-            <p className="text-white/70 text-lg">
+            <p className="text-white/70 text-base sm:text-lg">
               Describe your idea and generate stunning videos
             </p>
           </motion.div>
 
           {/* Generated Videos Display */}
           {generatedVideos.length > 0 && (
-            <div className="w-full px-4">
-              <div className="w-full md:w-3/4 mx-auto">
+            <div className="w-full px-2 sm:px-4">
+              <div className="w-full lg:w-3/4 mx-auto">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
                   className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl mb-6"
                 >
-                  <div className="p-6">
+                  <div className="p-3 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-white">
-                        Generated Videos ({generatedVideos.length})
+                      <h3 className="text-lg sm:text-xl font-semibold text-white">
+                        Videos ({generatedVideos.length})
                       </h3>
                       <button
                         onClick={() => {
@@ -433,10 +445,10 @@ export const Dashboard: React.FC = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="bg-white/5 rounded-lg p-4"
+                          className="bg-white/5 rounded-lg p-2 sm:p-4"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs font-medium">
                                 Video {generatedVideos.length - index}
                               </span>
@@ -458,14 +470,14 @@ export const Dashboard: React.FC = () => {
                             <video
                               src={video.url}
                               controls
-                              className="w-full max-h-64 object-cover"
+                              className="w-full h-48 sm:h-64 object-cover"
                               autoPlay={false}
                             />
                           </div>
 
-                          <div className="bg-white/5 rounded-lg p-3">
-                            <p className="text-white/60 text-sm mb-1">Prompt:</p>
-                            <p className="text-white text-sm">{video.prompt}</p>
+                          <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                            <p className="text-white/60 text-xs sm:text-sm mb-1">Prompt:</p>
+                            <p className="text-white text-xs sm:text-sm break-words">{video.prompt}</p>
                           </div>
                         </motion.div>
                       ))}
@@ -479,27 +491,27 @@ export const Dashboard: React.FC = () => {
 
         {/* Fixed Bottom Input Area - Simple */}
         <div className="fixed bottom-0 left-0 right-0 z-50">
-          <div className="w-full px-4 py-3">
-            <div className="w-full md:w-3/4 mx-auto">
-              <div className="flex items-center gap-2">
+          <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
+            <div className="w-full lg:w-3/4 mx-auto">
+              <div className="flex items-center gap-1 sm:gap-2">
                 {/* Compact Orientation Selector */}
                 <div className="relative">
                   <button
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="flex items-center gap-1 px-2 py-2 text-white/70 hover:text-white transition-all text-sm"
+                    className="flex items-center gap-1 px-1 sm:px-2 py-2 text-white/70 hover:text-white transition-all text-sm"
                   >
                     <span>{orientation === 'horizontal' ? '🖥️' : '📱'}</span>
                     <ChevronDown className={`w-3 h-3 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
                   </button>
 
                   {showDropdown && (
-                    <div className="absolute bottom-full left-0 mb-1 bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[100px]">
+                    <div className="absolute bottom-full left-0 mb-1 bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[90px] sm:min-w-[100px]">
                       <button
                         onClick={() => {
                           setOrientation('horizontal')
                           setShowDropdown(false)
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
+                        className="w-full flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-white hover:bg-white/10 transition-all text-xs sm:text-sm"
                       >
                         <span>🖥️</span>
                         <span>16:9</span>
@@ -509,7 +521,7 @@ export const Dashboard: React.FC = () => {
                           setOrientation('vertical')
                           setShowDropdown(false)
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
+                        className="w-full flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-white hover:bg-white/10 transition-all text-xs sm:text-sm"
                       >
                         <span>📱</span>
                         <span>9:16</span>
@@ -523,7 +535,7 @@ export const Dashboard: React.FC = () => {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Describe your video idea..."
-                  className="flex-1 p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all"
+                  className="flex-1 p-2 sm:p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all text-sm sm:text-base"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
@@ -535,28 +547,28 @@ export const Dashboard: React.FC = () => {
                 <button
                   onClick={handleGenerate}
                   disabled={!prompt.trim() || isGenerating}
-                  className={`p-3 rounded-xl transition-all ${
+                  className={`p-2 sm:p-3 rounded-xl transition-all ${
                     (!prompt.trim() || isGenerating)
                       ? 'bg-white/10 text-white/50 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
                   }`}
                 >
                   {isGenerating ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                   ) : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
               </div>
 
               {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-red-400 text-sm">
+                <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <p className="text-red-400 text-xs sm:text-sm">
                     You have 0 tokens. Purchase tokens to generate videos.
                   </p>
                   <button
                     onClick={() => setShowPricingModal(true)}
-                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-full font-medium hover:shadow-lg transition-all"
+                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-full font-medium hover:shadow-lg transition-all self-start sm:self-auto"
                   >
                     Buy Tokens
                   </button>

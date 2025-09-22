@@ -99,24 +99,24 @@ export const Landing: React.FC = () => {
       {/* Content */}
       <div className="relative z-10 min-h-screen">
         {/* Header */}
-        <header className="p-6">
+        <header className="p-4 sm:p-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-between max-w-7xl mx-auto"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white/90 backdrop-blur-sm flex items-center justify-center">
-                <Video className="w-5 h-5 text-black" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <Video className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
               </div>
-              <span className="text-xl font-medium text-white" style={{ fontFamily: 'Google Sans, sans-serif' }}>
+              <span className="text-lg sm:text-xl font-medium text-white" style={{ fontFamily: 'Google Sans, sans-serif' }}>
                 Kateriss
               </span>
             </div>
 
             <button
               onClick={handleSignIn}
-              className="px-4 py-2 text-sm text-white/80 hover:text-white transition-colors"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-white/80 hover:text-white transition-colors"
               style={{ fontFamily: 'Google Sans, sans-serif' }}
             >
               Sign in
@@ -125,25 +125,25 @@ export const Landing: React.FC = () => {
         </header>
 
         {/* Hero Section */}
-        <main className="px-6 py-16">
+        <main className="px-4 sm:px-6 py-8 sm:py-16">
           <div className="max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-16"
+              className="text-center mb-8 sm:mb-16"
             >
               <h1
-                className="text-4xl md:text-6xl lg:text-7xl font-normal text-white mb-6 leading-tight"
+                className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-normal text-white mb-4 sm:mb-6 leading-tight"
                 style={{ fontFamily: 'Google Sans, sans-serif' }}
               >
                 Create videos with
-                <br />
+                <br className="hidden sm:block" />
                 <span className="font-medium">AI magic</span>
               </h1>
 
               <p
-                className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed"
+                className="text-base sm:text-lg md:text-xl text-white/70 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
                 style={{ fontFamily: 'Google Sans, sans-serif' }}
               >
                 Turn your ideas into stunning videos in minutes. No experience needed.
@@ -151,13 +151,13 @@ export const Landing: React.FC = () => {
 
               <motion.button
                 onClick={handleGetStarted}
-                className="px-8 py-4 bg-white/90 backdrop-blur-[2px] text-black text-lg font-medium rounded-full hover:bg-white transition-all duration-200 flex items-center gap-3 mx-auto"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-white/90 backdrop-blur-[2px] text-black text-base sm:text-lg font-medium rounded-full hover:bg-white transition-all duration-200 flex items-center gap-2 sm:gap-3 mx-auto"
                 style={{ fontFamily: 'Google Sans, sans-serif' }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Start creating
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
             </motion.div>
 
@@ -166,24 +166,24 @@ export const Landing: React.FC = () => {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-20"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto mb-12 sm:mb-20"
             >
               {/* Feature 1 */}
               <div className="group">
-                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 sm:p-8 hover:bg-white/10 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
-                      <Sparkles className="w-6 h-6 text-white/80" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6">
+                      <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
                     </div>
                     <h3
-                      className="text-xl font-medium text-white mb-3"
+                      className="text-lg sm:text-xl font-medium text-white mb-2 sm:mb-3"
                       style={{ fontFamily: 'Google Sans, sans-serif' }}
                     >
                       Type your idea
                     </h3>
                     <p
-                      className="text-white/60 leading-relaxed"
+                      className="text-sm sm:text-base text-white/60 leading-relaxed"
                       style={{ fontFamily: 'Google Sans, sans-serif' }}
                     >
                       Describe what you want in simple words. Our AI understands your vision.
@@ -194,20 +194,20 @@ export const Landing: React.FC = () => {
 
               {/* Feature 2 */}
               <div className="group">
-                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 sm:p-8 hover:bg-white/10 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
-                      <Video className="w-6 h-6 text-white/80" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6">
+                      <Video className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
                     </div>
                     <h3
-                      className="text-xl font-medium text-white mb-3"
+                      className="text-lg sm:text-xl font-medium text-white mb-2 sm:mb-3"
                       style={{ fontFamily: 'Google Sans, sans-serif' }}
                     >
                       AI creates
                     </h3>
                     <p
-                      className="text-white/60 leading-relaxed"
+                      className="text-sm sm:text-base text-white/60 leading-relaxed"
                       style={{ fontFamily: 'Google Sans, sans-serif' }}
                     >
                       Watch as advanced AI brings your vision to life with stunning visuals.
@@ -217,21 +217,21 @@ export const Landing: React.FC = () => {
               </div>
 
               {/* Feature 3 */}
-              <div className="group">
-                <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-8 hover:bg-white/10 transition-all duration-300">
+              <div className="group sm:col-span-2 lg:col-span-1">
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 sm:p-8 hover:bg-white/10 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative z-10">
-                    <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
-                      <Download className="w-6 h-6 text-white/80" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6">
+                      <Download className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" />
                     </div>
                     <h3
-                      className="text-xl font-medium text-white mb-3"
+                      className="text-lg sm:text-xl font-medium text-white mb-2 sm:mb-3"
                       style={{ fontFamily: 'Google Sans, sans-serif' }}
                     >
                       Share anywhere
                     </h3>
                     <p
-                      className="text-white/60 leading-relaxed"
+                      className="text-sm sm:text-base text-white/60 leading-relaxed"
                       style={{ fontFamily: 'Google Sans, sans-serif' }}
                     >
                       Download in high quality and share your masterpiece across all platforms.
