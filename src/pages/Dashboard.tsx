@@ -403,12 +403,12 @@ export const Dashboard: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-6 px-4"
+            className="text-center mb-4 px-4"
           >
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
               Create AI Video
             </h1>
-            <p className="text-white/70 text-base sm:text-lg">
+            <p className="text-white/70 text-sm sm:text-base">
               Describe your idea and generate stunning videos
             </p>
           </motion.div>
@@ -489,29 +489,45 @@ export const Dashboard: React.FC = () => {
           )}
         </main>
 
-        {/* Fixed Bottom Input Area - Simple */}
+        {/* Fixed Bottom Input Area - Mobile Optimized */}
         <div className="fixed bottom-0 left-0 right-0 z-50">
-          <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
-            <div className="w-full lg:w-3/4 mx-auto">
-              <div className="flex items-center gap-1 sm:gap-2">
-                {/* Compact Orientation Selector */}
+          <div className="w-full px-3 py-3 bg-black/80 backdrop-blur-xl border-t border-white/10">
+            <div className="w-full max-w-4xl mx-auto space-y-2">
+              {/* Token Warning - Show at top on mobile */}
+              {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="text-red-400 text-xs sm:text-sm">
+                    You have 0 tokens. Select a plan to start generating videos.
+                  </p>
+                  <button
+                    onClick={() => setShowPricingModal(true)}
+                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-full font-medium hover:shadow-lg transition-all whitespace-nowrap"
+                  >
+                    Buy Tokens
+                  </button>
+                </div>
+              )}
+
+              {/* Input Row */}
+              <div className="flex items-center gap-2">
+                {/* Orientation Selector */}
                 <div className="relative">
                   <button
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="flex items-center gap-1 px-1 sm:px-2 py-2 text-white/70 hover:text-white transition-all text-sm"
+                    className="flex items-center gap-1 px-2 py-2 text-white/70 hover:text-white transition-all text-sm bg-white/10 rounded-lg"
                   >
                     <span>{orientation === 'horizontal' ? '🖥️' : '📱'}</span>
                     <ChevronDown className={`w-3 h-3 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
                   </button>
 
                   {showDropdown && (
-                    <div className="absolute bottom-full left-0 mb-1 bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[90px] sm:min-w-[100px]">
+                    <div className="absolute bottom-full left-0 mb-2 bg-black/90 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden z-10 min-w-[120px]">
                       <button
                         onClick={() => {
                           setOrientation('horizontal')
                           setShowDropdown(false)
                         }}
-                        className="w-full flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-white hover:bg-white/10 transition-all text-xs sm:text-sm"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
                       >
                         <span>🖥️</span>
                         <span>16:9</span>
@@ -521,7 +537,7 @@ export const Dashboard: React.FC = () => {
                           setOrientation('vertical')
                           setShowDropdown(false)
                         }}
-                        className="w-full flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-white hover:bg-white/10 transition-all text-xs sm:text-sm"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-white hover:bg-white/10 transition-all text-sm"
                       >
                         <span>📱</span>
                         <span>9:16</span>
@@ -530,12 +546,13 @@ export const Dashboard: React.FC = () => {
                   )}
                 </div>
 
+                {/* Input Field */}
                 <input
                   type="text"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Describe your video idea..."
-                  className="flex-1 p-2 sm:p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all text-sm sm:text-base"
+                  className="flex-1 p-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all text-sm"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
@@ -544,36 +561,23 @@ export const Dashboard: React.FC = () => {
                   }}
                 />
 
+                {/* Generate Button */}
                 <button
                   onClick={handleGenerate}
                   disabled={!prompt.trim() || isGenerating}
-                  className={`p-2 sm:p-3 rounded-xl transition-all ${
+                  className={`p-3 rounded-xl transition-all flex-shrink-0 ${
                     (!prompt.trim() || isGenerating)
                       ? 'bg-white/10 text-white/50 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
                   }`}
                 >
                   {isGenerating ? (
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Send className="w-5 h-5" />
                   )}
                 </button>
               </div>
-
-              {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
-                <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <p className="text-red-400 text-xs sm:text-sm">
-                    You have 0 tokens. Select a plan to start generating videos.
-                  </p>
-                  <button
-                    onClick={() => setShowPricingModal(true)}
-                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-full font-medium hover:shadow-lg transition-all self-start sm:self-auto"
-                  >
-                    Buy Tokens
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
