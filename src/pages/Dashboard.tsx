@@ -202,8 +202,8 @@ export const Dashboard: React.FC = () => {
     {
       name: 'Pay-per-Video',
       tokens: 1,
-      price: '$2.99',
-      description: 'Generate one video',
+      price: '$1.99',
+      description: 'Generate 2 videos',
       icon: CreditCard,
       priceId: import.meta.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID,
       subscriptionTier: 'pay_per_video'
@@ -211,7 +211,7 @@ export const Dashboard: React.FC = () => {
     {
       name: 'Basic Monthly',
       tokens: 20,
-      price: '$19.99',
+      price: '$17.99',
       description: '20 videos per month',
       icon: Sparkles,
       priceId: import.meta.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID,
@@ -220,7 +220,7 @@ export const Dashboard: React.FC = () => {
     {
       name: 'Premium Monthly',
       tokens: 120,
-      price: '$49.99',
+      price: '$109.99',
       description: '120 videos per month',
       icon: Crown,
       priceId: import.meta.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID,
@@ -564,7 +564,7 @@ export const Dashboard: React.FC = () => {
               {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
                 <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <p className="text-red-400 text-xs sm:text-sm">
-                    You have 0 tokens. Purchase tokens to generate videos.
+                    You have 0 tokens. Select a plan to start generating videos.
                   </p>
                   <button
                     onClick={() => setShowPricingModal(true)}

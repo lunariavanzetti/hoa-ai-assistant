@@ -171,9 +171,9 @@ module.exports = async (req, res) => {
       // Note: Using 'free' tier for all due to database constraints, but adding appropriate credits
       const priceMap = {
         // Production Price IDs (from environment variables)
-        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 1, tier: 'free' }, // Pay-per-video $2.99
-        [process.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID]: { tokens: 20, tier: 'free' }, // Basic Monthly $19.99 (20 credits)
-        [process.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID]: { tokens: 120, tier: 'free' }, // Premium Monthly $49.99 (120 credits)
+        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 1, tier: 'free' }, // Pay-per-video $1.99
+        [process.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID]: { tokens: 20, tier: 'free' }, // Basic Monthly $17.99 (20 credits)
+        [process.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID]: { tokens: 120, tier: 'free' }, // Premium Monthly $109.99 (120 credits)
 
         // Legacy Production Price IDs
         'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'free' }, // Pay-per-video $2.99
@@ -205,13 +205,17 @@ module.exports = async (req, res) => {
         const currency = data?.items?.[0]?.price?.unit_price?.currency_code
 
 
-        // Detect Premium by price amount ($49.99 = 4999 cents)
-        if (amount >= 4900 && amount <= 5099) {
+        // Detect Premium by price amount ($109.99 = 10999 cents)
+        if (amount >= 10900 && amount <= 11099) {
           tokensToAdd = 120
         }
-        // Detect Basic by price amount ($19.99 = 1999 cents)
-        else if (amount >= 1900 && amount <= 2099) {
+        // Detect Basic by price amount ($17.99 = 1799 cents)
+        else if (amount >= 1700 && amount <= 1899) {
           tokensToAdd = 20
+        }
+        // Detect Pay-per-Video by price amount ($1.99 = 199 cents)
+        else if (amount >= 190 && amount <= 209) {
+          tokensToAdd = 1
         }
         // Pattern matching fallback
         else if (priceId.includes('premium') || priceId.includes('120')) {
