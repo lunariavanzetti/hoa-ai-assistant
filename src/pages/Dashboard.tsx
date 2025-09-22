@@ -312,12 +312,15 @@ export const Dashboard: React.FC = () => {
 
             <div className="flex items-center gap-4">
               {/* Token Counter */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
-                <Zap className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-medium text-white">
+              <button
+                onClick={() => setShowPricingModal(true)}
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-white/10 rounded-full border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
+              >
+                <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
+                <span className="text-xs sm:text-sm font-medium text-white">
                   {tokenInfo.remaining} tokens
                 </span>
-              </div>
+              </button>
 
               {/* Subscription Tier */}
               <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full border border-white/20">
@@ -343,7 +346,13 @@ export const Dashboard: React.FC = () => {
           <div className="absolute top-16 left-2 right-2 sm:left-4 sm:right-auto sm:w-64 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 z-50">
             <div className="flex flex-col gap-3">
               {/* Mobile Subscription Tier */}
-              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10 mb-2">
+              <button
+                onClick={() => {
+                  setShowPricingModal(true)
+                  setShowMobileMenu(false)
+                }}
+                className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10 mb-2 hover:bg-white/10 transition-all cursor-pointer w-full"
+              >
                 <div className="flex items-center gap-2">
                   <Crown className="w-4 h-4 text-blue-400" />
                   <span className="text-sm font-medium text-white capitalize">
@@ -353,7 +362,7 @@ export const Dashboard: React.FC = () => {
                 <div className="text-xs text-white/60">
                   {tokenInfo.remaining} tokens
                 </div>
-              </div>
+              </button>
               <button
                 onClick={() => {
                   navigate('/templates')
