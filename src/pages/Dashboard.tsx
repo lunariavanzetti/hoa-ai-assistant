@@ -491,7 +491,7 @@ export const Dashboard: React.FC = () => {
 
         {/* Fixed Bottom Input Area - Mobile Optimized */}
         <div className="fixed bottom-0 left-0 right-0 z-50">
-          <div className="w-full px-3 py-3 bg-black/80 backdrop-blur-xl border-t border-white/10">
+          <div className="w-full px-3 py-3">
             <div className="w-full max-w-4xl mx-auto space-y-2">
               {/* Token Warning - Show at top on mobile */}
               {attemptedGenerationWithNoTokens && tokenInfo.remaining <= 0 && (
