@@ -22,39 +22,48 @@ module.exports = async (req, res) => {
     const limit = parseInt(req.query.limit) || 50
     const offset = parseInt(req.query.offset) || 0
 
+    console.log('📹 Fetching videos for email:', email)
+
     if (!email) {
+      console.log('❌ No email provided')
       return res.status(400).json({
         error: 'Email parameter is required'
       })
     }
 
-
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!supabaseKey) {
+      console.log('❌ SUPABASE_SERVICE_ROLE_KEY is missing')
       return res.status(500).json({
         error: 'Database configuration missing'
       })
     }
 
+    console.log('✅ Service role key found')
+
     // Fetch user's videos from database
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/videos?user_email=eq.${email}&order=created_at.desc&limit=${limit}&offset=${offset}`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'apikey': supabaseKey
-        }
+    const fetchUrl = `${supabaseUrl}/rest/v1/videos?user_email=eq.${encodeURIComponent(email)}&order=created_at.desc&limit=${limit}&offset=${offset}`
+    console.log('🔗 Fetching from URL:', fetchUrl)
+
+    const response = await fetch(fetchUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey
       }
-    )
+    })
+
+    console.log('📡 Supabase response status:', response.status)
 
     if (!response.ok) {
       const errorText = await response.text()
+      console.log('❌ Supabase error response:', errorText)
 
       // Return empty array if table doesn't exist yet
-      if (errorText.includes('relation "videos" does not exist')) {
+      if (errorText.includes('relation "videos" does not exist') || errorText.includes('relation "public.videos" does not exist')) {
+        console.log('⚠️ Videos table does not exist yet')
         return res.status(200).json({
           success: true,
           videos: [],
@@ -66,12 +75,13 @@ module.exports = async (req, res) => {
 
       return res.status(500).json({
         error: 'Failed to fetch videos',
-        details: errorText
+        details: errorText,
+        status: response.status
       })
     }
 
     const videos = await response.json()
-
+    console.log(`✅ Successfully fetched ${videos.length} videos for ${email}`)
 
     return res.status(200).json({
       success: true,
@@ -83,6 +93,8 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
+    console.log('❌ Fatal error in get-user-videos:', error.message)
+    console.log('Stack trace:', error.stack)
     return res.status(500).json({
       error: 'Failed to fetch videos',
       message: error.message,

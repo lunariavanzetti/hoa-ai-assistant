@@ -75,7 +75,9 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
       const response = await fetch(`/api/get-user-videos?email=${encodeURIComponent(userEmail)}`)
 
       if (!response.ok) {
-        console.error('❌ Error fetching videos:', response.statusText)
+        const errorData = await response.json().catch(() => ({ error: response.statusText }))
+        console.error('❌ Error fetching videos:', errorData)
+        console.error('Response status:', response.status)
         set({ isLoading: false })
         return
       }
