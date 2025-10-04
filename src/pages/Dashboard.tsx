@@ -57,10 +57,12 @@ export const Dashboard: React.FC = () => {
 
   const handleLogout = async () => {
     try {
+      console.log('🔘 LOGOUT BUTTON CLICKED')
       await signOut()
+      console.log('🏠 NAVIGATING TO HOME PAGE')
       navigate('/')
     } catch (error) {
-      // Handle logout error silently
+      console.log('❌ HANDLE LOGOUT ERROR:', error)
     }
   }
 
@@ -457,6 +459,17 @@ export const Dashboard: React.FC = () => {
               >
                 <Settings className="w-4 h-4" />
                 <span>Settings</span>
+              </button>
+              <div className="border-t border-white/10 my-2"></div>
+              <button
+                onClick={() => {
+                  setShowMobileMenu(false)
+                  handleLogout()
+                }}
+                className="flex items-center gap-3 text-red-400 hover:text-red-300 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Log Out</span>
               </button>
             </div>
           </div>

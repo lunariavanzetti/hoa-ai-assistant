@@ -143,27 +143,42 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: async () => {
         try {
+          const currentUser = get().user
+          console.log('🚪 USER LOGGING OUT:', {
+            email: currentUser?.email,
+            subscription_tier: currentUser?.subscription_tier,
+            tokens: currentUser?.usage_stats?.credits_remaining || currentUser?.video_credits || 0
+          })
+
           set({ loading: true, error: null })
-          
+
           const { error } = await supabase.auth.signOut()
-          if (error) throw error
+          if (error) {
+            console.log('❌ SIGN OUT FAILED:', error.message)
+            throw error
+          }
+
+          console.log('✅ SUPABASE SIGN OUT SUCCESSFUL')
 
           // Clear all state
-          set({ 
-            user: null, 
-            session: null, 
+          set({
+            user: null,
+            session: null,
             loading: false,
             error: null
           })
-          
+
           // Force clear localStorage
           localStorage.removeItem('auth-storage')
-          
-          
+          console.log('🗑️ LOCAL STORAGE CLEARED')
+
+          console.log('✅ USER LOGGED OUT SUCCESSFULLY')
+
         } catch (error) {
-          set({ 
-            error: (error as AuthError).message, 
-            loading: false 
+          console.log('❌ LOGOUT ERROR:', error)
+          set({
+            error: (error as AuthError).message,
+            loading: false
           })
           throw error
         }
