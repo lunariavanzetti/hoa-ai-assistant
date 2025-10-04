@@ -242,18 +242,21 @@ module.exports = async (req, res) => {
         // Fetch customer details from Paddle API
         try {
           // Use sandbox or production API key based on environment
-          const paddleApiKey = process.env.PADDLE_API_KEY || process.env.VITE_PADDLE_API_KEY
+          const paddleApiKey = process.env.PADDLE_SANDBOX_API_KEY ||
+                               process.env.PADDLE_API_KEY ||
+                               process.env.VITE_PADDLE_API_KEY
           if (!paddleApiKey) {
-            console.log('❌ PADDLE_API_KEY not configured')
+            console.log('❌ PADDLE_API_KEY not configured. Checked: PADDLE_SANDBOX_API_KEY, PADDLE_API_KEY, VITE_PADDLE_API_KEY')
             return res.status(500).json({ error: 'Paddle API key not configured' })
           }
 
           // Determine if sandbox or production based on environment or customer ID format
-          const isSandbox = paddleCustomerId.includes('test_') || process.env.VITE_PADDLE_ENVIRONMENT === 'sandbox'
+          const isSandbox = true // Always use sandbox for now since we're testing
           const paddleApiBaseUrl = isSandbox ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com'
           const paddleApiUrl = `${paddleApiBaseUrl}/customers/${paddleCustomerId}`
 
           console.log('🔍 Fetching customer from:', paddleApiUrl)
+          console.log('🔑 Using API key starting with:', paddleApiKey.substring(0, 20) + '...')
 
           const customerResponse = await new Promise((resolve, reject) => {
             const https = require('https')
