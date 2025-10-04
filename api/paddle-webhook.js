@@ -137,7 +137,7 @@ module.exports = async (req, res) => {
 
     if (eventType === 'subscription.created' || eventType === 'subscription.activated' || eventType === 'transaction.completed') {
 
-      console.log('Processing webhook event:', eventType)
+      console.log('🎯 Processing webhook event:', eventType)
 
       const data = req.body.data
       let customerEmail, paddleCustomerId, paddleSubscriptionId, priceId
@@ -147,16 +147,30 @@ module.exports = async (req, res) => {
         customerEmail = data?.customer?.email
         paddleCustomerId = data?.customer?.id
         priceId = data?.items?.[0]?.price?.id
+        console.log('📦 Transaction Details:', {
+          email: customerEmail,
+          customerId: paddleCustomerId,
+          priceId: priceId,
+          amount: data?.items?.[0]?.price?.unit_price?.amount,
+          currency: data?.items?.[0]?.price?.unit_price?.currency_code
+        })
       } else {
         // Handle subscriptions
         customerEmail = data?.customer?.email
         paddleCustomerId = data?.customer?.id
         paddleSubscriptionId = data?.id
         priceId = data?.items?.[0]?.price?.id
+        console.log('🔄 Subscription Details:', {
+          email: customerEmail,
+          customerId: paddleCustomerId,
+          subscriptionId: paddleSubscriptionId,
+          priceId: priceId
+        })
       }
 
 
       if (!customerEmail) {
+        console.log('❌ Missing customer email')
         return res.status(400).json({ error: 'Customer email not found' })
       }
 
@@ -165,7 +179,7 @@ module.exports = async (req, res) => {
       let subscriptionTier = 'free'
 
       // Log the price ID for debugging production setup
-      console.log('Webhook received price ID:', priceId)
+      console.log('💰 Webhook received price ID:', priceId)
 
       // Map price IDs to tokens and tiers (Live + Sandbox)
       // Note: Using 'free' tier for all due to database constraints, but adding appropriate credits
@@ -181,9 +195,9 @@ module.exports = async (req, res) => {
         'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'free' }, // Premium Monthly $49.99 (120 credits)
 
         // Sandbox/Test Price IDs
-        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 1, tier: 'free' }, // Sandbox Pay-per-video $2.99
-        'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'free' }, // Sandbox Basic Monthly $19.99 (20 credits)
-        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Sandbox Premium Monthly $49.99 (120 credits)
+        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 2, tier: 'free' }, // Sandbox Pay-per-video $1.99
+        'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'free' }, // Sandbox Basic Monthly $17.99 (20 credits)
+        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Sandbox Premium Monthly $109.99 (120 credits)
 
         // Additional possible Premium price IDs (add as discovered)
         'pri_premium_monthly': { tokens: 120, tier: 'free' }, // Generic Premium
@@ -198,32 +212,40 @@ module.exports = async (req, res) => {
       if (purchase) {
         tokensToAdd = purchase.tokens
         subscriptionTier = purchase.tier
+        console.log('✅ Price ID matched in priceMap:', { priceId, tokens: tokensToAdd, tier: subscriptionTier })
       } else {
-
+        console.log('⚠️ Price ID not found in priceMap, using fallback detection')
         // Guess tokens based on common patterns AND webhook data
         const amount = data?.items?.[0]?.price?.unit_price?.amount
         const currency = data?.items?.[0]?.price?.unit_price?.currency_code
 
+        console.log('💵 Fallback price detection:', { amount, currency })
 
         // Detect Premium by price amount ($109.99 = 10999 cents)
         if (amount >= 10900 && amount <= 11099) {
           tokensToAdd = 120
+          console.log('✅ Detected Premium by amount')
         }
         // Detect Basic by price amount ($17.99 = 1799 cents)
         else if (amount >= 1700 && amount <= 1899) {
           tokensToAdd = 20
+          console.log('✅ Detected Basic by amount')
         }
         // Detect Pay-per-Video by price amount ($1.99 = 199 cents)
         else if (amount >= 190 && amount <= 209) {
           tokensToAdd = 2
+          console.log('✅ Detected Pay-per-Video by amount')
         }
         // Pattern matching fallback
         else if (priceId.includes('premium') || priceId.includes('120')) {
           tokensToAdd = 120
+          console.log('✅ Detected Premium by pattern')
         } else if (priceId.includes('basic') || priceId.includes('20')) {
           tokensToAdd = 20
+          console.log('✅ Detected Basic by pattern')
         } else {
           tokensToAdd = 2
+          console.log('⚠️ Using default Pay-per-Video tokens')
         }
         subscriptionTier = 'free'
       }
@@ -265,6 +287,12 @@ module.exports = async (req, res) => {
         const currentCredits = currentUserData[0]?.usage_stats?.credits_remaining || currentUserData[0]?.video_credits || 0
         const newCreditBalance = currentCredits + tokensToAdd
 
+        console.log('💳 Token calculation:', {
+          currentCredits,
+          tokensToAdd,
+          newCreditBalance,
+          customerEmail
+        })
 
         const updateData = {
           subscription_tier: subscriptionTier,
@@ -330,7 +358,7 @@ module.exports = async (req, res) => {
         })
 
         if (!result.success) {
-          console.log('Database update failed:', result)
+          console.log('❌ Database update failed:', result)
           return res.status(500).json({
             error: 'Failed to update user subscription',
             status: result.status,
@@ -338,9 +366,10 @@ module.exports = async (req, res) => {
           })
         }
 
-        console.log('Successfully processed subscription:', {
+        console.log('✅ Successfully processed subscription:', {
           customerEmail,
-          tokensAdded,
+          tokensAdded: tokensToAdd,
+          newBalance: newCreditBalance,
           subscriptionTier,
           eventType
         })
