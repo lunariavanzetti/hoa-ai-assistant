@@ -197,26 +197,34 @@ module.exports = async (req, res) => {
     if (eventType === 'subscription.created' || eventType === 'subscription.activated' || eventType === 'transaction.completed') {
 
       console.log('🎯 Processing webhook event:', eventType)
+      console.log('📋 Full webhook data:', JSON.stringify(req.body, null, 2))
 
       const data = req.body.data
       let customerEmail, paddleCustomerId, paddleSubscriptionId, priceId
 
       if (eventType === 'transaction.completed') {
         // Handle one-time purchases
-        customerEmail = data?.customer?.email
-        paddleCustomerId = data?.customer?.id
+        // Try multiple locations for customer email
+        customerEmail = data?.customer?.email ||
+                       data?.customer_email ||
+                       data?.billing_details?.email ||
+                       data?.details?.email
+        paddleCustomerId = data?.customer?.id || data?.customer_id
         priceId = data?.items?.[0]?.price?.id
+
         console.log('📦 Transaction Details:', {
           email: customerEmail,
           customerId: paddleCustomerId,
           priceId: priceId,
           amount: data?.items?.[0]?.price?.unit_price?.amount,
-          currency: data?.items?.[0]?.price?.unit_price?.currency_code
+          currency: data?.items?.[0]?.price?.unit_price?.currency_code,
+          fullCustomer: data?.customer,
+          fullData: Object.keys(data || {})
         })
       } else {
         // Handle subscriptions
-        customerEmail = data?.customer?.email
-        paddleCustomerId = data?.customer?.id
+        customerEmail = data?.customer?.email || data?.customer_email
+        paddleCustomerId = data?.customer?.id || data?.customer_id
         paddleSubscriptionId = data?.id
         priceId = data?.items?.[0]?.price?.id
         console.log('🔄 Subscription Details:', {
@@ -229,7 +237,24 @@ module.exports = async (req, res) => {
 
 
       if (!customerEmail) {
-        console.log('❌ Missing customer email')
+        console.log('❌ Missing customer email - Full data structure:', {
+          dataKeys: Object.keys(data || {}),
+          customerKeys: Object.keys(data?.customer || {}),
+          rawData: data
+        })
+
+        // Try to get customer email from Paddle API using customer ID
+        if (paddleCustomerId) {
+          console.log('⚠️ Attempting to fetch customer email from Paddle API using customer ID:', paddleCustomerId)
+          // For now, return error but log enough info to debug
+          return res.status(400).json({
+            error: 'Customer email not found in webhook data',
+            customer_id: paddleCustomerId,
+            data_keys: Object.keys(data || {}),
+            customer_keys: Object.keys(data?.customer || {})
+          })
+        }
+
         return res.status(400).json({ error: 'Customer email not found' })
       }
 
