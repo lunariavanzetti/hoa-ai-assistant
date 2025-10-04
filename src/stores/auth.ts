@@ -168,9 +168,10 @@ export const useAuthStore = create<AuthState>()(
             error: null
           })
 
-          // Force clear localStorage
+          // Force clear localStorage (including videos)
           localStorage.removeItem('auth-storage')
-          console.log('🗑️ LOCAL STORAGE CLEARED')
+          localStorage.removeItem('video-storage')
+          console.log('🗑️ LOCAL STORAGE CLEARED (auth + videos)')
 
           console.log('✅ USER LOGGED OUT SUCCESSFULLY')
 

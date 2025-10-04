@@ -26,7 +26,7 @@ import { paddleClient } from '@/lib/paddleClient'
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { user, signOut, refreshUserData } = useAuthStore()
-  const { generatedVideos, addVideo, removeVideo, clearAllVideos } = useVideoStore()
+  const { generatedVideos, addVideo, removeVideo, clearAllVideos, fetchUserVideos } = useVideoStore()
   const { t } = useLanguage()
   const [prompt, setPrompt] = useState('')
   const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal')
@@ -35,6 +35,13 @@ export const Dashboard: React.FC = () => {
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
+
+  // Fetch user videos on mount
+  useEffect(() => {
+    if (user?.email) {
+      fetchUserVideos(user.email)
+    }
+  }, [user?.email, fetchUserVideos])
 
   // Refresh token count on mount and every 4 seconds
   useEffect(() => {
