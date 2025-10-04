@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -25,7 +25,7 @@ import { paddleClient } from '@/lib/paddleClient'
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
-  const { user, signOut } = useAuthStore()
+  const { user, signOut, refreshUserData } = useAuthStore()
   const { generatedVideos, addVideo, removeVideo, clearAllVideos } = useVideoStore()
   const { t } = useLanguage()
   const [prompt, setPrompt] = useState('')
@@ -35,6 +35,20 @@ export const Dashboard: React.FC = () => {
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [attemptedGenerationWithNoTokens, setAttemptedGenerationWithNoTokens] = useState(false)
+
+  // Refresh token count on mount and every 4 seconds
+  useEffect(() => {
+    // Refresh immediately on mount
+    refreshUserData()
+
+    // Set up interval to refresh every 4 seconds
+    const interval = setInterval(() => {
+      refreshUserData()
+    }, 4000)
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval)
+  }, [refreshUserData])
 
   // Token system - use correct database fields
   const getTokenInfo = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -16,8 +16,22 @@ import { paddleClient } from '@/lib/paddleClient'
 
 export const Pricing: React.FC = () => {
   const navigate = useNavigate()
-  const { user, signOut } = useAuthStore()
+  const { user, signOut, refreshUserData } = useAuthStore()
   const [isLoading, setIsLoading] = useState<string | null>(null)
+
+  // Refresh token count on mount and every 4 seconds
+  useEffect(() => {
+    // Refresh immediately on mount
+    refreshUserData()
+
+    // Set up interval to refresh every 4 seconds
+    const interval = setInterval(() => {
+      refreshUserData()
+    }, 4000)
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval)
+  }, [refreshUserData])
 
   const handleLogout = async () => {
     try {

@@ -57,6 +57,8 @@ module.exports = async (req, res) => {
       }
     }
 
+    console.log('📐 Aspect ratio request:', { aspectRatio, orientation })
+
     const generateResponse = await makeHttpsRequest(generateUrl, 'POST', geminiApiKey, generateRequest)
 
     let videoUrl = null
