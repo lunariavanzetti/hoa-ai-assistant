@@ -119,6 +119,24 @@ export const Dashboard: React.FC = () => {
       })
 
       if (!geminiResponse.ok) {
+        const errorData = await geminiResponse.json().catch(() => ({}))
+        console.error('❌ Gemini API Error:', {
+          status: geminiResponse.status,
+          statusText: geminiResponse.statusText,
+          error: errorData
+        })
+
+        // Check for specific errors
+        if (geminiResponse.status === 400) {
+          alert('❌ Video generation failed: Invalid request. Please try a different prompt.')
+        } else if (geminiResponse.status === 429) {
+          alert('❌ Video generation failed: API rate limit exceeded. Please try again later.')
+        } else if (geminiResponse.status === 403) {
+          alert('❌ Video generation failed: API key issue. Please contact support.')
+        } else {
+          alert(`❌ Video generation failed: ${geminiResponse.statusText}. Using placeholder video instead.`)
+        }
+
         // Fallback to placeholder videos
         const placeholderVideos = [
           'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',

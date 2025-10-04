@@ -349,8 +349,9 @@ export const useAuthStore = create<AuthState>()(
             const newTokens = profile.usage_stats?.credits_remaining || profile.video_credits || 0
             const oldTokens = currentUser?.usage_stats?.credits_remaining || currentUser?.video_credits || 0
 
-            // Log if tokens changed (subscription purchase detected)
-            if (newTokens !== oldTokens) {
+            // Log if tokens changed AND it's an increase (subscription purchase detected)
+            // Don't log on initial load when oldTokens is undefined
+            if (currentUser && newTokens > oldTokens) {
               console.log('Subscription purchase completed:', {
                 username: profile.email,
                 tier: profile.subscription_tier || 'free',
