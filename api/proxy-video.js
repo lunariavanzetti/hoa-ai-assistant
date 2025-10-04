@@ -46,6 +46,50 @@ module.exports = async (req, res) => {
     }
 
     const videoRequest = https.request(options, (videoResponse) => {
+      // Handle redirects (302, 301, 307, 308)
+      if (videoResponse.statusCode >= 300 && videoResponse.statusCode < 400 && videoResponse.headers.location) {
+        console.log('🔄 Following redirect to:', videoResponse.headers.location)
+
+        const redirectUrl = new URL(videoResponse.headers.location)
+        const redirectOptions = {
+          hostname: redirectUrl.hostname,
+          port: 443,
+          path: redirectUrl.pathname + redirectUrl.search,
+          method: 'GET',
+          headers: {
+            'x-goog-api-key': geminiApiKey
+          }
+        }
+
+        const redirectRequest = https.request(redirectOptions, (redirectResponse) => {
+          if (redirectResponse.statusCode !== 200) {
+            console.log('❌ Failed to fetch video from redirect:', redirectResponse.statusCode)
+            return res.status(redirectResponse.statusCode).json({
+              error: 'Failed to fetch video from redirect'
+            })
+          }
+
+          // Set appropriate headers for video streaming
+          res.setHeader('Content-Type', 'video/mp4')
+          res.setHeader('Cache-Control', 'public, max-age=31536000') // Cache for 1 year
+
+          if (redirectResponse.headers['content-length']) {
+            res.setHeader('Content-Length', redirectResponse.headers['content-length'])
+          }
+
+          // Pipe the video data directly to response
+          redirectResponse.pipe(res)
+        })
+
+        redirectRequest.on('error', (error) => {
+          console.log('❌ Redirect request error:', error.message)
+          res.status(500).json({ error: 'Failed to fetch redirected video' })
+        })
+
+        redirectRequest.end()
+        return
+      }
+
       if (videoResponse.statusCode !== 200) {
         console.log('❌ Failed to fetch video:', videoResponse.statusCode)
         return res.status(videoResponse.statusCode).json({
