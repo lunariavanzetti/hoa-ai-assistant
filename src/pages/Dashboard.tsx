@@ -247,26 +247,26 @@ export const Dashboard: React.FC = () => {
     {
       name: 'Pay-per-Video',
       tokens: 2,
-      price: '$1.99',
+      price: '$4.99',
       description: 'Generate 2 videos',
       icon: CreditCard,
       priceId: import.meta.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID,
       subscriptionTier: 'pay_per_video'
     },
     {
-      name: 'Basic Monthly',
-      tokens: 20,
-      price: '$17.99',
-      description: '20 videos per month',
+      name: 'Basic Pack',
+      tokens: 10,
+      price: '$19.99',
+      description: '10 videos',
       icon: Sparkles,
       priceId: import.meta.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID,
       subscriptionTier: 'basic'
     },
     {
-      name: 'Premium Monthly',
-      tokens: 120,
-      price: '$109.99',
-      description: '120 videos per month',
+      name: 'Premium Pack',
+      tokens: 100,
+      price: '$149.99',
+      description: '100 videos',
       icon: Crown,
       priceId: import.meta.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID,
       subscriptionTier: 'premium'

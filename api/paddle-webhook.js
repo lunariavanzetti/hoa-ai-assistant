@@ -325,27 +325,14 @@ module.exports = async (req, res) => {
       // Note: Using 'free' tier for all due to database constraints, but adding appropriate credits
       const priceMap = {
         // Production Price IDs (from environment variables)
-        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 2, tier: 'free' }, // Pay-per-video $1.99
-        [process.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID]: { tokens: 20, tier: 'free' }, // Basic Monthly $17.99 (20 credits)
-        [process.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID]: { tokens: 120, tier: 'free' }, // Premium Monthly $109.99 (120 credits)
-
-        // Legacy Production Price IDs
-        'pri_01k57nwm63j9t40q3pfj73dcw8': { tokens: 1, tier: 'free' }, // Pay-per-video $2.99
-        'pri_01k57p3ca33wrf9vs80qsvjzj8': { tokens: 20, tier: 'free' }, // Basic Monthly $19.99 (20 credits)
-        'pri_01k57pcdf2ej7gc5p7taj77e0q': { tokens: 120, tier: 'free' }, // Premium Monthly $49.99 (120 credits)
+        [process.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID]: { tokens: 2, tier: 'free' }, // Pay-per-video $4.99 (2 videos)
+        [process.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID]: { tokens: 10, tier: 'free' }, // Basic Pack $19.99 (10 videos)
+        [process.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID]: { tokens: 100, tier: 'free' }, // Premium Pack $149.99 (100 videos)
 
         // Sandbox/Test Price IDs
-        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 2, tier: 'free' }, // Sandbox Pay-per-video $1.99
-        'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 20, tier: 'free' }, // Sandbox Basic Monthly $17.99 (20 credits)
-        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 120, tier: 'free' }, // Sandbox Premium Monthly $109.99 (120 credits)
-
-        // Additional possible Premium price IDs (add as discovered)
-        'pri_premium_monthly': { tokens: 120, tier: 'free' }, // Generic Premium
-        'pri_premium_120': { tokens: 120, tier: 'free' }, // Premium 120 tokens
-
-        // Additional possible Basic price IDs
-        'pri_basic_monthly': { tokens: 20, tier: 'free' }, // Generic Basic
-        'pri_basic_20': { tokens: 20, tier: 'free' } // Basic 20 tokens
+        'pri_01k5j03ma3tzk51v95213h7yy9': { tokens: 2, tier: 'free' }, // Sandbox Pay-per-video $4.99 (2 videos)
+        'pri_01k5j04nvcbwrrdz18d7yhv5ap': { tokens: 10, tier: 'free' }, // Sandbox Basic Pack $19.99 (10 videos)
+        'pri_01k5j06b5zmw5f8cfm06vdrvb9': { tokens: 100, tier: 'free' }, // Sandbox Premium Pack $149.99 (100 videos)
       }
 
       const purchase = priceMap[priceId]
@@ -361,27 +348,27 @@ module.exports = async (req, res) => {
 
         console.log('💵 Fallback price detection:', { amount, currency })
 
-        // Detect Premium by price amount ($109.99 = 10999 cents)
-        if (amount >= 10900 && amount <= 11099) {
-          tokensToAdd = 120
-          console.log('✅ Detected Premium by amount')
+        // Detect Premium Pack by price amount ($149.99 = 14999 cents)
+        if (amount >= 14900 && amount <= 15099) {
+          tokensToAdd = 100
+          console.log('✅ Detected Premium Pack by amount')
         }
-        // Detect Basic by price amount ($17.99 = 1799 cents)
-        else if (amount >= 1700 && amount <= 1899) {
-          tokensToAdd = 20
-          console.log('✅ Detected Basic by amount')
+        // Detect Basic Pack by price amount ($19.99 = 1999 cents)
+        else if (amount >= 1900 && amount <= 2099) {
+          tokensToAdd = 10
+          console.log('✅ Detected Basic Pack by amount')
         }
-        // Detect Pay-per-Video by price amount ($1.99 = 199 cents)
-        else if (amount >= 190 && amount <= 209) {
+        // Detect Pay-per-Video by price amount ($4.99 = 499 cents)
+        else if (amount >= 490 && amount <= 509) {
           tokensToAdd = 2
           console.log('✅ Detected Pay-per-Video by amount')
         }
         // Pattern matching fallback
-        else if (priceId.includes('premium') || priceId.includes('120')) {
-          tokensToAdd = 120
+        else if (priceId.includes('premium') || priceId.includes('100')) {
+          tokensToAdd = 100
           console.log('✅ Detected Premium by pattern')
-        } else if (priceId.includes('basic') || priceId.includes('20')) {
-          tokensToAdd = 20
+        } else if (priceId.includes('basic') || priceId.includes('10')) {
+          tokensToAdd = 10
           console.log('✅ Detected Basic by pattern')
         } else {
           tokensToAdd = 2
