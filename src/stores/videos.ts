@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { supabase } from '@/lib/supabase'
 
 export interface GeneratedVideo {
   id: string
@@ -69,21 +68,24 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
 
   fetchUserVideos: async (userEmail: string) => {
     try {
+      console.log('🔍 Fetching videos for user:', userEmail)
       set({ isLoading: true })
 
-      const { data, error } = await supabase
-        .from('videos')
-        .select('*')
-        .eq('user_email', userEmail)
-        .order('created_at', { ascending: false })
+      // Use backend API endpoint instead of direct Supabase access (to bypass RLS)
+      const response = await fetch(`/api/get-user-videos?email=${encodeURIComponent(userEmail)}`)
 
-      if (error) {
-        console.error('Error fetching videos:', error)
+      if (!response.ok) {
+        console.error('❌ Error fetching videos:', response.statusText)
         set({ isLoading: false })
         return
       }
 
-      const videos: GeneratedVideo[] = (data || []).map((video: any) => ({
+      const result = await response.json()
+
+      console.log('📹 Raw video data from API:', result)
+      console.log(`✅ Found ${result.videos?.length || 0} videos for ${userEmail}`)
+
+      const videos: GeneratedVideo[] = (result.videos || []).map((video: any) => ({
         id: video.id,
         url: video.video_url,
         prompt: video.prompt,
@@ -98,9 +100,11 @@ export const useVideoStore = create<VideoState>()((set, get) => ({
         orientation: video.orientation
       }))
 
+      console.log('📦 Mapped videos:', videos)
+
       set({ generatedVideos: videos, isLoading: false })
     } catch (error) {
-      console.error('Error fetching user videos:', error)
+      console.error('❌ Error fetching user videos:', error)
       set({ isLoading: false })
     }
   },

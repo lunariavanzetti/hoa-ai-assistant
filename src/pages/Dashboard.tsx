@@ -39,8 +39,12 @@ export const Dashboard: React.FC = () => {
 
   // Fetch user videos on mount
   useEffect(() => {
+    console.log('📺 Dashboard mounted, user email:', user?.email)
     if (user?.email) {
+      console.log('🎬 Calling fetchUserVideos for:', user.email)
       fetchUserVideos(user.email)
+    } else {
+      console.log('⚠️ No user email, skipping video fetch')
     }
   }, [user?.email, fetchUserVideos])
 
