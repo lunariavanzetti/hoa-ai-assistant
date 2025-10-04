@@ -64,10 +64,13 @@ export const useAuthStore = create<AuthState>()(
             })
 
             // Log user details after login
-            console.log('User logged in:', {
-              username: profile.email,
-              tier: profile.subscription_tier || 'free',
-              tokens: profile.usage_stats?.credits_remaining || profile.video_credits || 0
+            console.log('🔐 USER AUTHENTICATED:', {
+              email: profile.email,
+              subscription_tier: profile.subscription_tier || 'free',
+              subscription_status: profile.subscription_status || 'none',
+              video_credits: profile.video_credits || 0,
+              usage_stats: profile.usage_stats,
+              total_tokens: profile.usage_stats?.credits_remaining || profile.video_credits || 0
             })
 
             // Automatically check subscription status after sign in
@@ -352,10 +355,20 @@ export const useAuthStore = create<AuthState>()(
             // Log if tokens changed AND it's an increase (subscription purchase detected)
             // Don't log on initial load when oldTokens is undefined
             if (currentUser && newTokens > oldTokens) {
-              console.log('Subscription purchase completed:', {
-                username: profile.email,
-                tier: profile.subscription_tier || 'free',
-                tokens: newTokens
+              console.log('💰 TOKENS ADDED - SUBSCRIPTION PURCHASED:', {
+                email: profile.email,
+                old_tokens: oldTokens,
+                new_tokens: newTokens,
+                tokens_added: newTokens - oldTokens,
+                subscription_tier: profile.subscription_tier || 'free',
+                subscription_status: profile.subscription_status
+              })
+            } else if (currentUser && newTokens < oldTokens) {
+              console.log('🎬 TOKEN USED - VIDEO GENERATED:', {
+                email: profile.email,
+                old_tokens: oldTokens,
+                new_tokens: newTokens,
+                tokens_used: oldTokens - newTokens
               })
             }
 

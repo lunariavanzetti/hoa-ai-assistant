@@ -66,11 +66,23 @@ export const Dashboard: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
+      console.log('⚠️ SEND BUTTON PRESSED - Empty prompt, ignoring')
       return
     }
 
+    console.log('📝 SEND BUTTON PRESSED:', {
+      email: user?.email,
+      prompt: prompt.trim().substring(0, 50) + '...',
+      orientation,
+      current_tokens: tokenInfo.remaining
+    })
+
     // Check if user has credits
     if (tokenInfo.remaining <= 0) {
+      console.log('🚫 NO TOKENS - OPENING PAYWALL:', {
+        email: user?.email,
+        tokens: tokenInfo.remaining
+      })
       setAttemptedGenerationWithNoTokens(true)
       setShowPricingModal(true)
       return
@@ -79,11 +91,11 @@ export const Dashboard: React.FC = () => {
     setIsGenerating(true)
 
     // Log video generation attempt
-    console.log('User generating video:', {
-      username: user?.email,
+    console.log('🎬 STARTING VIDEO GENERATION:', {
+      email: user?.email,
       prompt: prompt.trim(),
       orientation: orientation,
-      tokensRemaining: tokenInfo.remaining
+      tokens_before: tokenInfo.remaining
     })
 
     try {
@@ -192,6 +204,12 @@ export const Dashboard: React.FC = () => {
 
       // Deduct 1 credit from user's balance
       try {
+        console.log('💸 DEDUCTING TOKEN:', {
+          email: user?.email,
+          tokens_before: tokenInfo.remaining,
+          tokens_to_deduct: 1
+        })
+
         const response = await fetch('/api/deduct-credit', {
           method: 'POST',
           headers: {
@@ -204,11 +222,15 @@ export const Dashboard: React.FC = () => {
         })
 
         if (response.ok) {
+          console.log('✅ TOKEN DEDUCTED SUCCESSFULLY')
           const { refreshUserData } = useAuthStore.getState()
-          refreshUserData()
+          await refreshUserData()
+          console.log('🔄 USER DATA REFRESHED')
+        } else {
+          console.log('❌ TOKEN DEDUCTION FAILED:', response.status)
         }
       } catch (error) {
-        // Handle credit deduction failure silently
+        console.log('❌ TOKEN DEDUCTION ERROR:', error)
       }
 
     } catch (error) {
@@ -251,10 +273,19 @@ export const Dashboard: React.FC = () => {
 
   const handlePurchase = async (tier: typeof tiers[0]) => {
     try {
+      console.log('💳 OPENING PADDLE CHECKOUT:', {
+        email: user?.email,
+        tier: tier.name,
+        price: tier.price,
+        tokens_to_add: tier.tokens,
+        current_tokens: tokenInfo.remaining
+      })
       await paddleClient.openCheckout(tier.priceId, user?.paddle_customer_id)
+      console.log('✅ PADDLE CHECKOUT OPENED SUCCESSFULLY')
+      console.log('❌ CLOSING PAYWALL MODAL')
       setShowPricingModal(false)
     } catch (error) {
-      // Handle purchase error silently
+      console.log('❌ PADDLE CHECKOUT FAILED:', error)
     }
   }
 
@@ -627,7 +658,10 @@ export const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">Choose Your Plan</h2>
               <button
-                onClick={() => setShowPricingModal(false)}
+                onClick={() => {
+                  console.log('❌ USER CLOSED PAYWALL MODAL')
+                  setShowPricingModal(false)
+                }}
                 className="p-2 text-white/70 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />

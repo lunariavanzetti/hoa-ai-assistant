@@ -19,6 +19,65 @@ module.exports = async (req, res) => {
   if (req.method === 'GET') {
     // Add manual testing endpoint
     const action = req.query.action
+
+    if (action === 'check-user') {
+      const email = req.query.email
+      if (!email) {
+        return res.status(400).json({ error: 'Email required' })
+      }
+
+      try {
+        const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
+        const getUserUrl = new URL(`${supabaseUrl}/rest/v1/users?email=eq.${email}&select=email,video_credits,usage_stats,subscription_tier,subscription_status`)
+
+        const userData = await new Promise((resolve, reject) => {
+          const options = {
+            hostname: getUserUrl.hostname,
+            port: 443,
+            path: getUserUrl.pathname + getUserUrl.search,
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY
+            }
+          }
+
+          const req = https.request(options, (res) => {
+            let responseData = ''
+            res.on('data', (chunk) => { responseData += chunk })
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                resolve(JSON.parse(responseData))
+              } else {
+                resolve([])
+              }
+            })
+          })
+          req.on('error', reject)
+          req.end()
+        })
+
+        if (userData.length === 0) {
+          return res.status(404).json({ error: 'User not found', email })
+        }
+
+        return res.status(200).json({
+          status: 'User found',
+          email: userData[0].email,
+          video_credits: userData[0].video_credits,
+          usage_stats: userData[0].usage_stats,
+          subscription_tier: userData[0].subscription_tier,
+          subscription_status: userData[0].subscription_status,
+          timestamp: new Date().toISOString()
+        })
+      } catch (error) {
+        return res.status(500).json({
+          error: 'Failed to fetch user',
+          message: error.message
+        })
+      }
+    }
+
     if (action === 'test-add-tokens') {
       const email = req.query.email || 'temakikitemakiki@gmail.com'
       const tokens = parseInt(req.query.tokens) || 2
