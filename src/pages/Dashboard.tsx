@@ -180,15 +180,6 @@ export const Dashboard: React.FC = () => {
 
   const tiers = [
     {
-      name: 'Pay-per-Video',
-      tokens: 2,
-      price: '$4.99',
-      description: 'Generate 2 videos',
-      icon: CreditCard,
-      priceId: import.meta.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID,
-      subscriptionTier: 'pay_per_video'
-    },
-    {
       name: 'Basic Pack',
       tokens: 10,
       price: '$19.99',

@@ -29,22 +29,11 @@ export const Pricing: React.FC = () => {
 
   const tiers = [
     {
-      name: 'Pay-per-Video',
-      tokens: 2,
-      price: '$4.99',
-      description: 'Generate 2 videos',
-      features: ['2 AI video generations', '8-second HD videos', 'Horizontal & vertical formats', 'Veo 3 Fast AI'],
-      icon: CreditCard,
-      priceId: import.meta.env.VITE_PADDLE_PAY_PER_VIDEO_PRICE_ID,
-      subscriptionTier: 'pay_per_video',
-      popular: false
-    },
-    {
       name: 'Basic Pack',
       tokens: 10,
       price: '$19.99',
       description: '10 videos',
-      features: ['10 AI video generations', '8-second HD videos', 'Horizontal & vertical formats', 'Veo 3 Fast AI', 'Save 20% vs pay-per-video'],
+      features: ['10 AI video generations', '8-second HD videos', 'Horizontal & vertical formats', 'Veo 3 Fast AI', '$2.00 per video'],
       icon: Sparkles,
       priceId: import.meta.env.VITE_PADDLE_BASIC_MONTHLY_PRICE_ID,
       subscriptionTier: 'basic',
@@ -55,7 +44,7 @@ export const Pricing: React.FC = () => {
       tokens: 100,
       price: '$149.99',
       description: '100 videos',
-      features: ['100 AI video generations', '8-second HD videos', 'Horizontal & vertical formats', 'Veo 3 Fast AI', 'Save 40% vs pay-per-video', 'Best value!'],
+      features: ['100 AI video generations', '8-second HD videos', 'Horizontal & vertical formats', 'Veo 3 Fast AI', '$1.50 per video', 'Best value - Save 25%!'],
       icon: Crown,
       priceId: import.meta.env.VITE_PADDLE_PREMIUM_MONTHLY_PRICE_ID,
       subscriptionTier: 'premium',
@@ -185,9 +174,6 @@ export const Pricing: React.FC = () => {
 
                   <div className="mb-2">
                     <span className="text-lg sm:text-3xl font-bold text-white">{tier.price}</span>
-                    {tier.name !== 'Pay-per-Video' && (
-                      <span className="text-white/60 text-xs sm:text-sm">/month</span>
-                    )}
                   </div>
 
                   <p className="text-white/70 text-xs sm:text-sm mb-2 sm:mb-6">{tier.description}</p>
