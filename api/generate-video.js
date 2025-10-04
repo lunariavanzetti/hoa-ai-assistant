@@ -1,6 +1,8 @@
-// Video generation API using Google Veo 3 via Gemini API
+// Video generation API using Google Veo 3 Fast via Gemini API
 // File: /api/generate-video.js
-// Production deployment
+// Cost: $0.15/second = $1.20 per 8-second video
+
+const https = require('https')
 
 module.exports = async (req, res) => {
   // Enable CORS
@@ -27,7 +29,6 @@ module.exports = async (req, res) => {
       })
     }
 
-
     const geminiApiKey = process.env.VITE_GEMINI_API_KEY
     if (!geminiApiKey) {
       return res.status(500).json({
@@ -35,55 +36,92 @@ module.exports = async (req, res) => {
       })
     }
 
-    // Prepare Veo 3 request
     const aspectRatio = orientation === 'vertical' ? '9:16' : '16:9'
-    const videoRequest = {
-      model: 'gemini-2.0-flash-exp', // Latest model with video generation
-      contents: [{
-        parts: [{
-          text: `Generate a high-quality video with the following description: ${prompt}.
-                 Aspect ratio: ${aspectRatio}.
-                 Duration: 5-10 seconds.
-                 Style: professional, cinematic.`
-        }]
+
+    console.log('🎬 Starting Veo 3 Fast video generation:', {
+      email,
+      prompt: prompt.substring(0, 50) + '...',
+      aspectRatio
+    })
+
+    // Use Veo 3 Fast for video generation ($0.15/sec)
+    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/veo-3.0-fast-generate-001:predictLongRunning`
+
+    const generateRequest = {
+      instances: [{
+        prompt: prompt
       }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 1024,
+      parameters: {
+        aspectRatio: aspectRatio,
+        duration: 8 // 8 seconds = $1.20 cost
       }
     }
 
+    const generateResponse = await makeHttpsRequest(generateUrl, 'POST', geminiApiKey, generateRequest)
 
-    // Call Gemini API for video generation
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(videoRequest)
-    })
+    if (!generateResponse.success) {
+      console.log('❌ Video generation start failed:', generateResponse.error)
 
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text()
-      return res.status(500).json({
-        error: 'Video generation failed',
-        details: errorText
-      })
+      // Fallback to placeholder video on failure
+      const placeholderVideos = [
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+      ]
+      const videoUrl = placeholderVideos[Math.floor(Math.random() * placeholderVideos.length)]
+
+      console.log('⚠️ Using placeholder video due to generation failure')
+
+      // Save and return placeholder
+      return await saveAndReturnVideo(videoUrl, prompt, orientation, email, res, 'fallback')
     }
 
-    const geminiData = await geminiResponse.json()
+    const operationName = generateResponse.data.name
+    console.log('✅ Video generation started, operation:', operationName)
 
-    // Extract video URL from response
+    // Poll for completion (max 2 minutes for Veo 3 Fast)
+    let attempts = 0
+    const maxAttempts = 24 // 24 × 5 seconds = 2 minutes
     let videoUrl = null
-    if (geminiData.candidates && geminiData.candidates[0] && geminiData.candidates[0].content) {
-      // Parse the response to extract video URL
-      const content = geminiData.candidates[0].content
-      // This will depend on the actual Gemini API response format for video generation
-      videoUrl = content.parts[0]?.videoUrl || content.parts[0]?.text
+
+    while (attempts < maxAttempts) {
+      console.log(`🔄 Polling attempt ${attempts + 1}/${maxAttempts}`)
+
+      const statusUrl = `https://generativelanguage.googleapis.com/v1beta/${operationName}`
+      const statusResponse = await makeHttpsRequest(statusUrl, 'GET', geminiApiKey)
+
+      if (!statusResponse.success) {
+        attempts++
+        await sleep(5000)
+        continue
+      }
+
+      const operation = statusResponse.data
+
+      if (operation.done) {
+        console.log('✅ Video generation completed!')
+
+        if (operation.error) {
+          console.log('❌ Video generation error:', operation.error)
+          break
+        }
+
+        // Extract video URL
+        if (operation.response?.generatedVideos?.[0]?.video) {
+          const fileId = operation.response.generatedVideos[0].video
+          videoUrl = `https://generativelanguage.googleapis.com/v1beta/files/${fileId}`
+          console.log('🎥 Video generated successfully!')
+          break
+        }
+      }
+
+      attempts++
+      await sleep(5000)
     }
 
+    // Fallback if video generation timed out or failed
     if (!videoUrl) {
-      // Fallback to placeholder for now
+      console.log('⏰ Video generation timed out or failed, using placeholder')
       const placeholderVideos = [
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -142,10 +180,65 @@ module.exports = async (req, res) => {
     })
 
   } catch (error) {
+    console.log('❌ Fatal error:', error.message)
     return res.status(500).json({
       error: 'Video generation failed',
       message: error.message,
       timestamp: new Date().toISOString()
     })
   }
+}
+
+// Helper function to make HTTPS requests
+function makeHttpsRequest(url, method, apiKey, body = null) {
+  return new Promise((resolve) => {
+    const urlObj = new URL(url)
+
+    const options = {
+      hostname: urlObj.hostname,
+      port: 443,
+      path: urlObj.pathname + urlObj.search,
+      method: method,
+      headers: {
+        'x-goog-api-key': apiKey,
+        'Content-Type': 'application/json'
+      }
+    }
+
+    if (body) {
+      const bodyData = JSON.stringify(body)
+      options.headers['Content-Length'] = Buffer.byteLength(bodyData)
+    }
+
+    const req = https.request(options, (res) => {
+      let data = ''
+      res.on('data', (chunk) => { data += chunk })
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve({ success: true, data: JSON.parse(data) })
+          } catch (e) {
+            resolve({ success: true, data: { raw: data } })
+          }
+        } else {
+          resolve({ success: false, status: res.statusCode, error: data })
+        }
+      })
+    })
+
+    req.on('error', (error) => {
+      resolve({ success: false, error: error.message })
+    })
+
+    if (body) {
+      req.write(JSON.stringify(body))
+    }
+
+    req.end()
+  })
+}
+
+// Helper function to sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

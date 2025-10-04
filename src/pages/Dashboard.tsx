@@ -101,104 +101,39 @@ export const Dashboard: React.FC = () => {
     })
 
     try {
-      // Direct Gemini API call for Veo 3 video generation
-      const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY
+      // Call server-side video generation API (Veo 3 Fast)
+      console.log('🎥 Calling video generation API...')
 
-      if (!geminiApiKey) {
-        throw new Error('Video generation service not configured. Please add VITE_GEMINI_API_KEY.')
-      }
-
-      const aspectRatio = orientation === 'vertical' ? '9:16' : '16:9'
-      const videoRequest = {
-        contents: [{
-          parts: [{
-            text: `Generate a high-quality video with the following description: ${prompt.trim()}.
-                   Aspect ratio: ${aspectRatio}.
-                   Duration: 5-10 seconds.
-                   Style: professional, cinematic.`
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-        }
-      }
-
-      const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
+      const videoResponse = await fetch('/api/generate-video', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(videoRequest)
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          orientation: orientation,
+          email: user?.email
+        })
       })
 
-      if (!geminiResponse.ok) {
-        const errorData = await geminiResponse.json().catch(() => ({}))
-        console.error('❌ Gemini API Error:', {
-          status: geminiResponse.status,
-          statusText: geminiResponse.statusText,
+      if (!videoResponse.ok) {
+        const errorData = await videoResponse.json().catch(() => ({}))
+        console.error('❌ Video generation API error:', {
+          status: videoResponse.status,
           error: errorData
         })
 
-        // Check for specific errors
-        if (geminiResponse.status === 400) {
-          alert('❌ Video generation failed: Invalid request. Please try a different prompt.')
-        } else if (geminiResponse.status === 429) {
-          alert('❌ Video generation failed: API rate limit exceeded. Please try again later.')
-        } else if (geminiResponse.status === 403) {
-          alert('❌ Video generation failed: API key issue. Please contact support.')
-        } else {
-          alert(`❌ Video generation failed: ${geminiResponse.statusText}. Using placeholder video instead.`)
-        }
-
-        // Fallback to placeholder videos
-        const placeholderVideos = [
-          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
-        ]
-        const videoUrl = placeholderVideos[generatedVideos.length % placeholderVideos.length]
-
-        addVideo({
-          id: `video_${Date.now()}`,
-          url: videoUrl,
-          prompt: prompt.trim(),
-          orientation: orientation,
-          timestamp: new Date().toISOString()
-        })
-
+        alert('❌ Video generation failed. Please try again later.')
         return
       }
 
-      const geminiData = await geminiResponse.json()
-
-      // Extract video URL from response
-      let videoUrl = null
-      if (geminiData.candidates && geminiData.candidates[0] && geminiData.candidates[0].content) {
-        const content = geminiData.candidates[0].content
-        videoUrl = content.parts[0]?.videoUrl || content.parts[0]?.fileData?.fileUri
-
-        if (!videoUrl && content.parts[0]?.text) {
-          const urlMatch = content.parts[0].text.match(/https?:\/\/[^\s]+\.(mp4|webm|mov)/i)
-          if (urlMatch) {
-            videoUrl = urlMatch[0]
-          }
-        }
-      }
-
-      if (!videoUrl) {
-        const placeholderVideos = [
-          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
-        ]
-        videoUrl = placeholderVideos[generatedVideos.length % placeholderVideos.length]
-      }
+      const videoData = await videoResponse.json()
+      console.log('✅ Video generated successfully!')
 
       // Add video to store
       addVideo({
-        id: `video_${Date.now()}`,
-        url: videoUrl,
+        id: videoData.video?.id || `video_${Date.now()}`,
+        url: videoData.video?.url,
         prompt: prompt.trim(),
         orientation: orientation,
         timestamp: new Date().toISOString()
