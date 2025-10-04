@@ -52,12 +52,14 @@ module.exports = async (req, res) => {
         prompt: prompt
       }],
       parameters: {
-        aspectRatio: aspectRatio,
-        duration: 8 // 8 seconds = $1.20 cost
+        aspectRatio: aspectRatio
+        // Note: duration is auto-set by Veo 3 Fast (typically 8 seconds)
       }
     }
 
     const generateResponse = await makeHttpsRequest(generateUrl, 'POST', geminiApiKey, generateRequest)
+
+    let videoUrl = null
 
     if (!generateResponse.success) {
       console.log('❌ Video generation start failed:', generateResponse.error)
@@ -68,21 +70,16 @@ module.exports = async (req, res) => {
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
       ]
-      const videoUrl = placeholderVideos[Math.floor(Math.random() * placeholderVideos.length)]
+      videoUrl = placeholderVideos[Math.floor(Math.random() * placeholderVideos.length)]
 
       console.log('⚠️ Using placeholder video due to generation failure')
+    } else {
+      const operationName = generateResponse.data.name
+      console.log('✅ Video generation started, operation:', operationName)
 
-      // Save and return placeholder
-      return await saveAndReturnVideo(videoUrl, prompt, orientation, email, res, 'fallback')
-    }
-
-    const operationName = generateResponse.data.name
-    console.log('✅ Video generation started, operation:', operationName)
-
-    // Poll for completion (max 2 minutes for Veo 3 Fast)
-    let attempts = 0
-    const maxAttempts = 24 // 24 × 5 seconds = 2 minutes
-    let videoUrl = null
+      // Poll for completion (max 2 minutes for Veo 3 Fast)
+      let attempts = 0
+      const maxAttempts = 24 // 24 × 5 seconds = 2 minutes
 
     while (attempts < maxAttempts) {
       console.log(`🔄 Polling attempt ${attempts + 1}/${maxAttempts}`)
@@ -119,16 +116,17 @@ module.exports = async (req, res) => {
       await sleep(5000)
     }
 
-    // Fallback if video generation timed out or failed
-    if (!videoUrl) {
-      console.log('⏰ Video generation timed out or failed, using placeholder')
-      const placeholderVideos = [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
-      ]
-      videoUrl = placeholderVideos[Math.floor(Math.random() * placeholderVideos.length)]
-    }
+      // Fallback if video generation timed out or failed
+      if (!videoUrl) {
+        console.log('⏰ Video generation timed out or failed, using placeholder')
+        const placeholderVideos = [
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+        ]
+        videoUrl = placeholderVideos[Math.floor(Math.random() * placeholderVideos.length)]
+      }
+    } // Close the else block
 
     // Store video metadata in database
     const supabaseUrl = 'https://ziwwwlahrsvrafyawkjw.supabase.co'
