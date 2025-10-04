@@ -17,7 +17,8 @@ import {
   Menu,
   Settings,
   History,
-  BarChart3
+  BarChart3,
+  Download
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import { useVideoStore } from '@/stores/videos'
@@ -75,6 +76,29 @@ export const Dashboard: React.FC = () => {
   }
 
   const tokenInfo = getTokenInfo()
+
+  const handleDownloadVideo = async (videoUrl: string, videoId: string) => {
+    try {
+      // Fetch the video blob
+      const response = await fetch(videoUrl)
+      const blob = await response.blob()
+
+      // Create a download link
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `kateriss-video-${videoId}.mp4`
+      document.body.appendChild(link)
+      link.click()
+
+      // Cleanup
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading video:', error)
+      alert('Failed to download video. Please try again.')
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -480,14 +504,24 @@ export const Dashboard: React.FC = () => {
                                 {new Date(video.timestamp).toLocaleTimeString()}
                               </span>
                             </div>
-                            <button
-                              onClick={() => {
-                                removeVideo(video.id)
-                              }}
-                              className="text-white/40 hover:text-white/70 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleDownloadVideo(video.url, video.id)}
+                                className="text-white/40 hover:text-green-400 transition-colors p-1.5 hover:bg-green-500/10 rounded"
+                                title="Download video"
+                              >
+                                <Download className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  removeVideo(video.id)
+                                }}
+                                className="text-white/40 hover:text-red-400 transition-colors p-1.5 hover:bg-red-500/10 rounded"
+                                title="Delete video"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
 
                           <div className="relative rounded-lg overflow-hidden bg-black/20 mb-3">
