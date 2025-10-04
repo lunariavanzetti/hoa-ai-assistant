@@ -109,8 +109,21 @@ module.exports = async (req, res) => {
 
         // Extract video URL from the correct path
         if (operation.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri) {
-          videoUrl = operation.response.generateVideoResponse.generatedSamples[0].video.uri
-          console.log('🎥 Video generated successfully! URL:', videoUrl)
+          const veoUrl = operation.response.generateVideoResponse.generatedSamples[0].video.uri
+          console.log('🎥 Video generated successfully! Veo URL:', veoUrl)
+
+          // Extract file ID from the Veo URL
+          // URL format: https://generativelanguage.googleapis.com/v1beta/files/652u1c0460cg:download?alt=media
+          const fileIdMatch = veoUrl.match(/files\/([^:]+)/)
+          if (fileIdMatch) {
+            const fileId = fileIdMatch[1]
+            // Return proxied URL through our backend
+            videoUrl = `/api/proxy-video?fileId=${fileId}`
+            console.log('📹 Proxied URL:', videoUrl)
+          } else {
+            console.log('⚠️ Could not extract file ID from URL:', veoUrl)
+            videoUrl = veoUrl // Fallback to direct URL
+          }
           break
         } else {
           console.log('⚠️ Video URL not found in expected path')
