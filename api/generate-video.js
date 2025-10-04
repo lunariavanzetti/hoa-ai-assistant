@@ -97,11 +97,15 @@ module.exports = async (req, res) => {
 
       if (operation.done) {
         console.log('✅ Video generation completed!')
+        console.log('🔍 Full operation response:', JSON.stringify(operation, null, 2))
 
         if (operation.error) {
           console.log('❌ Video generation error:', operation.error)
           break
         }
+
+        // Log the response structure to debug
+        console.log('📦 operation.response:', JSON.stringify(operation.response, null, 2))
 
         // Extract video URL
         if (operation.response?.generatedVideos?.[0]?.video) {
@@ -109,6 +113,10 @@ module.exports = async (req, res) => {
           videoUrl = `https://generativelanguage.googleapis.com/v1beta/files/${fileId}`
           console.log('🎥 Video generated successfully!')
           break
+        } else {
+          console.log('⚠️ Video URL not found in expected path')
+          console.log('   Expected: operation.response.generatedVideos[0].video')
+          console.log('   Got response:', operation.response ? 'exists' : 'null/undefined')
         }
       }
 
