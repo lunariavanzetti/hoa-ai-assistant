@@ -236,25 +236,78 @@ module.exports = async (req, res) => {
       }
 
 
-      if (!customerEmail) {
-        console.log('❌ Missing customer email - Full data structure:', {
-          dataKeys: Object.keys(data || {}),
-          customerKeys: Object.keys(data?.customer || {}),
-          rawData: data
-        })
+      if (!customerEmail && paddleCustomerId) {
+        console.log('⚠️ Customer email not in webhook, fetching from Paddle API using customer ID:', paddleCustomerId)
 
-        // Try to get customer email from Paddle API using customer ID
-        if (paddleCustomerId) {
-          console.log('⚠️ Attempting to fetch customer email from Paddle API using customer ID:', paddleCustomerId)
-          // For now, return error but log enough info to debug
-          return res.status(400).json({
-            error: 'Customer email not found in webhook data',
-            customer_id: paddleCustomerId,
-            data_keys: Object.keys(data || {}),
-            customer_keys: Object.keys(data?.customer || {})
+        // Fetch customer details from Paddle API
+        try {
+          // Use sandbox or production API key based on environment
+          const paddleApiKey = process.env.PADDLE_API_KEY || process.env.VITE_PADDLE_API_KEY
+          if (!paddleApiKey) {
+            console.log('❌ PADDLE_API_KEY not configured')
+            return res.status(500).json({ error: 'Paddle API key not configured' })
+          }
+
+          // Determine if sandbox or production based on environment or customer ID format
+          const isSandbox = paddleCustomerId.includes('test_') || process.env.VITE_PADDLE_ENVIRONMENT === 'sandbox'
+          const paddleApiBaseUrl = isSandbox ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com'
+          const paddleApiUrl = `${paddleApiBaseUrl}/customers/${paddleCustomerId}`
+
+          console.log('🔍 Fetching customer from:', paddleApiUrl)
+
+          const customerResponse = await new Promise((resolve, reject) => {
+            const https = require('https')
+            const url = new URL(paddleApiUrl)
+
+            const options = {
+              hostname: url.hostname,
+              port: 443,
+              path: url.pathname,
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${paddleApiKey}`,
+                'Content-Type': 'application/json'
+              }
+            }
+
+            const req = https.request(options, (res) => {
+              let responseData = ''
+              res.on('data', (chunk) => { responseData += chunk })
+              res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                  resolve({ success: true, data: JSON.parse(responseData) })
+                } else {
+                  resolve({ success: false, status: res.statusCode, data: responseData })
+                }
+              })
+            })
+
+            req.on('error', reject)
+            req.end()
+          })
+
+          if (customerResponse.success && customerResponse.data?.data?.email) {
+            customerEmail = customerResponse.data.data.email
+            console.log('✅ Fetched customer email from Paddle API:', customerEmail)
+          } else {
+            console.log('❌ Failed to fetch customer from Paddle API:', customerResponse)
+            return res.status(400).json({
+              error: 'Failed to fetch customer email from Paddle API',
+              customer_id: paddleCustomerId,
+              paddle_response: customerResponse
+            })
+          }
+        } catch (error) {
+          console.log('❌ Error fetching customer from Paddle API:', error)
+          return res.status(500).json({
+            error: 'Error fetching customer from Paddle API',
+            message: error.message
           })
         }
+      }
 
+      if (!customerEmail) {
+        console.log('❌ Missing customer email after all attempts')
         return res.status(400).json({ error: 'Customer email not found' })
       }
 
