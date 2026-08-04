@@ -16,7 +16,7 @@
       "destination": "/.well-known/apple-developer-merchantid-domain-association"
     },
     {
-      "source": "/((?!api|.well-known).*)",
+      "source": "/((?!api|.well-known|google7aa6a2d60797fafe\\.html).*)",
       "destination": "/index.html"
     }
   ]
